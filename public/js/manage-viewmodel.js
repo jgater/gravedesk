@@ -1,20 +1,25 @@
 //data model
+
 function TicketViewModel() {
     // Data
     var self = this;
-    self.folders = ['open', 'pending', 'longterm', 'closed'];
+    self.folders = ['Open', 'Pending', 'Longterm', 'Closed'];
     self.chosenFolderId = ko.observable();
     self.chosenFolderData = ko.observableArray();
-    // Behaviours
+
+    // Operations
     self.goToFolder = function(folder) { 
     	self.chosenFolderId(folder); 
-    	$.get('/api/tickets/status/'+folder, function(data) {
+    	$.getJSON('api/tickets/status/'+folder, function(allData) {
+        self.chosenFolderData(allData);
     	});
-    			
     };
     // Start state
-    self.goToFolder('open');
+    self.goToFolder('Open');
 };
+
+
+
 
 //get to work!
 ko.applyBindings(new TicketViewModel());

@@ -89,16 +89,12 @@ app.put('/api/tickets/:id', function (req, res) {
 });
 
 // GET to READ
-app.get('/api/tickets', function (req, res) {
-    console.log("GET all tickets: " + util.inspect(req.body, true, null));
-});
 
-app.get('/api/tickets/status/:id', function (req, res) {
-  db.findByStatus(req.params.id, function(err,tickets){
+//get all tickets
+app.get('/api/tickets', function (req, res) {
+  db.findAll(function(err,tickets){
     if (tickets) {
       res.send(tickets);
-      console.log("sending back tickets with status " + req.params.id);
-      console.log(util.inspect(tickets, true, null));
     } else {
       console.error(err);
       res.send();
@@ -106,6 +102,20 @@ app.get('/api/tickets/status/:id', function (req, res) {
   });
 });
 
+
+//get ticket summary by status
+app.get('/api/tickets/status/:id', function (req, res) {
+  db.findByStatus(req.params.id, function(err,tickets){
+    if (tickets) {
+      res.send(tickets);
+    } else {
+      console.error(err);
+      res.send();
+    }
+  });
+});
+
+//get ticket details by id
 app.get('/api/tickets/:id', function (req, res) {
   db.findTicketById(req.params.id,function(err,ticket){
     if (ticket) {
