@@ -1,2 +1,39 @@
 != partial('topnavbar.jade')
 	.container-fluid
+		.row-fluid
+			.span2
+				!= partial('sidebar.jade')
+			.span10
+					ul(data-bind="foreach: folders").nav.nav-tabs
+						li(data-bind="css:{active: $data == $root.chosenFolderId()}, click: $root.goToFolder")
+							a(data-bind="text: $data")
+			.span10				
+				h2 
+					span(data-bind="text: $root.chosenFolderId()+' '")
+					| tickets
+				br
+				table(data-bind="with: chosenFolderData").table.table-bordered.table-striped
+						thead
+								tr
+									th age
+									th subject									
+									th from
+									th id
+						tbody(data-bind="foreach: tickets")
+							tr
+								td one
+								td two
+								td three
+								td four
+
+
+
+
+
+
+
+
+script(src='/js/manage-viewmodel.js')
+
+
+

@@ -5,6 +5,7 @@
 var express = require('express');
 var nowjs = require('now');
 var async = require('async');
+var util = require('util');
 var ImapHandler = require('./lib/emailhandler').ImapHandler;
 var TicketProvider = require('./lib/dbhandler').TicketProvider;
 
@@ -93,8 +94,16 @@ app.get('/api/tickets', function (req, res) {
 });
 
 app.get('/api/tickets/status/:id', function (req, res) {
-  console.log("GET ticket: " + req.params.id);
-  console.log("GET all tickets by status: " + util.inspect(req.body, true, null));
+  db.findByStatus(req.params.id, function(err,tickets){
+    if (tickets) {
+      res.send(tickets);
+      console.log("sending back tickets with status " + req.params.id);
+      console.log(util.inspect(tickets, true, null));
+    } else {
+      console.error(err);
+      res.send();
+    }
+  });
 });
 
 app.get('/api/tickets/:id', function (req, res) {
