@@ -5,7 +5,8 @@ settings.imap = {
 	"password": "password",
 	"host": "example.com",
 	"port": "993",
-	"secure": "true"
+	"secure": "true",
+	"box": "Inbox"
 };
 
 settings.blankticket = {
