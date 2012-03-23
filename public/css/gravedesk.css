@@ -11,3 +11,6 @@ body {
 	vertical-align: text-top;
 }
 
+.nav-tabs > .active > a:hover {
+  background-color: #eeeeee;
+}
