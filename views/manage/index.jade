@@ -1,2 +1,65 @@
 != partial('topnavbar.jade')
 	.container-fluid
+		.row-fluid
+			.span2
+				!= partial('sidebar.jade')
+			//tabs view
+			.span10
+					ul(data-bind="foreach: tabs").nav.nav-tabs
+						li(data-bind="css:{active: $data == $root.chosenTabId()}, click: $root.goToTab")
+							a(data-bind="text: $data")
+			//ticket list view
+			.span10
+				section
+					table.table.table-bordered.table-striped(data-bind="visible: chosenTabData")
+							thead
+									tr
+										th age
+										th subject									
+										th from
+										th id
+							tbody(data-bind="foreach: chosenTabData")
+								tr(data-bind="click: $root.goToTicket")
+									td
+										span(data-bind="text: age")
+									td
+										a(data-bind="text: subject")
+									td
+										span(data-bind="text: from")
+									td
+										span(data-bind="text: _id")
+				section(data-bind="with: chosenTicketData").span9
+					br
+					ul.unstyled
+						li
+							p <span class="label label-info">ID</span> <span data-bind="text: _id"></span>
+						li
+							p <span class="label label-info">age</span> <span data-bind="text: age"></span>
+						li
+							p <span class="label label-info">status</span> <span data-bind="text: status"></span>
+						li
+							p <span class="label label-info">impact</span> <span class="badge badge-success">Normal</span>
+						li
+							<span class="label label-info">from:</span> <strong data-bind="text: from"></strong>
+						li
+							hr
+						li		
+							h1(data-bind="text: subject")
+						li
+							hr
+				section(data-bind="with: chosenTicketData, visible: chosenTicketData").span9.well
+					p(data-bind="html: description")
+					
+
+
+
+
+
+
+
+
+
+script(src='/js/manage-viewmodel.js')
+
+
+
