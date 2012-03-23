@@ -3,19 +3,19 @@
 function TicketViewModel() {
     // Data
     var self = this;
-    self.folders = ['Open', 'Pending', 'Longterm', 'Closed'];
-    self.chosenFolderId = ko.observable();
-    self.chosenFolderData = ko.observableArray();
+    self.tabs = ['Open', 'Pending', 'Longterm', 'Closed'];
+    self.chosenTabId = ko.observable();
+    self.chosenTabData = ko.observableArray();
 
     // Operations
-    self.goToFolder = function(folder) { 
-    	self.chosenFolderId(folder); 
-    	$.getJSON('api/tickets/status/'+folder, function(allData) {
-        self.chosenFolderData(allData);
+    self.goToTab = function(tab) { 
+    	self.chosenTabId(tab); 
+    	$.getJSON('api/tickets/status/'+tab, function(allData) {
+        self.chosenTabData(allData);
     	});
     };
     // Start state
-    self.goToFolder('Open');
+    self.goToTab('Open');
 };
 
 

@@ -4,12 +4,12 @@
 			.span2
 				!= partial('sidebar.jade')
 			.span10
-					ul(data-bind="foreach: folders").nav.nav-tabs
-						li(data-bind="css:{active: $data == $root.chosenFolderId()}, click: $root.goToFolder")
+					ul(data-bind="foreach: tabs").nav.nav-tabs
+						li(data-bind="css:{active: $data == $root.chosenTabId()}, click: $root.goToTab")
 							a(data-bind="text: $data")
 			.span10			
 				h2 
-					span(data-bind="text: $root.chosenFolderId()+' '")
+					span(data-bind="text: $root.chosenTabId()+' '")
 					| tickets
 				br
 				table.table.table-bordered.table-striped
@@ -19,12 +19,12 @@
 									th subject									
 									th from
 									th id
-						tbody(data-bind="foreach: chosenFolderData")
+						tbody(data-bind="foreach: chosenTabData")
 							tr
 								td
 									span(data-bind="text: age")
 								td
-									span(data-bind="text: subject")
+									a(data-bind="text: subject")
 								td
 									span(data-bind="text: from")
 								td
