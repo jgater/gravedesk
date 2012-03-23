@@ -1,0 +1,13 @@
+body {
+	padding-top: 60px;
+	padding-bottom: 40px;
+	font-size: 14px;
+}
+.sidebar-nav {
+	padding: 9px 0;
+}
+
+.label {
+	vertical-align: text-top;
+}
+
