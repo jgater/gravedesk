@@ -1,4 +1,3 @@
-script(src="/js/sammy-latest.min.js")
 != partial('topnavbar.jade')
 	.container-fluid
 		.row-fluid
@@ -58,7 +57,10 @@ script(src="/js/sammy-latest.min.js")
 				// section only shown if chosenTicketData has content, additional visible tag to css hide well even when no data
 				section(data-bind="with: chosenTicketData, visible: chosenTicketData()").span9.well
 					p(data-bind="html: description")
-					
+
+
+script(src="/js/lib/moment.min.js")					
+script(src="/js/lib/sammy.min.js")					
 script(src='/js/manage-viewmodel.js')
 
 
