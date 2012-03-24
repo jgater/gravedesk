@@ -1,3 +1,4 @@
+script(src="/js/sammy-latest.min.js")
 != partial('topnavbar.jade')
 	.container-fluid
 		.row-fluid
@@ -10,15 +11,15 @@
 							a(data-bind="text: $data")
 			//ticket list view
 			.span10
-				section
-					table.table.table-bordered.table-striped(data-bind="visible: chosenTabData")
+				section(data-bind="with: chosenTabData")
+					table.table.table-bordered.table-striped
 							thead
 									tr
 										th age
 										th subject									
 										th from
 										th id
-							tbody(data-bind="foreach: chosenTabData")
+							tbody(data-bind="foreach: tickets")
 								tr(data-bind="click: $root.goToTicket")
 									td
 										span(data-bind="text: age")
@@ -50,15 +51,6 @@
 				section(data-bind="with: chosenTicketData, visible: chosenTicketData").span9.well
 					p(data-bind="html: description")
 					
-
-
-
-
-
-
-
-
-
 script(src='/js/manage-viewmodel.js')
 
 
