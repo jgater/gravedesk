@@ -11,6 +11,7 @@ script(src="/js/sammy-latest.min.js")
 							a(data-bind="text: $data")
 			//ticket list view
 			.span10
+				//section only shown if chosenTabData has content
 				section(data-bind="with: chosenTabData")
 					table.table.table-bordered.table-striped
 							thead
@@ -29,6 +30,8 @@ script(src="/js/sammy-latest.min.js")
 										span(data-bind="text: from")
 									td
 										span(data-bind="text: _id")
+				//individual ticket view
+				//section only shown if chosenTicketData has content
 				section(data-bind="with: chosenTicketData").span9
 					br
 					ul.unstyled
@@ -48,7 +51,8 @@ script(src="/js/sammy-latest.min.js")
 							h1(data-bind="text: subject")
 						li
 							hr
-				section(data-bind="with: chosenTicketData, visible: chosenTicketData").span9.well
+				// section only shown if chosenTicketData has content, additional visible tag to css hide well even when no data
+				section(data-bind="with: chosenTicketData, visible: chosenTicketData()").span9.well
 					p(data-bind="html: description")
 					
 script(src='/js/manage-viewmodel.js')
