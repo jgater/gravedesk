@@ -12,12 +12,13 @@
 			.span10
 				//section only shown if chosenTabData has content
 				section(data-bind="with: chosenTabData")
-					table.table.table-bordered.table-striped
+					table.table.table-bordered.table-striped(data-bind="visible: tickets.length > 0")
 							thead
 									tr
 										th age
 										th subject									
 										th from
+										th date
 										th id
 							tbody(data-bind="foreach: tickets")
 								tr(data-bind="click: $root.goToTicket")
@@ -27,6 +28,8 @@
 										a(data-bind="text: subject")
 									td
 										span(data-bind="text: from")
+									td
+										span(data-bind="text: friendlydate")
 									td
 										span(data-bind="text: _id")
 					h3(data-bind="visible: tickets.length < 1") No tickets found with a status of "<span data-bind="text: $root.chosenTabId()"></span>"
@@ -41,11 +44,11 @@
 						li
 							p <span class="label label-info">ID</span> <span data-bind="text: _id"></span>
 						li
-							p <span class="label label-info">age</span> <span data-bind="text: age"></span>
+							p <span class="label label-info">age</span> <span data-bind="text: age"></span> - <span data-bind="text: friendlydate"></span>
 						li
 							p <span class="label label-info">status</span> <span data-bind="text: status"></span>
 						li
-							p <span class="label label-info">impact</span> <span class="badge badge-success">Normal</span>
+							p <span class="label label-info">impact</span> <span class="badge" data-bind="text: impact"></span>
 						li
 							<span class="label label-info">from:</span> <strong data-bind="text: from"></strong>
 						li
