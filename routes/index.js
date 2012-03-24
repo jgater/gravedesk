@@ -8,5 +8,9 @@ exports.index = function(req, res){
 };
 
 exports.manage = function(req, res){
-  res.render('manage', { title: 'Manage Helpdesk' })
+  res.render('manage/index', { title: 'Manage Helpdesk' })
+};
+
+exports.manageid = function(req, res){
+  res.render('manage/id', { title: 'Manage Helpdesk' })
 };

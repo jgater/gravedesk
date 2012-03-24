@@ -37,6 +37,7 @@ app.configure('production', function(){
 var routes = require('./routes');
 app.get('/', routes.index);
 app.get('/manage', routes.manage);
+app.get('/manage/:id', routes.manageid);
 
 //start services
 async.series([
