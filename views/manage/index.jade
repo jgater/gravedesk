@@ -30,6 +30,10 @@ script(src="/js/sammy-latest.min.js")
 										span(data-bind="text: from")
 									td
 										span(data-bind="text: _id")
+					h3(data-bind="visible: tickets.length < 1") No tickets found with a status of "<span data-bind="text: $root.chosenTabId()"></span>"
+									
+
+
 				//individual ticket view
 				//section only shown if chosenTicketData has content
 				section(data-bind="with: chosenTicketData").span9
