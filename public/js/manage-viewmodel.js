@@ -17,6 +17,7 @@ function TicketViewModel() {
 	Sammy(function() {
 				this.get('#:tab', function() {
 						self.chosenTicketData(null); //don't show ticket data framework
+						self.chosenTabData(null); // clear tab data first, just in case
 						self.chosenTabId(this.params.tab); //make the selected tab match the request
 						$.getJSON('/api/tickets/status/'+this.params.tab, function(data){
 							self.chosenTabData({tickets: data}); //get all tickets matching status of 'tab', put into chosenTabData.tickets
