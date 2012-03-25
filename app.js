@@ -39,6 +39,7 @@ app.get('/', routes.index);
 app.get('/manage', routes.manage);
 app.get('/manage/:id', routes.manageid);
 
+
 //start services
 async.series([
   //connect to db
@@ -90,7 +91,6 @@ app.put('/api/tickets/:id', function (req, res) {
 });
 
 // GET to READ
-
 //get all tickets
 app.get('/api/tickets', function (req, res) {
   db.findAll(function(err,tickets){
@@ -102,8 +102,6 @@ app.get('/api/tickets', function (req, res) {
     }
   });
 });
-
-
 //get ticket summary by status
 app.get('/api/tickets/status/:id', function (req, res) {
   db.findByStatus(req.params.id, function(err,tickets){
@@ -115,7 +113,6 @@ app.get('/api/tickets/status/:id', function (req, res) {
     }
   });
 });
-
 //get ticket details by id
 app.get('/api/tickets/:id', function (req, res) {
   db.findTicketById(req.params.id,function(err,ticket){

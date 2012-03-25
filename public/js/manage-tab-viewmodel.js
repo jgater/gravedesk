@@ -1,33 +1,39 @@
 //data model
-function TicketSummary(data) {
-	this.age = moment(data.date).fromNow(true);
-	this.friendlydate = moment(data.date).format('ddd MMM Do YYYY, hh:mm');
-	this.subject = data.subject;
-	this.from = data.from;
-	this._id = data._id;
+function TicketSummary(rawticket) {
+	this._id = ko.observable ( rawticket._id );
+	this.age = ko.observable( moment(rawticket.date).fromNow(true) );
+	this.friendlydate = ko.observable( moment(rawticket.date).format('ddd MMM Do YYYY, HH:mm') );
+	this.subject = ko.observable( rawticket.subject );
+	this.from = ko.observable( rawticket.from );
+	this.date = rawticket.date;
 }
 
 // view model
-function TicketViewModel() {
+function TabViewModel() {
 	// associated Data
 	var self = this; //using self avoids scope problems with methods
 	self.tabs = ['Open', 'Pending', 'Longterm', 'Closed'];
 	self.chosenTabId = ko.observable(); // remember, 'observables' are wrapper functions, not actual data structures per se.
-	self.chosenTabData = ko.observable();
+	self.tickets = ko.observableArray();
 	// Operations
-	
+	self.sortByDate = function () {
+		self.tickets.sort( function(left,right) { // sorts by date, newest first
+					return (left.date === right.date) ? 0 : (left.date < right.date) ? 1 : -1;
+		});
+	};
+
 	// Client-side routing to allow for deeplinking/bookmarks - use sammy library to handle routing results
-	self.goToTab = function(tab) { location = '/manage#' + tab };
-	self.goToTicket = function(ticket) {location = '/manage/' + ticket._id };
+	self.goToTab = function(tab) { location.hash = tab };
+	self.goToTicket = function(ticket) {location = '/manage/' + ticket._id }; //gets picked up by server-side routing
 
 	Sammy(function() {
 		// show tab view contents, i.e. table
 		this.get('#:tab', function() {
-			self.chosenTabData(null); // clear tab data first, just in case
 			self.chosenTabId(this.params.tab); //make the selected tab match the request
 			$.getJSON('/api/tickets/status/'+this.params.tab, function(allData){ //get all tickets with status of 'tab'
-				var mappedTickets = $.map(allData, function(item) { return new TicketSummary(item) }); //return an array of processed(mapped) tickets
-				self.chosenTabData({tickets: mappedTickets}); //put into chosenTabData.tickets (syntax like this because it's a function...)
+				var mappedTickets = $.map(allData, function(item) { return new TicketSummary(item) } ); //return an array of processed(mapped) tickets
+				self.tickets(mappedTickets); //put into tickets array (syntax like this because it's a function...)
+				self.sortByDate();
 			});
 		});
 
@@ -36,8 +42,5 @@ function TicketViewModel() {
 	}).run();
 };
 
-
-
-
 //get to work!
-ko.applyBindings(new TicketViewModel());
+ko.applyBindings(new TabViewModel());

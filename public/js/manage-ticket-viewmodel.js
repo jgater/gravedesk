@@ -2,7 +2,7 @@
 
 function Ticket(data) {
 	this.age = moment(data.date).fromNow();
-	this.friendlydate = moment(data.date).format('ddd MMM Do YYYY, hh:mm');
+	this.friendlydate = moment(data.date).format('ddd MMM Do YYYY, HH:mm');
 	this.subject = data.subject;
 	this.from = data.from;
 	this._id = data._id;
