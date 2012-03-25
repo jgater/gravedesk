@@ -83,10 +83,12 @@ app.post('/api/tickets', function (req, res) {
 
 // PUT to UPDATE
 app.put('/api/tickets/:id', function (req, res) {
-  db.findTicketById(req.params.id, function (err, ticket) {
-    console.log("PUT: " + req.params.id);
-    console.log("PUT: " + util.inspect(req.body, true, null));
-    res.send(ticket);
+  console.log("PUT for " + req.params.id + " received.");
+  db.updateTicketById(req.params.id, req.body, function (err, num) {
+    if (!err) {
+      res.send("Changes to ticket " + req.params.id+" saved to database.");
+      console.log("Changes to ticket " + req.params.id+" saved to database.");
+    } 
   });
 });
 
@@ -115,7 +117,7 @@ app.get('/api/tickets/status/:id', function (req, res) {
 });
 //get ticket details by id
 app.get('/api/tickets/:id', function (req, res) {
-  db.findTicketById(req.params.id,function(err,ticket){
+  db.findById(req.params.id,function(err,ticket){
     if (ticket) {
       res.send(ticket); 
     } else {
