@@ -27,7 +27,12 @@ ko.bindingHandlers['dataTable'] = {
         if (binding.rowTemplate && binding.rowTemplate != '') {
             options.fnRowCallback = function (row, data, displayIndex, displayIndexFull) {
                 // Render the row template for this row.
+                //row.click( function() {location = '/' } );
 				ko.renderTemplate(binding.rowTemplate, data, null, row, "replaceChildren");
+                // custom addclick on row function!
+                $(row).unbind('click').bind('click', function() {
+                 location.href='/manage/'+data.id;
+                });
                 return row;
             }
         }
@@ -104,7 +109,8 @@ ko.bindingHandlers['dataTable'] = {
                 // Empty the row that has been build by the DataTable of any child elements.
                 var destRow = $(row);
                 destRow.empty();
-
+                // custom addclick on row function!
+                //destRow.click( function() {location = 'manage/' + srcData.id} );
                 // For each column in the data table...
                 ko.utils.arrayForEach(columns, function (column) {
                     var columnName = column.mDataProp;
@@ -123,6 +129,7 @@ ko.bindingHandlers['dataTable'] = {
 
         $(element).dataTable(options);
         $.data(element, isInitialisedKey, true);
+
 
         // Tell knockout that the control rendered by this binding is capable of managing the binding of it's descendent elements.
         // This is crutial, otherwise knockout will attempt to rebind elements that have been printed by the row template.

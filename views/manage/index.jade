@@ -12,7 +12,7 @@
 				// tr(data-bind="click: $root.goToTicket")
 				//ticket list view
 				section
-					table#ticketlist.table.table-bordered.table-striped(data-bind="dataTable: { dataSource: tickets, options: {bFilter: true, bSort: false, iDisplayLength: 25}, columns: ['age', 'subject', 'from', 'friendlydate', '_id'] }")
+					table#ticketlist.table.table-bordered.table-striped(data-bind="dataTable: { dataSource: tickets, rowTemplate: 'ticketListTemplate',  options: {bSort: false, iDisplayLength: 25}, columns: ['age', 'subject', 'from', 'friendlydate', 'id'] }")
 							thead
 									tr
 										th age
@@ -21,6 +21,15 @@
 										th date
 										th id
 
+<script Id="ticketListTemplate" type="text/html">
+<td data-bind="text: age"></td>
+<td><A data-bind="text: subject, attr: { href: '/manage/'+id}"></a></td>
+<td data-bind="text: from"></td>
+<td data-bind="text: friendlydate"></td>
+<td data-bind="text: id"></td>
+</script>
+
+
 
 script(src="/js/lib/jquery.dataTables.min.js")							
 script(src="/js/lib/knockout.bindings.dataTables.js")	
@@ -28,6 +37,7 @@ script(src='/js/lib/bootstrap.datatables.js')
 script(src="/js/lib/moment.min.js")					
 script(src="/js/lib/sammy.min.js")					
 script(src='/js/manage-tab-viewmodel.js')
+
 
 
 

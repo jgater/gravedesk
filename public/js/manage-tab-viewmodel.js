@@ -1,10 +1,10 @@
 //data model
 function TicketSummary(rawticket) {
-	this._id = ko.observable ( rawticket._id );
+	this.id = rawticket._id;
 	this.age = ko.observable( moment(rawticket.date).fromNow(true) );
 	this.friendlydate = ko.observable( moment(rawticket.date).format('ddd MMM Do YYYY, HH:mm') );
-	this.subject = ko.observable( rawticket.subject );
-	this.from = ko.observable( rawticket.from );
+	this.subject = rawticket.subject;
+	this.from = rawticket.from;
 	this.date = rawticket.date;
 }
 
@@ -24,7 +24,6 @@ function TabViewModel() {
 
 	// Client-side routing to allow for deeplinking/bookmarks - use sammy library to handle routing results
 	self.goToTab = function(tab) { location.hash = tab };
-	self.goToTicket = function(ticket) {location = '/manage/' + ticket._id }; //gets picked up by server-side routing
 
 	Sammy(function() {
 		// show tab view contents, i.e. table
