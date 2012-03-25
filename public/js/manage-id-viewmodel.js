@@ -3,26 +3,29 @@
 function TicketViewModel() {
 	// associated Data
 	var self = this; //using self avoids scope problems with methods
-	self.tabs = ['Open', 'Pending', 'Longterm', 'Closed'];
+	self.tabs = ko.observableArray(['Open', 'Pending', 'Longterm', 'Closed']);
 	self.chosenTabId = ko.observable(); // remember, 'observables' are wrapper functions, not actual data structures per se.
-	self.chosenTicketData = ko.observable();
+	self.ticketData = ko.observable();
 	// Operations
 	self.loadData = function(ticketId){
 		$.getJSON('/api/tickets/'+ticketId, function(allData){ //get ticket with _id of ticketId
-				self.chosenTicketData(new incomingTicket(allData)); //put into chosenTicketData
+				self.ticketData(new incomingTicket(allData)); //put into ticketData
 			});
 	};
-	self.closeTicket = function() {
-		self.chosenTicketData().status("Closed");
-		self.updateData(self.chosenTicketData()._id);
-	};
 	self.updateData = function(ticketId){
-		var data = new outgoingTicket(ko.toJS(self.chosenTicketData));
+		var data = new outgoingTicket(ko.toJS(self.ticketData));
 		$.ajax('/api/tickets/'+ticketId, {
             data: ko.toJSON(data),
             type: "PUT", contentType: "application/json",
             success: function(result) { alert(result) }
         });
+	};
+	self.changeStatus = function(data) {
+			self.ticketData().status(data);
+			self.updateData(self.ticketData()._id);
+	};
+	self.closeTicket = function() {
+		self.changeStatus("Closed");
 	};
 		
 	// Client-side routing to allow for deeplinking/bookmarks - use sammy library to handle routing results
