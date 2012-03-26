@@ -19,3 +19,6 @@ CVS
 
 # node
 node_modules
+
+# settings
+settings.js
