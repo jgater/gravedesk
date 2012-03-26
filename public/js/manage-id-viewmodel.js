@@ -4,6 +4,7 @@ function TicketViewModel() {
 	// associated Data
 	var self = this; //using self avoids scope problems with methods
 	self.tabs = ko.observableArray(['Open', 'Pending', 'Longterm', 'Closed']);
+	self.impacts = ko.observableArray(['High', 'Normal', 'Low']);
 	self.chosenTabId = ko.observable(); // remember, 'observables' are wrapper functions, not actual data structures per se.
 	self.ticketData = ko.observable();
 	// Operations
@@ -26,6 +27,10 @@ function TicketViewModel() {
 	};
 	self.closeTicket = function() {
 		self.changeStatus("Closed");
+	};
+		self.changeImpact = function(data) {
+			self.ticketData().impact(data);
+			self.updateData(self.ticketData()._id);
 	};
 		
 	// Client-side routing to allow for deeplinking/bookmarks - use sammy library to handle routing results
@@ -54,7 +59,7 @@ function incomingTicket(data) {
 	this.notes = data.notes;
 	this.attachments = data.attachments;
 	this.emails = data.emails;
-	this.impact = data.impact || "normal";
+	this.impact = ko.observable(data.impact || "normal");
 	this.cc = data.cc;
 	this.labels = data.labels;
 }

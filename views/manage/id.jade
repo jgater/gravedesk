@@ -12,20 +12,23 @@
 				//individual ticket view
 				//section only shown if ticketData has content
 				section(data-bind="with: ticketData").span10
+					.btn-toolbar.pull-right
+						.btn-group
+							button(data-toggle="dropdown").btn Impact <span class="caret"></span>
+								ul(data-bind="foreach: $root.impacts").dropdown-menu
+									li
+										a(data-bind="text: $data, click: $root.changeImpact")
+						.btn-group
+							button(data-toggle="dropdown").btn Status <span class="caret"></span>
+								ul(data-bind="foreach: $root.tabs").dropdown-menu
+									li
+										a(data-bind="text: $data, click: $root.changeStatus")
+						.btn-group
+							button(data-bind="css:{disabled: true}").btn Edit Ticket
+						.btn-group
+							button(data-bind="click: $root.closeTicket, disable: status()=='Closed', css:{disabled: status()=='Closed'}").btn.btn-success Close Ticket
 					br
-					ul.unstyled
-						li
-							.btn-toolbar.pull-right
-								.btn-group
-									button(data-bind="", data-toggle="dropdown").btn Change Status <span class="caret"></span>
-										ul(data-bind="foreach: $root.tabs").dropdown-menu
-											li
-												a(data-bind="text: $data, click: $root.changeStatus")
-									button(data-bind="css:{disabled: true}").btn Edit Ticket
-								.btn-group
-									button(data-bind="click: $root.closeTicket, disable: status()=='Closed', css:{disabled: status()=='Closed'}").btn.btn-success Close Ticket
-								.btn-group
-									
+					ul.unstyled	
 						li
 							p <span class="label label-info">ID</span> <span data-bind="text: _id"></span>
 						li
@@ -33,7 +36,7 @@
 						li
 							p <span class="label label-info">status</span> <span data-bind="text: status()"></span>
 						li
-							p <span class="label label-info">impact</span> <span class="badge" data-bind="text: impact"></span>
+							p <span class="label label-info">impact</span> <span class="badge" data-bind="text: impact()"></span>
 						li
 							p <span class="label label-info">from:</span> <strong data-bind="text: from"></strong>
 
