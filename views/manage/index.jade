@@ -7,26 +7,27 @@
 			.span10
 				ul(data-bind="foreach: tabs").nav.nav-tabs
 					li(data-bind="css:{active: $data == $root.chosenTabId()}, click: $root.goToTab")
-						a(data-bind="text: $data")
+						a(data-bind="text: $root.tabData($data)")
 			.span10
 				// tr(data-bind="click: $root.goToTicket")
 				//ticket list view
 				section
-					table#ticketlist.table.table-bordered.table-striped(data-bind="dataTable: { dataSource: tickets, rowTemplate: 'ticketListTemplate',  options: {bSort: false, iDisplayLength: 25}, columns: ['age', 'subject', 'from', 'friendlydate', 'id'] }")
+					table#ticketlist.table.table-bordered.table-striped(data-bind="dataTable: { dataSource: tickets, rowTemplate: 'ticketListTemplate',  options: {bSort: false, iDisplayLength: 25}, columns: ['age', 'subject', 'from', 'friendlydate', 'impact'] }")
 							thead
 									tr
-										th age
+										th age									
+										th impact
 										th subject									
 										th from
 										th date
-										th id
+
 
 <script Id="ticketListTemplate" type="text/html">
-<td data-bind="text: age"></td>
-<td><A data-bind="text: subject, attr: { href: '/manage/'+id}"></a></td>
+<td width=7.5% data-bind="text: age"></td>
+<td width=7.5% data-bind="text: impact"></td>
+<td width= 50%><A data-bind="text: subject, attr: { href: '/manage/'+id}"></a></td>
 <td data-bind="text: from"></td>
 <td data-bind="text: friendlydate"></td>
-<td data-bind="text: id"></td>
 </script>
 
 

@@ -6,7 +6,20 @@ function TabViewModel() {
 	self.tabs = ['Open', 'Pending', 'Longterm', 'Closed'];
 	self.chosenTabId = ko.observable(); // remember, 'observables' are wrapper functions, not actual data structures per se.
 	self.tickets = ko.observableArray();
+	self.tabCount = {
+		"Open" : ko.observable(),
+		"Pending" : ko.observable(),
+		"Longterm" : ko.observable(),
+		"Closed" : ko.observable()
+	};
 	// Operations
+	self.tabData = function(tab){
+		resultstring = tab;
+		var mycount = self.tabCount[tab]();
+		if (mycount != undefined && mycount != 0) {resultstring += " ("+mycount+")"};
+		return resultstring;
+	};
+
 	self.sortByDate = function () {
 		self.tickets.sort( function(left,right) { // sorts by date, newest first
 					return (left.date === right.date) ? 0 : (left.date < right.date) ? 1 : -1;
@@ -14,12 +27,26 @@ function TabViewModel() {
 	};
 
 	self.getData = function (status) {
-					$.getJSON('/api/tickets/status/'+status, function(allData){ //get all tickets by status
+			$.getJSON('/api/tickets/status/'+status, function(allData){ //get all tickets by status
 				var mappedTickets = $.map(allData, function(item) { return new TicketSummary(item) } ); //return an array of processed(mapped) tickets
 				self.tickets(mappedTickets); //put into tickets array (syntax like this because it's a function...)
 				self.sortByDate();
+				self.getTotals();
 			});
-				};
+	};
+
+	self.getTotals = function() {
+		var anon = function(status) {	//goddamn closures
+			$.getJSON('/api/tickets/count/'+status, function(count) {
+				self.tabCount[status](count);
+			});
+		};		
+		for (i in self.tabs) {
+			status = self.tabs[i];
+			anon(status);
+		}
+
+	};
 
 	// Client-side routing to allow for deeplinking/bookmarks - use sammy library to handle routing results
 	self.goToTab = function(tab) { location.hash = tab };
@@ -44,6 +71,7 @@ function TicketSummary(rawticket) {
 	this.subject = rawticket.subject;
 	this.from = rawticket.from;
 	this.date = rawticket.date;
+	this.impact = rawticket.impact || "normal";
 }
 
 //get to work!

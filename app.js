@@ -104,17 +104,30 @@ app.get('/api/tickets', function (req, res) {
     }
   });
 });
-//get ticket summary by status
-app.get('/api/tickets/status/:id', function (req, res) {
-  db.findByStatus(req.params.id, function(err,tickets){
-    if (tickets) {
-      res.send(tickets);
+
+//get ticket count by status
+app.get('/api/tickets/count/:status', function (req, res) {
+  db.findCountByStatus(req.params.status,function(err,count){
+    if (count || count===0) {
+      res.send(JSON.stringify(count)); 
+    } else {
+      res.send(JSON.stringify(-1));
+    } 
+  }); 
+});
+
+//get ticket summaries by status
+app.get('/api/tickets/status/:status', function (req, res) {
+  db.findByStatus(req.params.status, function(err,ticket){
+    if (ticket) {
+      res.send(ticket);
     } else {
       console.error(err);
       res.send();
     }
   });
 });
+
 //get ticket details by id
 app.get('/api/tickets/:id', function (req, res) {
   db.findById(req.params.id,function(err,ticket){
@@ -122,9 +135,11 @@ app.get('/api/tickets/:id', function (req, res) {
       res.send(ticket); 
     } else {
       console.error("ticket not found;" + err);
+      res.send();
     } 
   }); 
 });
+
 
 // DELETE to DESTROY
 app.delete('/api/tickets/:id', function (req, res) {
