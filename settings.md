@@ -9,11 +9,13 @@ settings.imap = {
 	"box": "Inbox"
 };
 
+settings.brand = "Gravedesk";
+
 settings.blankticket = {
-	"from": "example@example.com",
-	"subject": "no subject",
-	"description": "no description",
-	"status": "open"
+	"from": "unknown@example.com",
+	"subject": "No subject given.",
+	"description": "No description given.",
+	"status": "Open"
 };
     
 module.exports = settings;
