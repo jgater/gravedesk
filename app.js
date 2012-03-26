@@ -143,7 +143,15 @@ app.get('/api/tickets/:id', function (req, res) {
 
 // DELETE to DESTROY
 app.delete('/api/tickets/:id', function (req, res) {
-  console.log("destroy ticket id: " + req.params.id);
+  db.deleteById(req.params.id, function(err){
+    if (err) {
+      console.error("unable to delete ticket "+req.params.id+err);
+    } else {
+      res.send("destroyed ticket id: " + req.params.id);
+    }
+  });
+
+  
 });
 
 

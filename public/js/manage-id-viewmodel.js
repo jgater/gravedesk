@@ -7,6 +7,11 @@ function TicketViewModel() {
 	self.impacts = ko.observableArray(['High', 'Normal', 'Low']);
 	self.chosenTabId = ko.observable(); // remember, 'observables' are wrapper functions, not actual data structures per se.
 	self.ticketData = ko.observable();
+	self.isClosed = ko.computed( function() {
+		if (self.ticketData() == undefined) { return false; } 
+		else if (self.ticketData()["status"]() == "Closed") {return true;}
+		else {return false;}	
+	});
 	// Operations
 	self.loadData = function(ticketId){
 		$.getJSON('/api/tickets/'+ticketId, function(allData){ //get ticket with _id of ticketId
@@ -21,12 +26,21 @@ function TicketViewModel() {
             success: function(result) { alert(result) }
         });
 	};
+	self.deleteData = function(ticketId){
+		$.ajax('/api/tickets/'+ticketId, {
+            type: "DELETE", contentType: "application/json",
+            success: function(result) {location = '/manage'; }
+        });
+	};
 	self.changeStatus = function(data) {
 			self.ticketData().status(data);
 			self.updateData(self.ticketData()._id);
 	};
 	self.closeTicket = function() {
 		self.changeStatus("Closed");
+	};
+	self.deleteTicket = function() {
+		self.deleteData(self.ticketData()._id);
 	};
 		self.changeImpact = function(data) {
 			self.ticketData().impact(data);

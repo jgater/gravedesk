@@ -14,6 +14,8 @@
 				section(data-bind="with: ticketData").span10
 					.btn-toolbar.pull-right
 						.btn-group
+							a(data-toggle="modal", data-target="#deleteModal").btn.btn-warning Delete Ticket
+						.btn-group
 							button(data-toggle="dropdown").btn Impact <span class="caret"></span>
 								ul(data-bind="foreach: $root.impacts").dropdown-menu
 									li
@@ -26,7 +28,7 @@
 						.btn-group
 							button(data-bind="css:{disabled: true}").btn Edit Ticket
 						.btn-group
-							button(data-bind="click: $root.closeTicket, disable: status()=='Closed', css:{disabled: status()=='Closed'}").btn.btn-success Close Ticket
+							button(data-bind="click: $root.closeTicket, disable: $root.isClosed(), css:{disabled: $root.isClosed()}").btn.btn-primary Close Ticket
 					br
 					ul.unstyled	
 						li
@@ -46,6 +48,18 @@
 				section(data-bind="with: ticketData").span10.well
 					p(data-bind="html: description")
 
+#deleteModal.modal(style="display: none;")
+	.modal-header
+		a(data-dismiss="modal").close ×
+		h3 Confirm deletion
+	.modal-body
+		p Are you sure you wish to delete this ticket?
+		| All associated emails and data will be permanently removed.
+		| No email notifications will be sent.
+	.modal-footer
+		a(data-dismiss="modal").btn Cancel delete
+		a(data-bind="click: $root.deleteTicket", data-dismiss="modal").btn.btn-danger Delete ticket
+		
 script(src="/js/lib/moment.min.js")					
 script(src="/js/lib/sammy.min.js")					
 script(src='/js/manage-id-viewmodel.js')
