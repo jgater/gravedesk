@@ -8,9 +8,11 @@ var async = require('async');
 var util = require('util');
 var ImapHandler = require('./lib/emailhandler').ImapHandler;
 var TicketProvider = require('./lib/dbhandler').TicketProvider;
+var DB = require('./lib/dbhandler').DB;
 
 var imap = new ImapHandler();
-var db = new TicketProvider();
+var db = new DB();
+var ticket = new TicketProvider();
 var app = module.exports = express.createServer();
 
 // Configuration
@@ -84,7 +86,7 @@ app.post('/api/tickets', function (req, res) {
 // PUT to UPDATE
 app.put('/api/tickets/:id', function (req, res) {
   console.log("PUT for " + req.params.id + " received.");
-  db.updateTicketById(req.params.id, req.body, function (err, num) {
+  ticket.updateTicketById(req.params.id, req.body, function (err, num) {
     if (!err) {
       res.send("Changes to ticket " + req.params.id+" saved to database.");
       console.log("Changes to ticket " + req.params.id+" saved to database.");
@@ -95,7 +97,7 @@ app.put('/api/tickets/:id', function (req, res) {
 // GET to READ
 //get all tickets
 app.get('/api/tickets', function (req, res) {
-  db.findAll(function(err,tickets){
+  ticket.findAll(function(err,tickets){
     if (tickets) {
       res.send(tickets);
     } else {
@@ -104,10 +106,9 @@ app.get('/api/tickets', function (req, res) {
     }
   });
 });
-
 //get ticket count by status
 app.get('/api/tickets/count/:status', function (req, res) {
-  db.findCountByStatus(req.params.status,function(err,count){
+  ticket.findCountByStatus(req.params.status,function(err,count){
     if (count || count===0) {
       res.send(JSON.stringify(count)); 
     } else {
@@ -115,10 +116,9 @@ app.get('/api/tickets/count/:status', function (req, res) {
     } 
   }); 
 });
-
 //get ticket summaries by status
 app.get('/api/tickets/status/:status', function (req, res) {
-  db.findByStatus(req.params.status, function(err,ticket){
+  ticket.findByStatus(req.params.status, function(err,ticket){
     if (ticket) {
       res.send(ticket);
     } else {
@@ -127,10 +127,9 @@ app.get('/api/tickets/status/:status', function (req, res) {
     }
   });
 });
-
 //get ticket details by id
 app.get('/api/tickets/:id', function (req, res) {
-  db.findById(req.params.id,function(err,ticket){
+  ticket.findById(req.params.id,function(err,ticket){
     if (ticket) {
       res.send(ticket); 
     } else {
@@ -140,18 +139,15 @@ app.get('/api/tickets/:id', function (req, res) {
   }); 
 });
 
-
 // DELETE to DESTROY
 app.delete('/api/tickets/:id', function (req, res) {
-  db.deleteById(req.params.id, function(err){
+  ticket.deleteById(req.params.id, function(err){
     if (err) {
       console.error("unable to delete ticket "+req.params.id+err);
     } else {
       res.send("destroyed ticket id: " + req.params.id);
     }
   });
-
-  
 });
 
 

@@ -3,7 +3,7 @@
 function TicketViewModel() {
 	// associated Data
 	var self = this; //using self avoids scope problems with methods
-	self.tabs = ko.observableArray(['Open', 'Pending', 'Longterm', 'Closed']);
+	self.tabs = ko.observableArray(['Support', 'Open', 'Pending', 'Systems', 'Closed']);
 	self.impacts = ko.observableArray(['High', 'Normal', 'Low']);
 	self.chosenTabId = ko.observable(); // remember, 'observables' are wrapper functions, not actual data structures per se.
 	self.ticketData = ko.observable();

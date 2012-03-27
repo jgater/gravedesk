@@ -7,7 +7,7 @@
 			.span10
 					ul(data-bind="foreach: tabs").nav.nav-tabs
 						li(data-bind="css:{active: $data == $root.chosenTabId()}, click: $root.goToTab")
-							a(data-bind="text: $data")
+							a(data-bind="text: '&laquo; '+$data") 
 			.span10
 				//individual ticket view
 				//section only shown if ticketData has content
@@ -48,17 +48,8 @@
 				section(data-bind="with: ticketData").span10.well
 					p(data-bind="html: description")
 
-#deleteModal.modal(style="display: none;")
-	.modal-header
-		a(data-dismiss="modal").close ×
-		h3 Confirm deletion
-	.modal-body
-		p Are you sure you wish to delete this ticket?
-		| All associated emails and data will be permanently removed.
-		| No email notifications will be sent.
-	.modal-footer
-		a(data-dismiss="modal").btn Cancel delete
-		a(data-bind="click: $root.deleteTicket", data-dismiss="modal").btn.btn-danger Delete ticket
+!= partial('modals.jade')
+
 		
 script(src="/js/lib/moment.min.js")					
 script(src="/js/lib/sammy.min.js")					

@@ -3,13 +3,14 @@
 function TabViewModel() {
 	// associated Data
 	var self = this; //using self avoids scope problems with methods
-	self.tabs = ['Open', 'Pending', 'Longterm', 'Closed'];
+	self.tabs = ['Support', 'Open', 'Pending', 'Systems', 'Closed'];
 	self.chosenTabId = ko.observable(); // remember, 'observables' are wrapper functions, not actual data structures per se.
 	self.tickets = ko.observableArray();
 	self.tabCount = {
+		"Support" : ko.observable(),
 		"Open" : ko.observable(),
 		"Pending" : ko.observable(),
-		"Longterm" : ko.observable(),
+		"Systems" : ko.observable(),
 		"Closed" : ko.observable()
 	};
 	// Operations
