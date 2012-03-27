@@ -1,16 +1,46 @@
-/* static pages only */
 var settings = require('../settings');
+
 /*
-GET home page.
- */
-exports.index = function(req, res){
-  res.render('index', { title: settings.brand, brand: settings.brand })
-};
+index.js routes
+*/
 
-exports.manage = function(req, res){
-  res.render('manage/index', { title: 'Manage Tickets - '+settings.brand, brand: settings.brand })
-};
+module.exports = {
 
-exports.manageid = function(req, res){
-  res.render('manage/id', { title: 'Manage Ticket - '+settings.brand, brand: settings.brand })
+  // app.get('/'...)
+  index: function(req, res) {
+  	res.render('index.jade', { title: settings.brand, brand: settings.brand });
+	},
+
+  // app.get('/register'...)
+  getRegister: function(req, res) {
+    res.render('register/index.jade');
+  },
+
+  // app.post('/register'...)
+  postRegister: function(req, res) {
+    db.saveUser({
+       name : req.param('username')
+    , email : req.param('email')
+    , password : req.param('password')
+    }, function(err,docs) {
+      res.redirect('/account');
+    });
+  },
+
+  // app.get('/login', ...
+  login: function(req, res) {
+    res.render('login/index.jade');
+  },
+
+  // app.get('/account', ensureAuthenticated, ...
+  getAccount: function(req, res) {
+    res.render('account/index.jade');
+  },
+
+  // app.get('/logout'...)
+  logout: function(req, res){
+    req.logout();
+    res.redirect('/');
+  }
+
 };

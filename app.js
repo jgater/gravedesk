@@ -36,11 +36,7 @@ app.configure('production', function(){
 });
 
 // Routes
-var routes = require('./routes');
-app.get('/', routes.index);
-app.get('/manage', routes.manage);
-app.get('/manage/:id', routes.manageid);
-
+require('./routes')(app);
 
 //start services
 async.series([
@@ -68,88 +64,3 @@ console.log("now.js added to server app.");
 everyone.now.distributeMessage = function(message){
   everyone.now.receiveMessage(this.now.name, message);
 };
-
-
-
-// REST api
-
-app.get('/api', function (req, res) {
-  res.send('API is available.');
-});
-
-// POST to CREATE
-app.post('/api/tickets', function (req, res) {
-  console.log("POST: ");
-  console.log(req.body);
-});
-
-// PUT to UPDATE
-app.put('/api/tickets/:id', function (req, res) {
-  console.log("PUT for " + req.params.id + " received.");
-  ticket.updateTicketById(req.params.id, req.body, function (err, num) {
-    if (!err) {
-      res.send("Changes to ticket " + req.params.id+" saved to database.");
-      console.log("Changes to ticket " + req.params.id+" saved to database.");
-    } 
-  });
-});
-
-// GET to READ
-//get all tickets
-app.get('/api/tickets', function (req, res) {
-  ticket.findAll(function(err,tickets){
-    if (tickets) {
-      res.send(tickets);
-    } else {
-      console.error(err);
-      res.send();
-    }
-  });
-});
-//get ticket count by status
-app.get('/api/tickets/count/:status', function (req, res) {
-  ticket.findCountByStatus(req.params.status,function(err,count){
-    if (count || count===0) {
-      res.send(JSON.stringify(count)); 
-    } else {
-      res.send(JSON.stringify(-1));
-    } 
-  }); 
-});
-//get ticket summaries by status
-app.get('/api/tickets/status/:status', function (req, res) {
-  ticket.findByStatus(req.params.status, function(err,ticket){
-    if (ticket) {
-      res.send(ticket);
-    } else {
-      console.error(err);
-      res.send();
-    }
-  });
-});
-//get ticket details by id
-app.get('/api/tickets/:id', function (req, res) {
-  ticket.findById(req.params.id,function(err,ticket){
-    if (ticket) {
-      res.send(ticket); 
-    } else {
-      console.error("ticket not found;" + err);
-      res.send();
-    } 
-  }); 
-});
-
-// DELETE to DESTROY
-app.delete('/api/tickets/:id', function (req, res) {
-  ticket.deleteById(req.params.id, function(err){
-    if (err) {
-      console.error("unable to delete ticket "+req.params.id+err);
-    } else {
-      res.send("destroyed ticket id: " + req.params.id);
-    }
-  });
-});
-
-
-
-
