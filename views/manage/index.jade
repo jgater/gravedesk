@@ -9,7 +9,6 @@
 					li(data-bind="css:{active: $data == $root.chosenTabId()}, click: $root.goToTab")
 						a(data-bind="text: $root.tabData($data)")
 			.span10
-				// tr(data-bind="click: $root.goToTicket")
 				//ticket list view
 				section
 					table#ticketlist.table.table-bordered.table-striped(data-bind="dataTable: { dataSource: tickets, rowTemplate: 'ticketListTemplate',  options: {bSort: false, iDisplayLength: 25}, columns: ['age', 'subject', 'from', 'friendlydate', 'impact'] }")

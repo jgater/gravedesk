@@ -1,21 +1,22 @@
-.navbar.navbar-fixed-top
+div#topnavbar.navbar.navbar-fixed-top
 	.navbar-inner
 		.container-fluid
 			a.btn.btn-navbar(data-toggle='collapse', data-target='.nav-collapse')
 				// number of lines to show on collapsed state icon
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
+				span.icon-bar
+				span.icon-bar
+				span.icon-bar
 			a.brand(href='/')= brand
 			.nav-collapse
-				ul.nav
-					li.active
-						a(href='/') Home
-					li
-						a(href='/manage') Manage
-					li
-						a(href='/admin') Admin
+				ul(data-bind="foreach: navbarLinks").nav
+					li(data-bind="css:{active: path == $root.navLocation()}")
+						a(data-bind="text: name, attr: {href: path}")
 				p.navbar-text.pull-right
 					| Logged in as 
-					a(href='#') username
-			
+					a(href='/account') username
+
+script(src='/js/topbar-viewmodel.js')
+
+script 
+	//get to work!
+	ko.applyBindings(new TopBarViewModel(), document.getElementById("topnavbar"));

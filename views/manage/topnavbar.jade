@@ -2,11 +2,11 @@
 	.navbar-inner
 		.container-fluid
 			a.btn.btn-navbar(data-toggle='collapse', data-target='.nav-collapse')
-				// number of lines to show on collapsed state icon
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-			a.brand(href='/')= brand
+				span.icon-bar
+				span.icon-bar
+				span.icon-bar
+			a.brand(href='/')
+				span: brand
 			.nav-collapse
 				ul.nav
 					li
@@ -17,5 +17,5 @@
 						a(href='/admin') Admin
 				p.navbar-text.pull-right
 					| Logged in as 
-					a(href='#') username
+					a(href='/users') username
 			

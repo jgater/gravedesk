@@ -101,7 +101,7 @@ module.exports = {
   // admin users RESTful api
 
   // POST to CREATE
-  //app.post('/api/user', api.postUser);
+  //app.post('/api/adminuser', api.postUser);
   postUser: function(req, res) {
     user.saveUser({
       fname : req.param('name.first')
@@ -117,23 +117,23 @@ module.exports = {
   },
 
   // PUT to UPDATE
-  //app.put('/api/user/:id', api.putUser);
+  //app.put('/api/adminuser/:id', api.putUser);
   putUser: function(req, res) {
     res.send("PUT update user " + req.params.id);
   },
   // GET to READ
   //get all users
-  //app.get('/api/user', api.getUserAll);
+  //app.get('/api/adminuser', api.getUserAll);
   getUserAll: function(req, res) {
     res.send("GET all users");
   },
   //get user details by id
-  //app.get('/api/user/:id', api.getUserId);
+  //app.get('/api/adminuser/:id', api.getUserId);
   getUserId: function(req,res) {
     res.send("GET user data for user " + req.params.id)
   },
   // DELETE to DESTROY
-  //app.delete('/api/user/:id', api.delUserId);
+  //app.delete('/api/adminuser/:id', api.delUserId);
   delUserId: function(req,res) {
     res.send("DEL user " + req.params.id)
   },

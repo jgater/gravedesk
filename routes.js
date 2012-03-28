@@ -54,16 +54,16 @@ module.exports = function(app) {
 
   // admin users RESTful api
   // POST to CREATE
-  app.post('/api/user', api.postUser);
+  app.post('/api/adminuser', api.postUser);
   // PUT to UPDATE
-  app.put('/api/user/:id', api.putUser);
+  app.put('/api/adminuser/:id', api.putUser);
   // GET to READ
   //get all users
-  app.get('/api/user', api.getUserAll);
+  app.get('/api/adminuser', api.getUserAll);
   //get user details by id
-  app.get('/api/user/:id', api.getUserId);
+  app.get('/api/adminuser/:id', api.getUserId);
   // DELETE to DESTROY
-  app.delete('/api/user/:id', api.delUserId);
+  app.delete('/api/adminuser/:id', api.delUserId);
 
 
 }
