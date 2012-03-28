@@ -3,21 +3,27 @@
 	.row-fluid
 		.span4.center
 			.hero-unit.center
-				h2 Register a new administrator:
-				br
-				form(action='/admin/register', method='POST')
-					#login
-						label(for='email') Email: 
-						input(type='text', name='email', placeholder='email@email.com')
-					#password
-						label(for='password') Password: 
-						input(type='password', name='password', placeholder='password')
-					#first-name
-						label(for='name.first') First Name: 
-						input(type='text', name='name.first', placeholder='First Name')
-					#last-name
-						label(for='name.last') Last Name: 
-						input(type='text', name='name.last', placeholder='Last Name')
-					#submit
-						button(type="input").btn.btn-large.btn-primary Register
+				form.form-horizontal(action='/api/user', method='POST')
+					fieldset
+							legend Register a new administrator
+							.control-group
+								label.control-label(for='email') Email:
+								.controls
+									input#email.input-xlarge.focused(type='text', name='email', placeholder='sfry@example.com')
+							.control-group
+								label.control-label(for='password') Password:
+								.controls
+									input#password.input-xlarge(type='password', name='password', placeholder='password')
+							.control-group
+								label.control-label(for='name.first') First Name:
+								.controls
+									input.input-xlarge(id='name.first', type='text', name='name.first', placeholder='Stephen')							
+							.control-group
+								label.control-label(for='name.last') Last Name:
+								.controls
+									input.input-xlarge(id='name.last', type='text', name='name.last', placeholder='Fry')	
+
+							.form-actions
+								button.btn.btn-primary.btn-large(type='submit') Register user
+
 				

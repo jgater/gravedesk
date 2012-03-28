@@ -9,30 +9,31 @@ var api = require('./routes/api');
 
 function ensureAuthenticated(req, res, next) {
   if (req.isAuthenticated()) { return next(); }
-  res.redirect('/login');
+  res.redirect('/admin/login');
 }
 
 module.exports = function(app) {
   
+  // standard pages
   app.get('/', start.index);
-  app.get('/admin', start.getAdmin);  
-  app.get('/admin/register', start.getRegister);
-  app.post('/admin/register', start.postRegister);
-  app.get('/login', start.login);
-  app.post('/login', passport.authenticate('local', 
+  app.get('/admin', ensureAuthenticated, start.getAdmin);  
+  app.get('/admin/register', ensureAuthenticated, start.getRegister);
+  app.get('/admin/login', start.adminLogin);
+  app.post('/admin/login', passport.authenticate('local', 
     { 
       successRedirect: '/account', 
-      failureRedirect: '/login'
+      failureRedirect: '/admin/login'
     })
   );
   app.get('/account', ensureAuthenticated, start.getAccount);
   app.get('/logout', start.logout);
 
-  app.get('/manage', manage.index);
-  app.get('/manage/:id', manage.id);
+  // manage tickets pages
+  app.get('/manage', ensureAuthenticated, manage.index);
+  app.get('/manage/:id', ensureAuthenticated, manage.id);
 
 
-  // REST api
+  // tickets RESTful api
   app.get('/api', api.index);
   // POST to CREATE
   app.post('/api/tickets', api.postTicket);
@@ -40,14 +41,29 @@ module.exports = function(app) {
   app.put('/api/tickets/:id', api.putTicket);
   // GET to READ
   //get all tickets
-  app.get('/api/tickets', api.getAll);
+  app.get('/api/tickets', api.getTicketAll);
   //get ticket count by status
-  app.get('/api/tickets/count/:status', api.getCount);
+  app.get('/api/tickets/count/:status', api.getTicketCount);
   //get ticket summaries by status
-  app.get('/api/tickets/status/:status', api.getStatus);
+  app.get('/api/tickets/status/:status', api.getTicketStatus);
   //get ticket details by id
-  app.get('/api/tickets/:id', api.getId);
+  app.get('/api/tickets/:id', api.getTicketId);
   // DELETE to DESTROY
-  app.delete('/api/tickets/:id', api.delTicket);
+  app.delete('/api/tickets/:id', api.delTicketId);
+
+
+  // admin users RESTful api
+  // POST to CREATE
+  app.post('/api/user', api.postUser);
+  // PUT to UPDATE
+  app.put('/api/user/:id', api.putUser);
+  // GET to READ
+  //get all users
+  app.get('/api/user', api.getUserAll);
+  //get user details by id
+  app.get('/api/user/:id', api.getUserId);
+  // DELETE to DESTROY
+  app.delete('/api/user/:id', api.delUserId);
+
 
 }

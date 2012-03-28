@@ -2,6 +2,8 @@
 
 var TicketProvider = require('../lib/dbhandler').TicketProvider;
 var ticket = new TicketProvider();
+var UserProvider = require('../lib/dbhandler').UserProvider;
+var user = new UserProvider;
 
 
 /*
@@ -10,20 +12,22 @@ api.js routes
 
 module.exports = {
 
-  //app.get('/api'...
+  // tickets RESTful api
+
+  //app.get('/api', api.index);
   index: function (req, res) {
     res.send('API is available.');
   },
 
   // POST to CREATE
-  //app.post('/api/tickets'...
+  //app.post('/api/tickets', api.postTicket);
   postTicket: function (req, res) {
     console.log("POST: ");
     console.log(req.body);
   },
 
   // PUT to UPDATE
-  //app.put('/api/tickets/:id'...
+  //app.put('/api/tickets/:id', api.putTicket);
   putTicket: function (req, res) {
     ticket.updateTicketById(req.params.id, req.body, function (err, num) {
       if (!err) {
@@ -35,7 +39,8 @@ module.exports = {
 
   // GET to READ
   //get all tickets
-  getAll: function (req, res) {
+  //app.get('/api/tickets', api.getTicketAll);
+  getTicketAll: function (req, res) {
     ticket.findAll(function(err,tickets){
       if (tickets) {
         res.send(tickets);
@@ -46,7 +51,8 @@ module.exports = {
     });
   },
   //get ticket count by status
-  getCount: function (req, res) {
+  //app.get('/api/tickets/count/:status', api.getTicketCount);
+  getTicketCount: function (req, res) {
     ticket.findCountByStatus(req.params.status,function(err,count){
       if (count || count===0) {
         res.send(JSON.stringify(count)); 
@@ -56,7 +62,8 @@ module.exports = {
     }); 
   },
   //get ticket summaries by status
-  getStatus: function (req, res) {
+  //app.get('/api/tickets/status/:status', api.getTicketStatus);
+  getTicketStatus: function (req, res) {
     ticket.findByStatus(req.params.status, function(err,ticket){
       if (ticket) {
         res.send(ticket);
@@ -66,9 +73,9 @@ module.exports = {
       }
     });
   },
-
   //get ticket details by id
-  getId: function (req, res) {
+  //app.get('/api/tickets/:id', api.getTicketId);
+  getTicketId: function (req, res) {
     ticket.findById(req.params.id,function(err,ticket){
       if (ticket) {
         res.send(ticket); 
@@ -80,7 +87,8 @@ module.exports = {
   },
 
   // DELETE to DESTROY
-  delTicket: function (req, res) {
+  //app.delete('/api/tickets/:id', api.delTicketId);
+  delTicketId: function (req, res) {
     ticket.deleteById(req.params.id, function(err){
       if (err) {
         console.error("unable to delete ticket "+req.params.id+err);
@@ -88,6 +96,46 @@ module.exports = {
         res.send("destroyed ticket id: " + req.params.id);
       }
     });
-  }
+  },
+
+  // admin users RESTful api
+
+  // POST to CREATE
+  //app.post('/api/user', api.postUser);
+  postUser: function(req, res) {
+    user.saveUser({
+      fname : req.param('name.first')
+    , lname : req.param('name.last')
+    , email : req.param('email')
+    , password : req.param('password')
+    }, function(err,docs) {
+        if (err) { res.render('admin/err.jade', { title: 'Admin Error - '+settings.brand, brand: settings.brand, err: err });
+      } else {
+        res.redirect('/admin');  
+      }
+    });
+  },
+
+  // PUT to UPDATE
+  //app.put('/api/user/:id', api.putUser);
+  putUser: function(req, res) {
+    res.send("PUT update user " + req.params.id);
+  },
+  // GET to READ
+  //get all users
+  //app.get('/api/user', api.getUserAll);
+  getUserAll: function(req, res) {
+    res.send("GET all users");
+  },
+  //get user details by id
+  //app.get('/api/user/:id', api.getUserId);
+  getUserId: function(req,res) {
+    res.send("GET user data for user " + req.params.id)
+  },
+  // DELETE to DESTROY
+  //app.delete('/api/user/:id', api.delUserId);
+  delUserId: function(req,res) {
+    res.send("DEL user " + req.params.id)
+  },
 
 };

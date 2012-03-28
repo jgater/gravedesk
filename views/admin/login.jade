@@ -1,0 +1,18 @@
+!= partial('topnavbar.jade')
+.container-fluid
+	.row-fluid
+		.span4.center
+			.hero-unit.center
+				form.form-horizontal(action='/admin/login', method='POST')
+					fieldset
+							legend Login as administrator
+							.control-group
+								label.control-label(for='email') Email:
+								.controls
+									input#email.input-xlarge.focused(type='text', name='email', placeholder='admin@example.com')
+							.control-group
+								label.control-label(for='password') Password:
+								.controls
+									input#password.input-xlarge(type='password', name='password', placeholder='password')
+							.form-actions
+								button.btn.btn-primary.btn-large(type='submit') Login
