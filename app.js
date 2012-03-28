@@ -7,12 +7,11 @@ var nowjs = require('now');
 var async = require('async');
 var util = require('util');
 var ImapHandler = require('./lib/emailhandler').ImapHandler;
-var TicketProvider = require('./lib/dbhandler').TicketProvider;
 var DB = require('./lib/dbhandler').DB;
+var passport = require('passport');
 
 var imap = new ImapHandler();
 var db = new DB();
-var ticket = new TicketProvider();
 var app = module.exports = express.createServer();
 
 // Configuration
@@ -23,6 +22,8 @@ app.configure(function(){
   app.use(express.bodyParser());
   app.use(express.methodOverride());
   app.use(app.router);
+  app.use(passport.initialize());
+  app.use(passport.session());
   app.use(express.static(__dirname + '/public'));
   app.set('view options', { pretty: true });
 });
@@ -58,6 +59,7 @@ function(err) {
 // initialize now.js
 var everyone = nowjs.initialize(app);
 console.log("now.js added to server app.");
+global.everyone = everyone;
 
 // now functions    
 

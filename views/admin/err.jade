@@ -1,0 +1,25 @@
+!= partial('topnavbar.jade')
+
+a(href="/admin").btn.btn-large.btn-primary &laquo; Back to Admin page 
+
+script
+  $(document).ready(function() {
+  $('#myModal').modal({
+    keyboard: false
+  })
+  $('#ErrModal').modal('show');
+  });
+
+#ErrModal.modal.fade
+  .modal-header
+    a(href="/admin").close ×
+    h1 Error encountered
+  .modal-body
+    p 
+    | Error encountered trying to complete that action:
+    br
+    b= err
+  .modal-footer
+    a(href="/admin").btn.btn-large.btn-primary &laquo; Back to Admin page 
+
+    

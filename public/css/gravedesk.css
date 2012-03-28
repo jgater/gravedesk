@@ -15,6 +15,12 @@ body {
   background-color: #eeeeee;
 }
 
+.center
+{
+  margin: 0 auto !important;
+  float: none !important;
+}
+
 // datatables styling
 
 div.dataTables_length label {

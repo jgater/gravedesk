@@ -3,7 +3,7 @@
 
 var passport = require('passport');
 
-var start = require('./routes/index');
+var start = require('./routes/start');
 var manage = require('./routes/manage');
 var api = require('./routes/api');
 
@@ -15,8 +15,9 @@ function ensureAuthenticated(req, res, next) {
 module.exports = function(app) {
   
   app.get('/', start.index);
-  app.get('/register', start.getRegister);
-  app.post('/register', start.postRegister);
+  app.get('/admin', start.getAdmin);  
+  app.get('/admin/register', start.getRegister);
+  app.post('/admin/register', start.postRegister);
   app.get('/login', start.login);
   app.post('/login', passport.authenticate('local', 
     { 
@@ -24,6 +25,8 @@ module.exports = function(app) {
       failureRedirect: '/login'
     })
   );
+  app.get('/account', ensureAuthenticated, start.getAccount);
+  app.get('/logout', start.logout);
 
   app.get('/manage', manage.index);
   app.get('/manage/:id', manage.id);
@@ -47,9 +50,4 @@ module.exports = function(app) {
   // DELETE to DESTROY
   app.delete('/api/tickets/:id', api.delTicket);
 
-
-/*
-  app.get('/account', ensureAuthenticated, start.getAccount);
-  app.get('/logout', start.logout);
-*/  
 }

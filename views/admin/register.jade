@@ -1,0 +1,23 @@
+!= partial('topnavbar.jade')
+.container-fluid
+	.row-fluid
+		.span4.center
+			.hero-unit.center
+				h2 Register a new administrator:
+				br
+				form(action='/admin/register', method='POST')
+					#login
+						label(for='email') Email: 
+						input(type='text', name='email', placeholder='email@email.com')
+					#password
+						label(for='password') Password: 
+						input(type='password', name='password', placeholder='password')
+					#first-name
+						label(for='name.first') First Name: 
+						input(type='text', name='name.first', placeholder='First Name')
+					#last-name
+						label(for='name.last') Last Name: 
+						input(type='text', name='name.last', placeholder='Last Name')
+					#submit
+						button(type="input").btn.btn-large.btn-primary Register
+				

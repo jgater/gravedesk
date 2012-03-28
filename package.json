@@ -16,6 +16,7 @@
     "moment": "1.4.x",
     "sanitizer": "0.0.x",
     "passport": "0.1.x",
+    "passport-local": "0.1.x",
     "bcrypt": "0.5.x"
   }
 }
