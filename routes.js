@@ -4,7 +4,6 @@
 var passport = require('passport');
 
 var start = require('./routes/start');
-var manage = require('./routes/manage');
 var api = require('./routes/api');
 
 function ensureAuthenticated(req, res, next) {
@@ -16,8 +15,8 @@ module.exports = function(app) {
   
   // standard pages
   app.get('/', start.index);
-  app.get('/admin', ensureAuthenticated, start.getAdmin);  
-  app.get('/admin/register', ensureAuthenticated, start.getRegister);
+  app.get('/admin', start.getAdmin);  
+  app.get('/admin/register', start.getRegister);
   app.get('/admin/login', start.adminLogin);
   app.post('/admin/login', passport.authenticate('local', 
     { 
@@ -29,8 +28,7 @@ module.exports = function(app) {
   app.get('/logout', start.logout);
 
   // manage tickets pages
-  app.get('/manage', ensureAuthenticated, manage.index);
-  app.get('/manage/:id', ensureAuthenticated, manage.id);
+  app.get('/manage', start.manage);
 
 
   // tickets RESTful api

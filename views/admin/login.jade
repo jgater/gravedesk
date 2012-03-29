@@ -1,8 +1,7 @@
-!= partial('topnavbar.jade')
+!= partial('../topnavbar.jade')
 .container-fluid
 	.row-fluid
-		.span4.center
-			.hero-unit.center
+			.hero-unit
 				form.form-horizontal(action='/admin/login', method='POST')
 					fieldset
 							legend Login as administrator
@@ -16,3 +15,9 @@
 									input#password.input-xlarge(type='password', name='password', placeholder='password')
 							.form-actions
 								button.btn.btn-primary.btn-large(type='submit') Login
+								
+script(src='/js/topbar-viewmodel.js')
+script(src='/js/simpleviewmodelcontroller.js')
+script 
+	//get to work!
+	var controller = ko.applyBindings(new SimpleViewModelController());								

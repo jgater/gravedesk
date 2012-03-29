@@ -13,6 +13,11 @@ module.exports = {
   	res.render('index.jade', { title: settings.brand, brand: settings.brand });
 	},
 
+  //app.get('/manage'...
+  manage: function(req, res){
+    res.render('manage/index.jade', { title: 'Manage Tickets - '+settings.brand, brand: settings.brand });
+  },
+
   // app.get('/admin'...)
   getAdmin: function(req, res) {
     res.render('admin/index.jade', { title: 'Admin - '+settings.brand, brand: settings.brand });

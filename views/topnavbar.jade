@@ -1,4 +1,4 @@
-div#topnavbar.navbar.navbar-fixed-top
+div(data-bind="with: topbarView").navbar.navbar-fixed-top
 	.navbar-inner
 		.container-fluid
 			a.btn.btn-navbar(data-toggle='collapse', data-target='.nav-collapse')
@@ -9,14 +9,9 @@ div#topnavbar.navbar.navbar-fixed-top
 			a.brand(href='/')= brand
 			.nav-collapse
 				ul(data-bind="foreach: navbarLinks").nav
-					li(data-bind="css:{active: path == $root.navLocation()}")
+					li(data-bind="css:{active: $parent.matchingPath(path)}")
 						a(data-bind="text: name, attr: {href: path}")
 				p.navbar-text.pull-right
 					| Logged in as 
 					a(href='/account') username
 
-script(src='/js/topbar-viewmodel.js')
-
-script 
-	//get to work!
-	ko.applyBindings(new TopBarViewModel(), document.getElementById("topnavbar"));

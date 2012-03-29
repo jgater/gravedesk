@@ -1,6 +1,6 @@
 
 // view model
-function TicketViewModel() {
+function ManageTicketViewModel() {
 	// associated Data
 	var self = this; //using self avoids scope problems with methods
 	self.tabs = ko.observableArray(['Support', 'Open', 'Pending', 'Systems', 'Closed']);
@@ -50,13 +50,6 @@ function TicketViewModel() {
 	// Client-side routing to allow for deeplinking/bookmarks - use sammy library to handle routing results
 	self.goToTab = function(tab) { location = '/manage#' + tab };
 
-	Sammy(function() {
-		// show individual ticket view
-		this.get('/manage/:ticketId', function() {
-			self.loadData(this.params.ticketId);
-		});
-		
-	}).run();
 };
 
 
@@ -92,6 +85,3 @@ function outgoingTicket(data) {
 	this.labels = data.labels;
 }
 
-
-//get to work!
-ko.applyBindings(new TicketViewModel());

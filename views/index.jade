@@ -7,9 +7,14 @@
 					Span= brand
 				br
 				br
-				a(href='/manage').btn.btn-primary.btn-large Manage tickets »
+				a(href='/manage').btn.btn-primary.btn-large Manage tickets »				
 
-
+						
+script(src='/js/topbar-viewmodel.js')
+script(src='/js/simpleviewmodelcontroller.js')
+script 
+	//get to work!
+	var controller = ko.applyBindings(new SimpleViewModelController());
 
 
 

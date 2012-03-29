@@ -1,10 +1,16 @@
 != partial('../topnavbar.jade')
 .container-fluid
-  .row-fluid
-    .span3.well
-      h2 Register new Admin account
-      br
-      p
-        a(href='/admin/register').btn Add account »
+	.row-fluid
+		.span3.well
+			h2 Register new Admin account
+			br
+			p
+				a(href='/admin/register').btn Add account »
 
-    
+script(src='/js/topbar-viewmodel.js')
+script(src='/js/simpleviewmodelcontroller.js')
+script 
+	//get to work!
+	var controller = ko.applyBindings(new SimpleViewModelController());
+
+		

@@ -1,29 +1,34 @@
-!= partial('topnavbar.jade')
+!= partial('../topnavbar.jade')
 .container-fluid
 	.row-fluid
-		.span4.center
-			.hero-unit.center
+			.hero-unit
 				form.form-horizontal(action='/api/adminuser', method='POST')
 					fieldset
 							legend Register a new administrator
 							.control-group
 								label.control-label(for='email') Email:
 								.controls
-									input#email.input-xlarge.focused(type='text', name='email', placeholder='sfry@example.com')
+									input#email.input.span4.focused(type='text', name='email', placeholder='sfry@example.com')
 							.control-group
 								label.control-label(for='password') Password:
 								.controls
-									input#password.input-xlarge(type='password', name='password', placeholder='password')
+									input#password.input.span4(type='password', name='password', placeholder='password')
 							.control-group
 								label.control-label(for='name.first') First Name:
 								.controls
-									input.input-xlarge(id='name.first', type='text', name='name.first', placeholder='Stephen')							
+									input.input.span4(id='name.first', type='text', name='name.first', placeholder='Stephen')							
 							.control-group
 								label.control-label(for='name.last') Last Name:
 								.controls
-									input.input-xlarge(id='name.last', type='text', name='name.last', placeholder='Fry')	
+									input.input.span4(id='name.last', type='text', name='name.last', placeholder='Fry')	
 
 							.form-actions
 								button.btn.btn-primary.btn-large(type='submit') Register user
+
+script(src='/js/topbar-viewmodel.js')
+script(src='/js/simpleviewmodelcontroller.js')
+script 
+	//get to work!
+	var controller = ko.applyBindings(new SimpleViewModelController());
 
 				

@@ -1,8 +1,14 @@
 != partial('../topnavbar.jade')
 .container-fluid
-  .row-fluid
-    .span10.hero-unit
-      h1 Successful login!
-      p  Hi, #{currentUser.name.first}!
+	.row-fluid
+		.span10.hero-unit
+			h1 Successful login!
+			p  Hi, #{currentUser.name.first}!
 
-    
+script(src='/js/topbar-viewmodel.js')
+script(src='/js/simpleviewmodelcontroller.js')
+script 
+	//get to work!
+	var controller = ko.applyBindings(new SimpleViewModelController());			
+
+		

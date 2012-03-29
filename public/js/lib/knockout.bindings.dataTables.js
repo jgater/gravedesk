@@ -27,11 +27,10 @@ ko.bindingHandlers['dataTable'] = {
         if (binding.rowTemplate && binding.rowTemplate != '') {
             options.fnRowCallback = function (row, data, displayIndex, displayIndexFull) {
                 // Render the row template for this row.
-                //row.click( function() {location = '/' } );
 				ko.renderTemplate(binding.rowTemplate, data, null, row, "replaceChildren");
                 // custom addclick on row function!
                 $(row).unbind('click').bind('click', function() {
-                 location.href='/manage/'+data.id;
+                 location.href='/manage#/'+data.id;
                 });
                 return row;
             }

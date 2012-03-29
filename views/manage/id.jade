@@ -1,12 +1,12 @@
-!= partial('topnavbar.jade')
-	.container-fluid
+!= partial('../topnavbar.jade')
+	div(data-bind="with:manageTicketView").container-fluid
 		.row-fluid
 			.span2
 				!= partial('sidebar.jade')
 			//tabs view
 			.span10
 					ul(data-bind="foreach: tabs").nav.nav-tabs
-						li(data-bind="css:{active: $data == $root.chosenTabId()}, click: $root.goToTab")
+						li(data-bind="css:{active: $data == $parent.chosenTabId()}, click: $parent.goToTab")
 							a(data-bind="text: '&laquo; '+$data") 
 			.span10
 				//individual ticket view
