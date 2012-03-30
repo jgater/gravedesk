@@ -7,7 +7,12 @@
 			div(data-bind="with:manageTabsView").span10
 				ul(data-bind="foreach: tabs").nav.nav-tabs
 					li(data-bind="css:{active: $data == $parent.chosenTabId()}, click: $parent.goToTab")
-						a(data-bind="text: $data + ' - ' + $parent.tabcount[$data]() ")
+						<!-- ko if: $parent.tabcount[$data]() && $data != "Closed" -->
+						<a data-bind="text: $data + ' (' + $parent.tabcount[$data]() +')' "></a>
+						<!-- /ko -->
+						<!-- ko if: !$parent.tabcount[$data]() || $data == "Closed" -->
+						<a data-bind="text: $data"></a>
+						<!-- /ko -->
 				
 			//ticket list view		
 			div(data-bind="with:manageTableView").span10
@@ -42,7 +47,7 @@
 						.btn-group
 							button(data-bind="css:{disabled: true}").btn Edit Ticket
 						.btn-group
-							button(data-bind="click: $parent.closeTicket, disable: $parent.isClosed(), css:{disabled: $parent.isClosed()}").btn.btn-primary Close Ticket
+							button(data-bind="click: $parent.closeTicket, disable: $parent.isClosed, css:{disabled: $parent.isClosed}").btn.btn-primary Close Ticket
 
 					br
 					ul.unstyled	
