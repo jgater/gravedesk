@@ -11,11 +11,13 @@ function ManageViewModelController(ticketcount,statuslist) {
 		this.get('/manage#/:ticketid', function (){
 			self.manageTabsView.chosenTabId(null); //unselect all tabs
 			var array = self.manageTableView.tickets;
-			array.splice(0,array().length); //remove all entries from tickets array, causing table to be hidden
+			self.manageTableView.showTable(false);
+			self.manageTicketView.showTicket(true);
 			self.manageTicketView.getData(this.params.ticketid);
 		});
 		this.get('/manage#:tab', function() {
-			self.manageTicketView.ticketData(null);
+			self.manageTableView.showTable(true);
+			self.manageTicketView.showTicket(false);
 			self.manageTabsView.chosenTabId(this.params.tab); //make the selected tab match the request
 			self.manageTableView.getData(this.params.tab);
 		});	
@@ -45,10 +47,7 @@ function ManageTableViewModel() {
 	// associated Data
 	var self = this; //using self avoids scope problems with methods
 	self.tickets = ko.observableArray();
-	self.shouldShowTable = ko.computed(function(){
-		if (self.tickets().hasOwnProperty('length') && self.tickets().length > 0 ) {return true;}
-		else {return false;}
-	});
+	self.showTable = ko.observable(false);
 	// Operations
 	self.sortByDate = function () {
 		self.tickets.sort( function(left,right) { // sorts by date, newest first
@@ -83,11 +82,9 @@ function ManageTicketViewModel() {
 	var self = this; //using self avoids scope problems with methods
 	self.impacts = ko.observableArray(['High', 'Normal', 'Low']);
 	self.ticketData = ko.observable();
-	self.shouldShowTicket = ko.computed(function(){
-		return true;
-	});
+	self.showTicket = ko.observable(false);
 	self.isClosed = ko.computed( function() {
-		if (self.ticketData() == undefined) { return false; } 
+		if (!self.ticketData()) { return false; } 
 		else if (self.ticketData().status() == "Closed") {return true;}
 		else {return false;}	
 	});
@@ -110,7 +107,7 @@ function ManageTicketViewModel() {
 	self.deleteData = function(ticketId){
 		$.ajax('/api/tickets/'+ticketId, {
             type: "DELETE", contentType: "application/json",
-            success: function(result) {location = '/manage'; }
+            success: function(result) {window.history.back(); }
         });
 	};
 	self.changeStatus = function(data) {

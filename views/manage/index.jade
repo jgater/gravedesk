@@ -13,10 +13,10 @@
 						<!-- ko if: !$parent.tabcount[$data]() || $data == "Closed" -->
 						<a data-bind="text: $data"></a>
 						<!-- /ko -->
-				
+
 			//ticket list view		
 			div(data-bind="with:manageTableView").span10
-				div(data-bind="visible: shouldShowTable, css:{hide: !shouldShowTable}").hide
+				div(data-bind="visible: showTable, css: {hide: !showTable}").hide
 					table#ticketlist.table.table-bordered.table-striped(data-bind="dataTable: { dataSource: tickets, rowTemplate: 'ticketListTemplate',  options: {bSort: false, iDisplayLength: 25}, columns: ['age', 'subject', 'from', 'friendlydate', 'impact'] }")
 							thead
 									tr
@@ -29,8 +29,7 @@
 			//individual ticket view
 			div(data-bind="with:manageTicketView").span10			
 				//section only shown if ticketData has content
-				//default css hide on load, reverse when needed (avoids load flicker)
-				div(data-bind="with: ticketData, css:{hide: !shouldShowTicket}").hide.span10
+				div(data-bind="with: ticketData, visible: showTicket, css: {hide: !showTicket}").hide.span10
 					.btn-toolbar.pull-right
 						.btn-group
 							a(data-toggle="modal", data-target="#deleteModal").btn.btn-warning Delete Ticket
@@ -65,7 +64,7 @@
 					hr
 					h1(data-bind="text: subject")
 					hr
-				div(data-bind="with: ticketData, visible: ticketData, css:{hide: !shouldShowTicket}").hide.span10.well
+				div(data-bind="with: ticketData, visible: showTicket, css: {hide: !showTicket}").hide.span10.well
 					p(data-bind="html: description")
 
 
