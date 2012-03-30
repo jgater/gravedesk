@@ -1,16 +1,15 @@
 //view model controller
-function ManageViewModelController() {
+function ManageViewModelController(statusList) {
 	var self = this;
-	this.root = this;
 	self.topbarView = new TopBarViewModel();
-	self.manageTabsView = new ManageTabsViewModel();
+  self.manageTabsView = new ManageTabsViewModel(statusList);
 	self.manageTableView = new ManageTableViewModel();
 	self.manageTicketView = new ManageTicketViewModel();
 
 	Sammy(function() {
 		this.get('/manage#/:ticketid', function (){
 			self.manageTabsView.chosenTabId(null); //unselect all tabs
-			self.manageTabsView.getTotals(); //update totals on every tab
+			self.manageTabsView.getTotals(); //update totals on every ticket load
 			var array = self.manageTableView.tickets;
 			array.splice(0,array().length); //remove all entries from tickets array, causing table to be hidden
 			self.manageTicketView.getData(this.params.ticketid);
@@ -18,7 +17,7 @@ function ManageViewModelController() {
 		this.get('/manage#:tab', function() {
 			self.manageTicketView.ticketData(null);
 			self.manageTabsView.chosenTabId(this.params.tab); //make the selected tab match the request
-			self.manageTabsView.getTotals(); //update totals on every tab
+			self.manageTabsView.getTotals(); //update totals on every tab load
 			self.manageTableView.getData(this.params.tab);
 		});	
 		this.get('/manage', function() { this.app.runRoute('get', '/manage#'+self.manageTabsView.tabs[0]) }); //if no specific page requested, open the first tab view		
@@ -29,10 +28,10 @@ function ManageViewModelController() {
 //-------------------------------
 
 // view model
-function ManageTabsViewModel() {
+function ManageTabsViewModel(statusList) {
 	// associated Data
 	var self = this; //using self avoids scope problems with methods
-	self.tabs = ['Support', 'Open', 'Pending', 'Systems', 'Closed'];
+	self.tabs = statusList;
 	self.chosenTabId = ko.observable(); // remember, 'observables' are wrapper functions, not actual data structures per se.
 	self.tabCount = {
 		"Support" : ko.observable(),
@@ -45,7 +44,8 @@ function ManageTabsViewModel() {
 	self.tabData = function(tab){
 		resultstring = tab;
 		var mycount = self.tabCount[tab]();
-		if (mycount != undefined && mycount != 0) {resultstring += " ("+mycount+")"};
+		if (mycount != undefined && mycount != 0) {resultstring += " ("+mycount+")";}
+		else {resultstring += "&nbsp;";}
 		return resultstring;
 	};
 	self.getTotals = function() {
@@ -108,6 +108,9 @@ function ManageTicketViewModel() {
 	var self = this; //using self avoids scope problems with methods
 	self.impacts = ko.observableArray(['High', 'Normal', 'Low']);
 	self.ticketData = ko.observable();
+	self.shouldShowTicket = ko.computed(function(){
+		return true;
+	});
 	self.isClosed = ko.computed( function() {
 		if (self.ticketData() == undefined) { return false; } 
 		else if (self.ticketData().status() == "Closed") {return true;}

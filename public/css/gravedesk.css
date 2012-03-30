@@ -21,6 +21,11 @@ body {
   float: none !important;
 }
 
+.hide
+{
+	display: none;
+}
+
 // datatables styling
 
 div.dataTables_length label {

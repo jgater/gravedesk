@@ -9,6 +9,7 @@ var util = require('util');
 var ImapHandler = require('./lib/emailhandler').ImapHandler;
 var DB = require('./lib/dbhandler').DB;
 var passport = require('passport');
+var settings = require('./settings');
 
 var imap = new ImapHandler();
 var db = new DB();
@@ -63,7 +64,5 @@ console.log("now.js added to server app.");
 global.everyone = everyone;
 
 // now functions    
+everyone.now.statusList = settings.statusList;
 
-everyone.now.distributeMessage = function(message){
-  everyone.now.receiveMessage(this.now.name, message);
-};
