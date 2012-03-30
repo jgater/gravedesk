@@ -1,15 +1,15 @@
 //view model controller
-function ManageViewModelController(statusList) {
+function ManageViewModelController(ticketcount,statuslist) {
 	var self = this;
 	self.topbarView = new TopBarViewModel();
-  self.manageTabsView = new ManageTabsViewModel(statusList);
+  self.manageTabsView = new ManageTabsViewModel(ko.mapping.fromJS(ticketcount),statuslist);
 	self.manageTableView = new ManageTableViewModel();
 	self.manageTicketView = new ManageTicketViewModel();
+
 
 	Sammy(function() {
 		this.get('/manage#/:ticketid', function (){
 			self.manageTabsView.chosenTabId(null); //unselect all tabs
-			self.manageTabsView.getTotals(); //update totals on every ticket load
 			var array = self.manageTableView.tickets;
 			array.splice(0,array().length); //remove all entries from tickets array, causing table to be hidden
 			self.manageTicketView.getData(this.params.ticketid);
@@ -17,7 +17,6 @@ function ManageViewModelController(statusList) {
 		this.get('/manage#:tab', function() {
 			self.manageTicketView.ticketData(null);
 			self.manageTabsView.chosenTabId(this.params.tab); //make the selected tab match the request
-			self.manageTabsView.getTotals(); //update totals on every tab load
 			self.manageTableView.getData(this.params.tab);
 		});	
 		this.get('/manage', function() { this.app.runRoute('get', '/manage#'+self.manageTabsView.tabs[0]) }); //if no specific page requested, open the first tab view		
@@ -28,37 +27,13 @@ function ManageViewModelController(statusList) {
 //-------------------------------
 
 // view model
-function ManageTabsViewModel(statusList) {
+function ManageTabsViewModel(tabcount,tabs) {
 	// associated Data
 	var self = this; //using self avoids scope problems with methods
-	self.tabs = statusList;
-	self.chosenTabId = ko.observable(); // remember, 'observables' are wrapper functions, not actual data structures per se.
-	self.tabCount = {
-		"Support" : ko.observable(),
-		"Open" : ko.observable(),
-		"Pending" : ko.observable(),
-		"Systems" : ko.observable(),
-		"Closed" : ko.observable()
-	};
+	self.tabs = tabs;
+	self.tabcount = tabcount;
+	self.chosenTabId = ko.observable(); // remember, 'observables' are wrapper functions, not actual data structures per se.	
 	// Operations
-	self.tabData = function(tab){
-		resultstring = tab;
-		var mycount = self.tabCount[tab]();
-		if (mycount != undefined && mycount != 0) {resultstring += " ("+mycount+")";}
-		else {resultstring += "&nbsp;";}
-		return resultstring;
-	};
-	self.getTotals = function() {
-		var anon = function(status) {	//goddamn closures
-			$.getJSON('/api/tickets/count/'+status, function(count) {
-				self.tabCount[status](count);
-			});
-		};		
-		for (i in self.tabs) {
-			status = self.tabs[i];
-			anon(status);
-		}
-	};
 	// Client-side routing to allow for deeplinking/bookmarks - use sammy library to handle routing results
 	self.goToTab = function(tab) { location.hash = tab };
 };

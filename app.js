@@ -8,11 +8,13 @@ var async = require('async');
 var util = require('util');
 var ImapHandler = require('./lib/emailhandler').ImapHandler;
 var DB = require('./lib/dbhandler').DB;
+var TicketProvider = require('./lib/dbhandler').TicketProvider;
 var passport = require('passport');
 var settings = require('./settings');
 
 var imap = new ImapHandler();
 var db = new DB();
+var ticket = new TicketProvider();
 var app = module.exports = express.createServer();
 
 // Configuration
@@ -64,5 +66,14 @@ console.log("now.js added to server app.");
 global.everyone = everyone;
 
 // now functions    
-everyone.now.statusList = settings.statusList;
+everyone.now.getManageStartupData = function(callback){
+  ticket.countAllByStatus(function(err,ticketcount){
+    if (err) {console.error("Could not get ticket counts; ");}
+    else {
+      callback(ticketcount,settings.statusList);
+    }
+  });
+};
+
+//everyone.now.notify(newdata);  
 

@@ -7,7 +7,7 @@
 			div(data-bind="with:manageTabsView").span10
 				ul(data-bind="foreach: tabs").nav.nav-tabs
 					li(data-bind="css:{active: $data == $parent.chosenTabId()}, click: $parent.goToTab")
-						a(data-bind="html: $parent.tabData($data)")
+						a(data-bind="text: $data + ' - ' + $parent.tabcount[$data]() ")
 				
 			//ticket list view		
 			div(data-bind="with:manageTableView").span10
@@ -85,7 +85,10 @@ script(src="/js/manage-viewmodelcontroller.js")
 script
 	//get to work!
 	now.ready(function(){
-		var controller = ko.applyBindings(new ManageViewModelController(now.statusList));
+		//fire up a viewcontroller for the page via knockout, attach to global window
+		now.getManageStartupData(function(ticketcount,statuslist){
+			window.controller = ko.applyBindings( new ManageViewModelController(ticketcount,statuslist) );
+		});
 	});
 
 
