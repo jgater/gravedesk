@@ -51,7 +51,7 @@ async.series([
   db.connectDB,
   function(callback) {
     // add default website admin user to db 
-    userdb.saveDefaultAdminUser(settings.defaultAdmin,callback);
+    userdb.saveOrReplaceUser(settings.defaultAdmin,callback);
   },
   // fire up web server
   function(callback) {
