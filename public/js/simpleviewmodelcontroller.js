@@ -3,7 +3,7 @@ function SimpleViewModelController() {
 	self.topbarView = new TopBarViewModel();
 		Sammy(function() {-
 		this.get('/#adminlogin', function() { 
-				$(document).ready(function() {
+				$(function() {
 					$('#adminloginModal').modal({
 						backdrop : true
 					})

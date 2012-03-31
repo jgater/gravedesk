@@ -10,22 +10,22 @@ module.exports = {
 
   // app.get('/'...)
   index: function(req, res) {
-  	res.render('index.jade', { title: settings.brand, brand: settings.brand });
+  	res.render('index.jade', { title: settings.brand, brand: settings.brand, currentUser: req.user });
 	},
 
-  //app.get('/manage'...
+  //app.get('/manage'... ensureAuthenticated, ...
   manage: function(req, res){
-    res.render('manage/index.jade', { title: 'Manage Tickets - '+settings.brand, brand: settings.brand });
+    res.render('manage/index.jade', { title: 'Manage Tickets - '+settings.brand, brand: settings.brand, currentUser: req.user });
   },
 
-  // app.get('/admin'...)
+  // app.get('/admin'...) ensureAuthenticated, ...
   getAdmin: function(req, res) {
-    res.render('admin/index.jade', { title: 'Admin - '+settings.brand, brand: settings.brand });
+    res.render('admin/index.jade', { title: 'Admin - '+settings.brand, brand: settings.brand, currentUser: req.user });
   },
 
-  // app.get('/admin/register'...)
+  // app.get('/admin/register'...) ensureAuthenticated, ...
   getRegister: function(req, res){
-    res.render('admin/register.jade', { title: 'Register User - '+settings.brand, brand: settings.brand });
+    res.render('admin/register.jade', { title: 'Register User - '+settings.brand, brand: settings.brand, currentUser: req.user });
   },
 
   // app.get('/account', ensureAuthenticated, ...

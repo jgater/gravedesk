@@ -1,8 +1,10 @@
 != partial('../topnavbar.jade')
 .container-fluid
 	.row-fluid
-		.span10.hero-unit
-			p  Hi, #{currentUser.name.first} #{currentUser.name.last}!
+		.span4.hero-unit
+			p Hi, #{currentUser.name.first} #{currentUser.name.last}!
+			H2
+				a(href='/logout').btn.btn-primary.btn-large Logout
 
 script(src='/js/topbar-viewmodel.js')
 script(src='/js/simpleviewmodelcontroller.js')
