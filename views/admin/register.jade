@@ -6,9 +6,9 @@
 					fieldset
 							legend Register a new administrator
 							.control-group
-								label.control-label(for='email') Email:
+								label.control-label(for='username') Username:
 								.controls
-									input#email.input.span4.focused(type='text', name='email', placeholder='sfry@example.com')
+									input#username.input.span4(type='text', name='username', placeholder='sfry')
 							.control-group
 								label.control-label(for='password') Password:
 								.controls
@@ -21,6 +21,10 @@
 								label.control-label(for='name.last') Last Name:
 								.controls
 									input.input.span4(id='name.last', type='text', name='name.last', placeholder='Fry')	
+							.control-group
+								label.control-label(for='email') Email:
+								.controls
+									input#email.input.span4(type='text', name='email', placeholder='sfry@example.com')
 
 							.form-actions
 								button.btn.btn-primary.btn-large(type='submit') Register user

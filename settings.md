@@ -16,10 +16,11 @@ var blankTicketSettings = {
 };
 
 var defaultAdmin = {
+	username: "admin",
+	password: "changeme",
 	firstname: "Default",
 	lastname: "Admin",
-	email: "admin@example.com",
-	password: "changeme"
+	email: "admin@example.com"
 }
 
 
@@ -41,7 +42,8 @@ var settingsModel = function () {
 	this.blankticket = blankTicketSettings;
 	this.blankticket.status = statusList[0];
 	this.brand = brand;
-		this.defaultAdmin = {
+	this.defaultAdmin = {
+		"username": defaultAdmin.username,
 		"fname": defaultAdmin.firstname,
 		"lname": defaultAdmin.lastname,
 		"email": defaultAdmin.email,

@@ -104,7 +104,8 @@ module.exports = {
   //app.post('/api/adminuser', api.postUser);
   postUser: function(req, res) {
     user.saveUser({
-      fname : req.param('name.first')
+      username: req.param('username')
+    , fname : req.param('name.first')
     , lname : req.param('name.last')
     , email : req.param('email')
     , password : req.param('password')

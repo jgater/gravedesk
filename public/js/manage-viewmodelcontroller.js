@@ -20,7 +20,7 @@ function ManageViewModelController(ticketcount,statuslist) {
 			self.manageTicketView.showTicket(false);
 			self.manageTabsView.chosenTabId(this.params.tab); //make the selected tab match the request
 			self.manageTableView.getData(this.params.tab);
-		});	
+		});
 		this.get('/manage', function() { this.app.runRoute('get', '/manage#'+self.manageTabsView.tabs[0]) }); //if no specific page requested, open the first tab view		
 	}).run();
 

@@ -1,0 +1,18 @@
+#adminloginModal.modal(style="display: none;").fade
+	.modal-header
+		a(data-dismiss="modal").close ×
+		h2 Administrator Login required
+	.mymodal-body
+		form.form-horizontal(action='/admin/login', method='POST')
+			fieldset
+				.control-group
+					label.control-label(for='username') Username:
+					.controls
+						input#username.input-xlarge(type='text', name='username', placeholder='admin', tabindex="1")
+				.control-group
+					label.control-label(for='password') Password:
+					.controls
+						input#password.input-xlarge(type='password', name='password', placeholder='password', tabindex="2")
+			.mymodal-footer
+					a(data-dismiss="modal", tabindex="3").btn Cancel login
+					button.btn.btn-primary.btn(type='submit', tabindex="4") Login

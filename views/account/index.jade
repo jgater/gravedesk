@@ -2,8 +2,7 @@
 .container-fluid
 	.row-fluid
 		.span10.hero-unit
-			h1 Successful login!
-			p  Hi, #{currentUser.name.first}!
+			p  Hi, #{currentUser.name.first} #{currentUser.name.last}!
 
 script(src='/js/topbar-viewmodel.js')
 script(src='/js/simpleviewmodelcontroller.js')

@@ -6,29 +6,28 @@ var passport = require('passport');
 var start = require('./routes/start');
 var api = require('./routes/api');
 
-function ensureAuthenticated(req, res, next) {
+function ensureAdminAuthenticated(req, res, next) {
   if (req.isAuthenticated()) { return next(); }
-  res.redirect('/admin/login');
+  res.redirect('/#adminlogin');
 }
 
 module.exports = function(app) {
   
   // standard pages
   app.get('/', start.index);
-  app.get('/admin', start.getAdmin);  
-  app.get('/admin/register', start.getRegister);
-  app.get('/admin/login', start.adminLogin);
+  app.get('/admin', ensureAdminAuthenticated, start.getAdmin);  
+  app.get('/admin/register', ensureAdminAuthenticated, start.getRegister);
   app.post('/admin/login', passport.authenticate('local', 
     { 
-      successRedirect: '/account', 
-      failureRedirect: '/admin/login'
+      successRedirect: '/',
+      failureRedirect: '/#adminlogin'
     })
   );
-  app.get('/account', ensureAuthenticated, start.getAccount);
+  app.get('/account', ensureAdminAuthenticated, start.getAccount);
   app.get('/logout', start.logout);
 
   // manage tickets pages
-  app.get('/manage', start.manage);
+  app.get('/manage', ensureAdminAuthenticated, start.manage);
 
 
   // tickets RESTful api
