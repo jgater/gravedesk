@@ -15,6 +15,22 @@ var blankTicketSettings = {
 	"description": "No description given."
 };
 
+var defaultAdmin = {
+	firstname: "Default",
+	lastname: "Admin",
+	email: "admin@example.com",
+	password: "changeme"
+}
+
+
+
+
+
+
+
+
+
+
 
 //-------------------------------
 
@@ -25,6 +41,12 @@ var settingsModel = function () {
 	this.blankticket = blankTicketSettings;
 	this.blankticket.status = statusList[0];
 	this.brand = brand;
+		this.defaultAdmin = {
+		"fname": defaultAdmin.firstname,
+		"lname": defaultAdmin.lastname,
+		"email": defaultAdmin.email,
+		"password": defaultAdmin.password
+	};
 };
     
 module.exports = new settingsModel();

@@ -9,12 +9,14 @@ var util = require('util');
 var ImapHandler = require('./lib/emailhandler').ImapHandler;
 var DB = require('./lib/dbhandler').DB;
 var TicketProvider = require('./lib/dbhandler').TicketProvider;
+var UserProvider = require('./lib/dbhandler').UserProvider;
 var passport = require('passport');
 var settings = require('./settings');
 
 var imap = new ImapHandler();
 var db = new DB();
-var ticket = new TicketProvider();
+var ticketdb = new TicketProvider();
+var userdb = new UserProvider();
 var app = module.exports = express.createServer();
 
 // Configuration
@@ -47,6 +49,10 @@ require('./routes')(app);
 async.series([
   //connect to db
   db.connectDB,
+  function(callback) {
+    // add default website admin user to db 
+    userdb.saveDefaultAdminUser(settings.defaultAdmin,callback);
+  },
   // fire up web server
   function(callback) {
     app.listen(3000,callback);
@@ -67,7 +73,7 @@ global.everyone = everyone;
 
 // now functions    
 everyone.now.getManageStartupData = function(callback){
-  ticket.countAllByStatus(function(err,ticketcount){
+  ticketdb.countAllByStatus(function(err,ticketcount){
     if (err) {console.error("Could not get ticket counts; ");}
     else {
       callback(ticketcount,settings.statusList);
