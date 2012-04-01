@@ -2,37 +2,37 @@
 function ManageViewModelController(ticketcount,statuslist) {
 	var self = this;
 	self.topbarView = new TopBarViewModel();
-  self.manageTabsView = new ManageTabsViewModel(ko.mapping.fromJS(ticketcount),statuslist);
-	self.manageTableView = new ManageTableViewModel();
-	self.manageTicketView = new ManageTicketViewModel();
+  self.tabsView = new tabsViewModel(ko.mapping.fromJS(ticketcount),statuslist);
+	self.tableView = new tableViewModel();
+	self.ticketView = new ticketViewModel();
 	// respond to server command to update ticket views
 	now.ticketUpdate = function(ticketcount){
-		ko.mapping.fromJS(ticketcount,self.manageTabsView.tabcount);
-		if (self.manageTableView.showTable) {self.manageTableView.getData( self.manageTabsView.chosenTabId() )}
+		ko.mapping.fromJS(ticketcount,self.tabsView.tabcount);
+		if (self.tableView.showTable) {self.tableView.getData( self.tabsView.chosenTabId() )}
 		//probably not watching the same ticket that triggered the update, but update everyone's just in case
-		if (self.manageTicketView.showTicket) {self.manageTicketView.getData( self.manageTicketView.ticketData()._id )}
+		if (self.ticketView.showTicket) {self.ticketView.getData( self.ticketView.ticketData()._id )}
 	};
 	//respond to server advising new ticket added to db
 	now.newTicket = function(ticketcount){
-		ko.mapping.fromJS(ticketcount,self.manageTabsView.tabcount);
-		if (self.manageTableView.showTable) {self.manageTableView.getData( self.manageTabsView.chosenTabId() )}
+		ko.mapping.fromJS(ticketcount,self.tabsView.tabcount);
+		if (self.tableView.showTable) {self.tableView.getData( self.tabsView.chosenTabId() )}
 	};
 
 	Sammy(function() {
 		this.get('/manage#/:ticketid', function (){
-			self.manageTabsView.chosenTabId(null); //unselect all tabs
-			var array = self.manageTableView.tickets;
-			self.manageTableView.showTable(false);
-			self.manageTicketView.showTicket(true);
-			self.manageTicketView.getData(this.params.ticketid);
+			self.tabsView.chosenTabId(null); //unselect all tabs
+			var array = self.tableView.tickets;
+			self.tableView.showTable(false);
+			self.ticketView.showTicket(true);
+			self.ticketView.getData(this.params.ticketid);
 		});
 		this.get('/manage#:tab', function() {
-			self.manageTicketView.showTicket(false);
-			self.manageTableView.showTable(true);
-			self.manageTabsView.chosenTabId(this.params.tab); //make the selected tab match the request
-			self.manageTableView.getData(this.params.tab);
+			self.ticketView.showTicket(false);
+			self.tableView.showTable(true);
+			self.tabsView.chosenTabId(this.params.tab); //make the selected tab match the request
+			self.tableView.getData(this.params.tab);
 		});
-		this.get('/manage', function() { this.app.runRoute('get', '/manage#'+self.manageTabsView.tabs[0]) }); //if no specific page requested, open the first tab view		
+		this.get('/manage', function() { this.app.runRoute('get', '/manage#'+self.tabsView.tabs[0]) }); //if no specific page requested, open the first tab view		
 	}).run();
 
 }
@@ -40,7 +40,7 @@ function ManageViewModelController(ticketcount,statuslist) {
 //-------------------------------
 
 // view model
-function ManageTabsViewModel(tabcount,tabs) {
+function tabsViewModel(tabcount,tabs) {
 	// associated Data
 	var self = this; //using self avoids scope problems with methods
 	self.tabs = tabs;
@@ -54,7 +54,7 @@ function ManageTabsViewModel(tabcount,tabs) {
 //-------------------------------
 
 // view model
-function ManageTableViewModel() {
+function tableViewModel() {
 	// associated Data
 	var self = this; //using self avoids scope problems with methods
 	self.tickets = ko.observableArray();
@@ -88,7 +88,7 @@ function TicketSummary(rawticket) {
 //-------------------------------
 
 //view model
-function ManageTicketViewModel() {
+function ticketViewModel() {
 	// associated Data
 	var self = this; //using self avoids scope problems with methods
 	self.impacts = ko.observableArray(['High', 'Normal', 'Low']);

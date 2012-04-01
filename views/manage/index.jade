@@ -4,7 +4,7 @@
 			.span2
 				!= partial('sidebar.jade')
 			//tabs view
-			div(data-bind="with:manageTabsView").span10
+			div(data-bind="with:tabsView").span10
 				ul(data-bind="foreach: tabs").nav.nav-tabs
 					li(data-bind="css:{active: $data == $parent.chosenTabId()}, click: $parent.goToTab")
 						<!-- ko if: $parent.tabcount[$data]() && $data != "Closed" -->
@@ -15,7 +15,7 @@
 						<!-- /ko -->
 
 			//ticket list view		
-			div(data-bind="with:manageTableView").span10
+			div(data-bind="with:tableView").span10
 				div(data-bind="visible: showTable, css: {hide: !showTable}").hide
 					table#ticketlist.table.table-bordered.table-striped(data-bind="dataTable: { dataSource: tickets, rowTemplate: 'ticketListTemplate',  options: {bSort: false, iDisplayLength: 25}, columns: ['age', 'subject', 'from', 'friendlydate', 'impact'] }")
 							thead
@@ -27,7 +27,7 @@
 										th date
 
 			//individual ticket view
-			div(data-bind="with:manageTicketView").span10			
+			div(data-bind="with:ticketView").span10			
 				//section only shown if ticketData has content
 				div(data-bind="with: ticketData, visible: showTicket, css: {hide: !showTicket}").hide.span10
 					.btn-toolbar.pull-right
@@ -37,12 +37,12 @@
 							button(data-toggle="dropdown").btn Impact <span class="caret"></span>
 								ul(data-bind="foreach: $parent.impacts").dropdown-menu
 									li
-										a(data-bind="text: $data, click: $root.manageTicketView.changeImpact")
+										a(data-bind="text: $data, click: $root.ticketView.changeImpact")
 						.btn-group
 							button(data-toggle="dropdown").btn Status <span class="caret"></span>
-								ul(data-bind="foreach: $root.manageTabsView.tabs").dropdown-menu
+								ul(data-bind="foreach: $root.tabsView.tabs").dropdown-menu
 									li
-										a(data-bind="text: $data, click: $root.manageTicketView.changeStatus")
+										a(data-bind="text: $data, click: $root.ticketView.changeStatus")
 						.btn-group
 							button(data-bind="css:{disabled: true}").btn Edit Ticket
 						.btn-group
