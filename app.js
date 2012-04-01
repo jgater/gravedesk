@@ -1,22 +1,20 @@
 /*
  * Module dependencies.
  */
-
 var express = require('express');
 var nowjs = require('now');
 var async = require('async');
 var util = require('util');
 var ImapHandler = require('./lib/emailhandler').ImapHandler;
-var DB = require('./lib/dbhandler').DB;
-var TicketProvider = require('./lib/dbhandler').TicketProvider;
-var UserProvider = require('./lib/dbhandler').UserProvider;
+var dbhandler = require('./lib/dbhandler');
 var passport = require('passport');
 var settings = require('./settings');
+var events = require('events');
 
 var imap = new ImapHandler();
-var db = new DB();
-var ticketdb = new TicketProvider();
-var userdb = new UserProvider();
+var db = new dbhandler.DB();
+var ticketdb = dbhandler.TicketProvider;
+var userdb = dbhandler.UserProvider;
 var app = module.exports = express.createServer();
 
 // Configuration
@@ -69,7 +67,6 @@ function(err) {
 // initialize now.js
 var everyone = nowjs.initialize(app);
 console.log("now.js added to server app.");
-global.everyone = everyone;
 
 // now functions    
 everyone.now.getManageStartupData = function(callback){
@@ -81,5 +78,26 @@ everyone.now.getManageStartupData = function(callback){
   });
 };
 
-//everyone.now.notify(newdata);  
+//when db updates a ticket, trigger this event and tell the client to update tab ticket counts
+ticketdb.on("ticketUpdated", function(){
+  ticketdb.countAllByStatus(function(err,ticketcount){
+    if (err) {console.error("Could not get ticket counts; ");}
+      else { if (everyone.now.ticketUpdate) everyone.now.ticketUpdate(ticketcount); }
+  });
+});
+
+// when db adds a new ticket from email, trigger this event and tell the client to update their table view 
+ticketdb.on("ticketListChange", function(){
+  ticketdb.countAllByStatus(function(err,ticketcount){
+    if (err) {console.error("Could not get ticket counts; ");}
+    else {if (everyone.now.newTicket) {everyone.now.newTicket(ticketcount);} }
+  });
+});
+
+
+
+
+
+
+
 

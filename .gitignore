@@ -19,6 +19,7 @@ CVS
 
 # node
 node_modules
+.nodemonignore
 
 # settings
 settings.js

@@ -5,7 +5,18 @@ function ManageViewModelController(ticketcount,statuslist) {
   self.manageTabsView = new ManageTabsViewModel(ko.mapping.fromJS(ticketcount),statuslist);
 	self.manageTableView = new ManageTableViewModel();
 	self.manageTicketView = new ManageTicketViewModel();
-
+	// respond to server command to update ticket views
+	now.ticketUpdate = function(ticketcount){
+		ko.mapping.fromJS(ticketcount,self.manageTabsView.tabcount);
+		if (self.manageTableView.showTable) {self.manageTableView.getData( self.manageTabsView.chosenTabId() )}
+		//probably not watching the same ticket that triggered the update, but update everyone's just in case
+		if (self.manageTicketView.showTicket) {self.manageTicketView.getData( self.manageTicketView.ticketData()._id )}
+	};
+	//respond to server advising new ticket added to db
+	now.newTicket = function(ticketcount){
+		ko.mapping.fromJS(ticketcount,self.manageTabsView.tabcount);
+		if (self.manageTableView.showTable) {self.manageTableView.getData( self.manageTabsView.chosenTabId() )}
+	};
 
 	Sammy(function() {
 		this.get('/manage#/:ticketid', function (){
@@ -16,8 +27,8 @@ function ManageViewModelController(ticketcount,statuslist) {
 			self.manageTicketView.getData(this.params.ticketid);
 		});
 		this.get('/manage#:tab', function() {
-			self.manageTableView.showTable(true);
 			self.manageTicketView.showTicket(false);
+			self.manageTableView.showTable(true);
 			self.manageTabsView.chosenTabId(this.params.tab); //make the selected tab match the request
 			self.manageTableView.getData(this.params.tab);
 		});
@@ -100,7 +111,7 @@ function ManageTicketViewModel() {
         data: ko.toJSON(data),
         type: "PUT", contentType: "application/json",
         success: function(result) { 
-        	alert(result);
+        	console.log(result);
         }
     	});
 	};

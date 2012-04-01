@@ -1,6 +1,4 @@
 var settings = require('../settings');
-var UserProvider = require('../lib/dbhandler').UserProvider;
-var user = new UserProvider;
 
 /*
 index.js routes

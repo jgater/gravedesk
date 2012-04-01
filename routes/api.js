@@ -1,10 +1,9 @@
  var settings = require('../settings');
 
-var TicketProvider = require('../lib/dbhandler').TicketProvider;
-var ticket = new TicketProvider();
-var UserProvider = require('../lib/dbhandler').UserProvider;
-var user = new UserProvider;
 
+var dbhandler = require('../lib/dbhandler');
+var ticketdb = dbhandler.TicketProvider;
+var userdb = dbhandler.UserProvider;
 
 /*
 api.js routes
@@ -29,10 +28,9 @@ module.exports = {
   // PUT to UPDATE
   //app.put('/api/tickets/:id', api.putTicket);
   putTicket: function (req, res) {
-    ticket.updateTicketById(req.params.id, req.body, function (err, num) {
+    ticketdb.updateTicketById(req.params.id, req.body, function (err, num) {
       if (!err) {
         res.send("Changes to ticket " + req.params.id+" saved to database.");
-        console.log("Changes to ticket " + req.params.id+" saved to database.");
       } 
     });
   },
@@ -41,7 +39,7 @@ module.exports = {
   //get all tickets
   //app.get('/api/tickets', api.getTicketAll);
   getTicketAll: function (req, res) {
-    ticket.findAll(function(err,tickets){
+    ticketdb.findAll(function(err,tickets){
       if (tickets) {
         res.send(tickets);
       } else {
@@ -50,21 +48,10 @@ module.exports = {
       }
     });
   },
-  //get ticket count by status
-  //app.get('/api/tickets/count/:status', api.getTicketCount);
-  getTicketCount: function (req, res) {
-    ticket.findCountByStatus(req.params.status,function(err,count){
-      if (count || count===0) {
-        res.send(JSON.stringify(count)); 
-      } else {
-        res.send(JSON.stringify(-1));
-      } 
-    }); 
-  },
   //get ticket summaries by status
   //app.get('/api/tickets/status/:status', api.getTicketStatus);
   getTicketStatus: function (req, res) {
-    ticket.findByStatus(req.params.status, function(err,ticket){
+    ticketdb.findByStatus(req.params.status, function(err,ticket){
       if (ticket) {
         res.send(ticket);
       } else {
@@ -76,7 +63,7 @@ module.exports = {
   //get ticket details by id
   //app.get('/api/tickets/:id', api.getTicketId);
   getTicketId: function (req, res) {
-    ticket.findById(req.params.id,function(err,ticket){
+    ticketdb.findById(req.params.id,function(err,ticket){
       if (ticket) {
         res.send(ticket); 
       } else {
@@ -89,7 +76,7 @@ module.exports = {
   // DELETE to DESTROY
   //app.delete('/api/tickets/:id', api.delTicketId);
   delTicketId: function (req, res) {
-    ticket.deleteById(req.params.id, function(err){
+    ticketdb.deleteById(req.params.id, function(err){
       if (err) {
         console.error("unable to delete ticket "+req.params.id+err);
       } else {
@@ -103,7 +90,7 @@ module.exports = {
   // POST to CREATE
   //app.post('/api/adminuser', api.postUser);
   postUser: function(req, res) {
-    user.saveUser({
+    userdb.saveUser({
       username: req.param('username')
     , fname : req.param('name.first')
     , lname : req.param('name.last')
