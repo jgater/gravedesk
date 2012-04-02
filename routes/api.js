@@ -96,8 +96,9 @@ module.exports = {
     , lname : req.param('name.last')
     , email : req.param('email')
     , password : req.param('password')
+    , isAdmin : req.param('isAdmin')
     }, function(err,docs) {
-        if (err) { res.render('admin/err.jade', { title: 'Admin Error - '+settings.brand, brand: settings.brand, err: err, currentUser: req.user });
+        if (err) { res.render('admin/err.jade', { title: 'Admin Error - '+settings.brand, brand: settings.brand, err: err, adminUser: req.user });
       } else {
         res.redirect('/admin');  
       }

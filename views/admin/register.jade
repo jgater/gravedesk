@@ -25,6 +25,9 @@
 								label.control-label(for='email') Email:
 								.controls
 									input#email.input.span4(type='text', name='email', placeholder='sfry@example.com')
+							.control-group
+								.controls
+									input#isAdmin(type='hidden', name='isAdmin', value=true)
 
 							.form-actions
 								button.btn.btn-primary.btn-large(type='submit') Register user

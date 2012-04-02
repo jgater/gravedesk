@@ -10,10 +10,16 @@ div(data-bind="with: topbarView").navbar.navbar-fixed-top
 			.nav-collapse
 				ul(data-bind="foreach: navbarLinks").nav
 					li(data-bind="css:{active: $parent.matchingPath(path)}")
-						a(data-bind="text: name, attr: {href: path}")
-				if currentUser
+						if adminUser
+							<a data-bind="attr: {href: path}"><i class="icon-white" data-bind="class: icon"></i> <span data-bind="text:name"></span>&nbsp;</a>
+						else
+							<!-- ko ifnot: showOnlyToAdmin -->
+							<a data-bind="attr: {href: path}"><i class="icon-white" data-bind="class: icon"></i> <span data-bind="text:name"></span>&nbsp;</a>
+							<!-- /ko -->
+							
+				if adminUser
 					p.navbar-text.pull-right Logged in as 
-						a(href='/account') #{currentUser.username}  
+						a(href='/account') #{adminUser.username}  
 						a(href='/logout').btn.btn-primary.btn-mini.align-inherit <i class="icon-user icon-white"></i> Log out
 				else
 					p.navbar-text.pull-right 
