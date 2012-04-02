@@ -1,0 +1,40 @@
+!= partial('../topnavbar.jade')
+	.container-fluid
+		.row-fluid
+			.span2
+				!= partial('sidebar.jade')
+			.span10
+				h2 List of user accounts
+				br
+				table.table.table-bordered.table-striped.span8
+					thead
+						tr
+							th username 							
+							th email
+							th full name
+							th 					
+					tbody(data-bind="foreach: userList")
+						tr
+							td(data-bind="text: username") 
+							td(data-bind="text: email")
+							td(data-bind="text: fullname")
+							td.
+								<!-- ko ifnot: username == $parent.serverDefaults.defaultAdmin.username -->
+								<a data-bind="click: $parent.deleteUser">delete account</a>
+								<!-- /ko -->
+								
+
+
+script(src='/js/topbar-viewmodel.js')
+script(src='/js/admin-viewmodelcontroller.js')
+script(src='/js/lib/knockout.validation.js')
+script 
+	//get to work!
+	now.ready(function(){
+		//fire up a viewcontroller for the page via knockout
+		now.getAdminStartupData(function(settings){
+			window.controller = new AdminViewModelController(settings);
+			ko.applyBindings(controller);
+			controller.getUsers();
+		});
+	});

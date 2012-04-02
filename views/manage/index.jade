@@ -1,17 +1,22 @@
-!= partial('topnavbar.jade')
+!= partial('../topnavbar.jade')
 	.container-fluid
 		.row-fluid
 			.span2
 				!= partial('sidebar.jade')
 			//tabs view
-			.span10
+			div(data-bind="with:tabsView").span10
 				ul(data-bind="foreach: tabs").nav.nav-tabs
-					li(data-bind="css:{active: $data == $root.chosenTabId()}, click: $root.goToTab")
-						a(data-bind="text: $root.tabData($data)")
-			.span10
-				// tr(data-bind="click: $root.goToTicket")
-				//ticket list view
-				section
+					li(data-bind="css:{active: $data == $parent.chosenTabId()}, click: $parent.goToTab")
+						<!-- ko if: $parent.tabcount[$data]() && $data != "Closed" -->
+						<a data-bind="text: $data + ' (' + $parent.tabcount[$data]() +')' "></a>
+						<!-- /ko -->
+						<!-- ko if: !$parent.tabcount[$data]() || $data == "Closed" -->
+						<a data-bind="text: $data"></a>
+						<!-- /ko -->
+
+			//ticket list view		
+			div(data-bind="with:tableView").span10
+				div(data-bind="visible: showTable, css: {hide: !showTable}").hide
 					table#ticketlist.table.table-bordered.table-striped(data-bind="dataTable: { dataSource: tickets, rowTemplate: 'ticketListTemplate',  options: {bSort: false, iDisplayLength: 25}, columns: ['age', 'subject', 'from', 'friendlydate', 'impact'] }")
 							thead
 									tr
@@ -21,23 +26,73 @@
 										th from
 										th date
 
+			//individual ticket view
+			div(data-bind="with:ticketView").span10			
+				//section only shown if ticketData has content
+				div(data-bind="with: ticketData, visible: showTicket, css: {hide: !showTicket}").hide.span10
+					.btn-toolbar.pull-right
+						.btn-group
+							a(data-toggle="modal", data-target="#deleteModal").btn.btn-danger <i class="icon-trash icon-white"></i> Delete Ticket
+						.btn-group
+							button(data-toggle="dropdown").btn Impact <span class="caret"></span>
+								ul(data-bind="foreach: $parent.impacts").dropdown-menu
+									li
+										a(data-bind="text: $data, click: $root.ticketView.changeImpact")
+						.btn-group
+							button(data-toggle="dropdown").btn Status <span class="caret"></span>
+								ul(data-bind="foreach: $root.tabsView.tabs").dropdown-menu
+									li
+										a(data-bind="text: $data, click: $root.ticketView.changeStatus")
+						.btn-group
+							button(data-bind="css:{disabled: true}").btn Edit Ticket
+						.btn-group
+							button(data-bind="click: $parent.closeTicket, disable: $parent.isClosed, css:{disabled: $parent.isClosed}").btn.btn-primary Close Ticket
+
+					br
+					ul.unstyled	
+						li
+							p <span class="label label-info">ID</span> <span data-bind="text: _id"></span>
+						li
+							p <span class="label label-info">age</span> <span data-bind="text: age"></span> - <span data-bind="text: friendlydate"></span>
+						li
+							p <span class="label label-info">status</span> <span data-bind="text: status()"></span>
+						li
+							p <span class="label label-info">impact</span> <span class="badge" data-bind="text: impact()"></span>
+						li
+							p <span class="label label-info">from:</span> <strong data-bind="text: from"></strong>
+
+					hr
+					h1(data-bind="text: subject")
+					hr
+				div(data-bind="with: ticketData, visible: showTicket, css: {hide: !showTicket}").hide.span10.well
+					p(data-bind="html: description")
+
 
 <script Id="ticketListTemplate" type="text/html">
 <td width=7.5% data-bind="text: age"></td>
 <td width=7.5% data-bind="text: impact"></td>
-<td width= 50%><A data-bind="text: subject, attr: { href: '/manage/'+id}"></a></td>
+<td width= 50%><a data-bind="text: subject"></a></td>
 <td data-bind="text: from"></td>
 <td data-bind="text: friendlydate"></td>
 </script>
 
+!= partial('modals.jade')
 
-
-script(src="/js/lib/jquery.dataTables.min.js")							
-script(src="/js/lib/knockout.bindings.dataTables.js")	
-script(src='/js/lib/bootstrap.datatables.js')
-script(src="/js/lib/moment.min.js")					
-script(src="/js/lib/sammy.min.js")					
-script(src='/js/manage-index-viewmodel.js')
+script(src="/js/lib/moment.min.js")		
+script(src="/js/lib/knockout.bindings.dataTables.js")
+script(src="/js/lib/knockout.mapping.js")	
+script(src="/js/lib/jquery.dataTables.min.js")	
+script(src="/js/lib/bootstrap.datatables.js")		
+script(src="/js/topbar-viewmodel.js")
+script(src="/js/manage-viewmodelcontroller.js")
+script
+	//get to work!
+	now.ready(function(){
+		//fire up a viewcontroller for the page via knockout, attach to global window
+		now.getManageStartupData(function(ticketcount,statuslist){
+			window.controller = ko.applyBindings( new ManageViewModelController(ticketcount,statuslist) );
+		});
+	});
 
 
 

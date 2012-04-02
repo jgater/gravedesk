@@ -1,0 +1,25 @@
+!= partial('../topnavbar.jade')
+	.container-fluid
+		.row-fluid
+			.span2
+				!= partial('sidebar.jade')
+			.span10
+				.well
+					h2 Administration Panel
+					p
+					h4 &larr; Please select an option
+
+
+script(src='/js/topbar-viewmodel.js')
+script(src='/js/admin-viewmodelcontroller.js')
+script(src='/js/lib/knockout.validation.js')
+script 
+	//get to work!
+	now.ready(function(){
+		//fire up a viewcontroller for the page via knockout, attach to global window
+		now.getAdminStartupData(function(settings){
+			window.controller = ko.applyBindings( new AdminViewModelController(settings) );
+		});
+	});
+
+		

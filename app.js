@@ -1,16 +1,20 @@
 /*
  * Module dependencies.
  */
-
 var express = require('express');
 var nowjs = require('now');
 var async = require('async');
 var util = require('util');
 var ImapHandler = require('./lib/emailhandler').ImapHandler;
-var TicketProvider = require('./lib/dbhandler').TicketProvider;
+var dbhandler = require('./lib/dbhandler');
+var passport = require('passport');
+var settings = require('./settings');
+var events = require('events');
 
 var imap = new ImapHandler();
-var db = new TicketProvider();
+var db = new dbhandler.DB();
+var ticketdb = dbhandler.TicketProvider;
+var userdb = dbhandler.UserProvider;
 var app = module.exports = express.createServer();
 
 // Configuration
@@ -18,8 +22,11 @@ var app = module.exports = express.createServer();
 app.configure(function(){
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
+  app.use(express.cookieParser());
   app.use(express.bodyParser());
-  app.use(express.methodOverride());
+  app.use(express.session({ secret: 'tom thumb' }));
+  app.use(passport.initialize());
+  app.use(passport.session());
   app.use(app.router);
   app.use(express.static(__dirname + '/public'));
   app.set('view options', { pretty: true });
@@ -34,16 +41,16 @@ app.configure('production', function(){
 });
 
 // Routes
-var routes = require('./routes');
-app.get('/', routes.index);
-app.get('/manage', routes.manage);
-app.get('/manage/:id', routes.manageid);
-
+require('./routes')(app);
 
 //start services
 async.series([
   //connect to db
   db.connectDB,
+  function(callback) {
+    // add default website admin user to db 
+    userdb.saveOrReplaceUser(settings.defaultAdmin,callback);
+  },
   // fire up web server
   function(callback) {
     app.listen(3000,callback);
@@ -62,89 +69,53 @@ var everyone = nowjs.initialize(app);
 console.log("now.js added to server app.");
 
 // now functions    
-
-everyone.now.distributeMessage = function(message){
-  everyone.now.receiveMessage(this.now.name, message);
+everyone.now.getManageStartupData = function(callback){
+  ticketdb.countAllByStatus(function(err,ticketcount){
+    if (err) {console.error("Could not get ticket counts; ");}
+    else {
+      callback(ticketcount,settings.statusList);
+    }
+  });
 };
 
+everyone.now.postNewAdminAccount = function(newAdminAccount,callback){
+  userdb.saveUser(newAdminAccount,callback);
+};
 
+everyone.now.getAdminStartupData = function(callback){
+  callback(settings);
+};
 
-// REST api
+everyone.now.getAdminUsers = function(callback){
+  userdb.findAllUsers(function(err,allusers){
+    if (err) {console.error("Could not get all user accounts; ");}
+    else { callback(allusers);}
+  });
+};
 
-app.get('/api', function (req, res) {
-  res.send('API is available.');
-});
+everyone.now.deleteAdminUser = function(user,callback){
+  userdb.deleteUser(user,callback);
+};
 
-// POST to CREATE
-app.post('/api/tickets', function (req, res) {
-  console.log("POST: ");
-  console.log(req.body);
-});
-
-// PUT to UPDATE
-app.put('/api/tickets/:id', function (req, res) {
-  console.log("PUT for " + req.params.id + " received.");
-  db.updateTicketById(req.params.id, req.body, function (err, num) {
-    if (!err) {
-      res.send("Changes to ticket " + req.params.id+" saved to database.");
-      console.log("Changes to ticket " + req.params.id+" saved to database.");
-    } 
+//when db updates a ticket, trigger this event and tell the client to update tab ticket counts
+ticketdb.on("ticketUpdated", function(){
+  ticketdb.countAllByStatus(function(err,ticketcount){
+    if (err) {console.error("Could not get ticket counts; ");}
+      else { if (everyone.now.ticketUpdate) everyone.now.ticketUpdate(ticketcount); }
   });
 });
 
-// GET to READ
-//get all tickets
-app.get('/api/tickets', function (req, res) {
-  db.findAll(function(err,tickets){
-    if (tickets) {
-      res.send(tickets);
-    } else {
-      console.error(err);
-      res.send();
-    }
+// when db adds a new ticket from email, trigger this event and tell the client to update their table view 
+ticketdb.on("ticketListChange", function(){
+  ticketdb.countAllByStatus(function(err,ticketcount){
+    if (err) {console.error("Could not get ticket counts; ");}
+    else {if (everyone.now.newTicket) {everyone.now.newTicket(ticketcount);} }
   });
 });
 
-//get ticket count by status
-app.get('/api/tickets/count/:status', function (req, res) {
-  db.findCountByStatus(req.params.status,function(err,count){
-    if (count || count===0) {
-      res.send(JSON.stringify(count)); 
-    } else {
-      res.send(JSON.stringify(-1));
-    } 
-  }); 
-});
-
-//get ticket summaries by status
-app.get('/api/tickets/status/:status', function (req, res) {
-  db.findByStatus(req.params.status, function(err,ticket){
-    if (ticket) {
-      res.send(ticket);
-    } else {
-      console.error(err);
-      res.send();
-    }
-  });
-});
-
-//get ticket details by id
-app.get('/api/tickets/:id', function (req, res) {
-  db.findById(req.params.id,function(err,ticket){
-    if (ticket) {
-      res.send(ticket); 
-    } else {
-      console.error("ticket not found;" + err);
-      res.send();
-    } 
-  }); 
-});
 
 
-// DELETE to DESTROY
-app.delete('/api/tickets/:id', function (req, res) {
-  console.log("destroy ticket id: " + req.params.id);
-});
+
 
 
 

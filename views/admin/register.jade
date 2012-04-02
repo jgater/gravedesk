@@ -1,0 +1,49 @@
+!= partial('../topnavbar.jade')
+	.container-fluid
+		.row-fluid
+			.span2
+				!= partial('sidebar.jade')
+			.span9
+				.hero-unit
+					form.form-horizontal(data-bind="with:newAdminAccount, submit: createAdmin")
+						fieldset
+								legend Register a new administrator
+								.control-group
+									label.control-label(for='username') Username:
+									.controls
+										input.input.span4(id='username', type='text', placeholder='sfry', data-bind="value:username, valueUpdate: 'afterkeydown'", required)
+								.control-group
+									label.control-label(for='password') Password:
+									.controls
+										input.input.span4(id='password', type='password', placeholder='password', data-bind="value:password, valueUpdate: 'afterkeydown'", required) 
+								.control-group
+									label.control-label(for='name.first') First Name:
+									.controls
+										input.input.span4(id='name.first', type='text', placeholder='Stephen', data-bind="value:name.first, valueUpdate: 'afterkeydown'", required)				
+								.control-group
+									label.control-label(for='name.last') Last Name:
+									.controls
+										input.input.span4(id='name.last', type='text', placeholder='Fry', data-bind="value:name.last, valueUpdate: 'afterkeydown'", required)	
+								.control-group
+									label.control-label(for='email') Email:
+									.controls
+										input.input.span4(id='email', type='text', placeholder='sfry@example.com', data-bind="value:email, valueUpdate: 'afterkeydown'", required) 
+								.control-group
+									.controls
+										input(id='isAdmin', type='hidden', data-bind="value:isAdmin")
+								.form-actions
+									button.btn.btn-primary.btn-large(type='submit', data-bind="enable: $parent.newAdminAccount.isValid()", required) Register new admin »
+
+script(src='/js/topbar-viewmodel.js')
+script(src='/js/lib/knockout.validation.js')
+script(src='/js/admin-viewmodelcontroller.js')
+script 
+	//get to work!
+	ko.validation.init();
+	now.ready(function(){
+		//fire up a viewcontroller for the page via knockout, attach to global window
+		now.getAdminStartupData(function(settings){
+			window.controller = ko.applyBindings( new AdminViewModelController(settings) );
+		});
+	});
+				

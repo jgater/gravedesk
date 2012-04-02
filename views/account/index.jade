@@ -1,0 +1,15 @@
+!= partial('../topnavbar.jade')
+.container-fluid
+	.row-fluid
+		.span4.hero-unit
+			p Hi, #{adminUser.name.first} #{adminUser.name.last}!
+			H2
+				a(href='/logout').btn.btn-primary.btn-large Logout
+
+script(src='/js/topbar-viewmodel.js')
+script(src='/js/simpleviewmodelcontroller.js')
+script 
+	//get to work!
+	var controller = ko.applyBindings(new SimpleViewModelController());			
+
+		
