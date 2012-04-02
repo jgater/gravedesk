@@ -12,7 +12,7 @@ function AdminViewModelController(settings) {
     email: ko.observable().extend({ email: "This" }),
     isAdmin: ko.observable(true).extend({ required: true })
 	});
-	self.serverDefaults = ko.observable(settings);
+	self.serverDefaults = settings;
 	self.userList = ko.observableArray();
 	// operations
 	self.createAdmin = function(){
@@ -25,6 +25,16 @@ function AdminViewModelController(settings) {
 		now.getAdminUsers(function(userList){
 				var mappedUsers = $.map(userList, function(item) { return new incomingUser(item) } ); //return an array of processed(mapped) tickets
 				self.userList(mappedUsers);
+		});
+	};
+	self.deleteUser = function(user){
+		now.deleteAdminUser(user,function(err,result){
+			self.getUsers();
+			if (err) { 
+				alert(err);
+			} else {
+				alert(result);
+			}
 		});
 	};
 

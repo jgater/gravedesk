@@ -93,6 +93,10 @@ everyone.now.getAdminUsers = function(callback){
   });
 };
 
+everyone.now.deleteAdminUser = function(user,callback){
+  userdb.deleteUser(user,callback);
+};
+
 //when db updates a ticket, trigger this event and tell the client to update tab ticket counts
 ticketdb.on("ticketUpdated", function(){
   ticketdb.countAllByStatus(function(err,ticketcount){

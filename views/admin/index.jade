@@ -17,7 +17,7 @@ script
 	//get to work!
 	now.ready(function(){
 		//fire up a viewcontroller for the page via knockout, attach to global window
-		now.getAdminStartupData(function(userlist,settings){
+		now.getAdminStartupData(function(settings){
 			window.controller = ko.applyBindings( new AdminViewModelController(settings) );
 		});
 	});
