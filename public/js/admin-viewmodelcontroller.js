@@ -1,4 +1,4 @@
-function AdminViewModelController() {
+function AdminViewModelController(settings) {
 	var self = this;
 	// data
 	self.topbarView = new TopBarViewModel();
@@ -12,6 +12,8 @@ function AdminViewModelController() {
     email: ko.observable().extend({ email: "This" }),
     isAdmin: ko.observable(true).extend({ required: true })
 	});
+	self.serverDefaults = ko.observable(settings);
+	self.userList = ko.observableArray();
 	// operations
 	self.createAdmin = function(){
 		now.postNewAdminAccount(ko.toJS(self.newAdminAccount),function(err){
@@ -19,5 +21,25 @@ function AdminViewModelController() {
 			else {alert("Account save successful.");}
 		});
 	};
+	self.getUsers = function(){
+		now.getAdminUsers(function(userList){
+				var mappedUsers = $.map(userList, function(item) { return new incomingUser(item) } ); //return an array of processed(mapped) tickets
+				self.userList(mappedUsers);
+		});
+	};
 
+}
+
+// data model
+function incomingUser(data) {
+	var self=this;
+	this.email = data.email;
+	this.name = {
+    	first: data.name.first,
+    	last: data.name.last
+    };
+  this.fullname = ko.computed(function(){
+  	return self.name.first + " " + self.name.last;
+  });
+	this.username = data.username;
 }

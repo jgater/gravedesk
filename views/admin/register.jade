@@ -40,7 +40,10 @@ script(src='/js/admin-viewmodelcontroller.js')
 script 
 	//get to work!
 	ko.validation.init();
-	ko.applyBindings(new AdminViewModelController());
-
-
+	now.ready(function(){
+		//fire up a viewcontroller for the page via knockout, attach to global window
+		now.getAdminStartupData(function(userlist,settings){
+			window.controller = ko.applyBindings( new AdminViewModelController(settings) );
+		});
+	});
 				

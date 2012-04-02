@@ -4,8 +4,19 @@
 			.span2
 				!= partial('sidebar.jade')
 			.span10
-				.well
-					h2 Todo: List of user accounts
+				h2 List of user accounts
+				br
+				table.table.table-bordered.table-striped
+					thead
+						tr
+							th username 							
+							th email
+							th full name					
+					tbody(data-bind="foreach: userList")
+						tr
+							td(data-bind="text: username") 
+							td(data-bind="text: email")
+							td(data-bind="text: fullname")
 
 
 script(src='/js/topbar-viewmodel.js')
@@ -13,4 +24,11 @@ script(src='/js/admin-viewmodelcontroller.js')
 script(src='/js/lib/knockout.validation.js')
 script 
 	//get to work!
-	var controller = ko.applyBindings(new AdminViewModelController());
+	now.ready(function(){
+		//fire up a viewcontroller for the page via knockout
+		now.getAdminStartupData(function(userlist,settings){
+			window.controller = new AdminViewModelController(settings);
+			ko.applyBindings(controller);
+			controller.getUsers();
+		});
+	});

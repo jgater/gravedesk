@@ -82,6 +82,17 @@ everyone.now.postNewAdminAccount = function(newAdminAccount,callback){
   userdb.saveUser(newAdminAccount,callback);
 };
 
+everyone.now.getAdminStartupData = function(callback){
+  callback(settings);
+};
+
+everyone.now.getAdminUsers = function(callback){
+  userdb.findAllUsers(function(err,allusers){
+    if (err) {console.error("Could not get all user accounts; ");}
+    else { callback(allusers);}
+  });
+};
+
 //when db updates a ticket, trigger this event and tell the client to update tab ticket counts
 ticketdb.on("ticketUpdated", function(){
   ticketdb.countAllByStatus(function(err,ticketcount){
