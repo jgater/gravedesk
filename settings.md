@@ -47,7 +47,8 @@ var settingsModel = function () {
 		"fname": defaultAdmin.firstname,
 		"lname": defaultAdmin.lastname,
 		"email": defaultAdmin.email,
-		"password": defaultAdmin.password
+		"password": defaultAdmin.password,
+		"isAdmin": true
 	};
 };
     
