@@ -32,7 +32,7 @@
 				div(data-bind="with: ticketData, visible: showTicket, css: {hide: !showTicket}").hide.span10
 					.btn-toolbar.pull-right
 						.btn-group
-							a(data-toggle="modal", data-target="#deleteModal").btn.btn-warning Delete Ticket
+							a(data-toggle="modal", data-target="#deleteModal").btn.btn-danger <i class="icon-trash icon-white"></i> Delete Ticket
 						.btn-group
 							button(data-toggle="dropdown").btn Impact <span class="caret"></span>
 								ul(data-bind="foreach: $parent.impacts").dropdown-menu
