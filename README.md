@@ -51,16 +51,16 @@ Next version - Adding SMTP library for sending email replies, and the ability to
 
 Todo:
 
-* ~~imap handler for importing tickets to db~~
-* ~~DB handler framework~~
-* ~~front-end framework using knockout~~
-* ~~ticket list view & individual view~~
-* ~~ticket status changes written to db~~
-* ~~delete and close tickets~~
-* ~~update ticketview when db changes~~
-* ~~show ticket counts on tabs in ticket list view~~
-* ~~add admin user account framework~~
-* ~~show login status on topbar~~
+* <del>imap handler for importing tickets to db</del>
+* <del>DB handler framework</del>
+* <del>front-end framework using knockout</del>
+* <del>ticket list view & individual view</del>
+* <del>ticket status changes written to db</del>
+* <del>delete and close tickets</del>
+* <del>update ticketview when db changes</del>
+* <del>show ticket counts on tabs in ticket list view</del>
+* <del>add admin user account framework</del>
+* <del>show login status on topbar</del>
 * write better installation instructions
 * allow use of mongodb on alternative ports/server via settings.js
 * change look from bootstrap basic view
@@ -78,7 +78,7 @@ Todo:
 Licence
 =======
 
-Copyright (C) <2012> <James Gater>
+Copyright (C) 2012 James Gater
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
