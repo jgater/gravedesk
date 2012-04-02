@@ -51,16 +51,6 @@ Next version - Adding SMTP library for sending email replies, and the ability to
 
 Todo:
 
-* <del>imap handler for importing tickets to db</del>
-* <del>DB handler framework</del>
-* <del>front-end framework using knockout</del>
-* <del>ticket list view & individual view</del>
-* <del>ticket status changes written to db</del>
-* <del>delete and close tickets</del>
-* <del>update ticketview when db changes</del>
-* <del>show ticket counts on tabs in ticket list view</del>
-* <del>add admin user account framework</del>
-* <del>show login status on topbar</del>
 * write better installation instructions
 * allow use of mongodb on alternative ports/server via settings.js
 * change look from bootstrap basic view
@@ -74,6 +64,20 @@ Todo:
 * web-form for submission of tickets outside of email
 * markdown formatted FAQs on site
 * switch to now.js for ticket view/save instead of RESTful API
+
+Done:
+
+* imap handler for importing tickets to db
+* DB handler framework
+* front-end framework using knockout
+* ticket list view & individual view
+* ticket status changes written to db
+* delete and close tickets
+* update ticketview when db changes
+* show ticket counts on tabs in ticket list view
+* add admin user account framework
+* show login status on topbar
+
 
 Licence
 =======
