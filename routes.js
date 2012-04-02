@@ -17,6 +17,7 @@ module.exports = function(app) {
   app.get('/', start.index);
   app.get('/admin', ensureAdminAuthenticated, start.getAdmin);  
   app.get('/admin/register', ensureAdminAuthenticated, start.getRegister);
+  app.get('/admin/accounts', ensureAdminAuthenticated, start.getAccounts);
   app.post('/admin/login', passport.authenticate('local', 
     { 
       successRedirect: '/',
@@ -47,20 +48,5 @@ module.exports = function(app) {
   app.get('/api/tickets/:id', api.getTicketId);
   // DELETE to DESTROY
   app.delete('/api/tickets/:id', api.delTicketId);
-
-
-  // admin users RESTful api
-  // POST to CREATE
-  app.post('/api/adminuser', api.postUser);
-  // PUT to UPDATE
-  app.put('/api/adminuser/:id', api.putUser);
-  // GET to READ
-  //get all users
-  app.get('/api/adminuser', api.getUserAll);
-  //get user details by id
-  app.get('/api/adminuser/:id', api.getUserId);
-  // DELETE to DESTROY
-  app.delete('/api/adminuser/:id', api.delUserId);
-
 
 }

@@ -21,6 +21,11 @@ module.exports = {
     res.render('admin/index.jade', { title: 'Admin - '+settings.brand, brand: settings.brand, adminUser: req.user });
   },
 
+  // app.get('/admin/accounts'...) ensureAuthenticated, ...
+  getAccounts: function(req, res) {
+    res.render('admin/accounts.jade', { title: 'Admin Accounts - '+settings.brand, brand: settings.brand, adminUser: req.user });
+  },
+
   // app.get('/admin/register'...) ensureAuthenticated, ...
   getRegister: function(req, res){
     res.render('admin/register.jade', { title: 'Register User - '+settings.brand, brand: settings.brand, adminUser: req.user });

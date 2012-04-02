@@ -19,8 +19,8 @@ div(data-bind="with: topbarView").navbar.navbar-fixed-top
 							
 				if adminUser
 					p.navbar-text.pull-right Logged in as 
-						a(href='/account') #{adminUser.username}  
-						a(href='/logout').btn.btn-primary.btn-mini.align-inherit <i class="icon-user icon-white"></i> Log out
+						a(href='/account') #{adminUser.username} &nbsp;
+						a(href='/logout').btn.btn-inverse.btn-mini.align-inherit <i class="icon-user icon-white"></i> Log out
 				else
 					p.navbar-text.pull-right 
 						a(href='/account').btn.btn-primary.btn-small.align-inherit <i class="icon-user icon-white"></i> Log In

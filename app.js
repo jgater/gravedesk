@@ -78,6 +78,10 @@ everyone.now.getManageStartupData = function(callback){
   });
 };
 
+everyone.now.postNewAdminAccount = function(newAdminAccount,callback){
+  userdb.saveUser(newAdminAccount,callback);
+};
+
 //when db updates a ticket, trigger this event and tell the client to update tab ticket counts
 ticketdb.on("ticketUpdated", function(){
   ticketdb.countAllByStatus(function(err,ticketcount){

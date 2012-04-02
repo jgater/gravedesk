@@ -83,48 +83,5 @@ module.exports = {
         res.send("destroyed ticket id: " + req.params.id);
       }
     });
-  },
-
-  // admin users RESTful api
-
-  // POST to CREATE
-  //app.post('/api/adminuser', api.postUser);
-  postUser: function(req, res) {
-    userdb.saveUser({
-      username: req.param('username')
-    , fname : req.param('name.first')
-    , lname : req.param('name.last')
-    , email : req.param('email')
-    , password : req.param('password')
-    , isAdmin : req.param('isAdmin')
-    }, function(err,docs) {
-        if (err) { res.render('admin/err.jade', { title: 'Admin Error - '+settings.brand, brand: settings.brand, err: err, adminUser: req.user });
-      } else {
-        res.redirect('/admin');  
-      }
-    });
-  },
-
-  // PUT to UPDATE
-  //app.put('/api/adminuser/:id', api.putUser);
-  putUser: function(req, res) {
-    res.send("PUT update user " + req.params.id);
-  },
-  // GET to READ
-  //get all users
-  //app.get('/api/adminuser', api.getUserAll);
-  getUserAll: function(req, res) {
-    res.send("GET all users");
-  },
-  //get user details by id
-  //app.get('/api/adminuser/:id', api.getUserId);
-  getUserId: function(req,res) {
-    res.send("GET user data for user " + req.params.id)
-  },
-  // DELETE to DESTROY
-  //app.delete('/api/adminuser/:id', api.delUserId);
-  delUserId: function(req,res) {
-    res.send("DEL user " + req.params.id)
-  },
-
+  }
 };
