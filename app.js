@@ -6,10 +6,12 @@ var nowjs = require('now');
 var async = require('async');
 var util = require('util');
 var ImapHandler = require('./lib/emailhandler').ImapHandler;
+var sendMail = require('./lib/emailhandler').sendMail;
 var dbhandler = require('./lib/dbhandler');
 var passport = require('passport');
 var settings = require('./settings');
 var events = require('events');
+
 
 var imap = new ImapHandler();
 var db = new dbhandler.DB();
@@ -97,6 +99,10 @@ everyone.now.deleteAdminUser = function(user,callback){
   userdb.deleteUser(user,callback);
 };
 
+everyone.now.sendMail = function(mail,callback){
+  sendMail(mail,callback);
+};
+
 //when db updates a ticket, trigger this event and tell the client to update tab ticket counts
 ticketdb.on("ticketUpdated", function(){
   ticketdb.countAllByStatus(function(err,ticketcount){
@@ -112,6 +118,9 @@ ticketdb.on("ticketListChange", function(){
     else {if (everyone.now.newTicket) {everyone.now.newTicket(ticketcount);} }
   });
 });
+
+
+
 
 
 

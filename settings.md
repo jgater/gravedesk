@@ -9,6 +9,16 @@ var imapServerSettings = {
 	"box": "Inbox"
 	};
 
+var smtpServerSettings = {	
+    host: "smtp.example.com", // hostname
+    secureConnection: true, // use SSL
+    port: 465, // port for secure SMTP
+    auth: {
+        user: "example@example.com",
+        pass: "password"
+    }
+};
+
 // the first entry in the statusList will be the default for new tickets. 'Closed' is currently mandatory.
 // All other statuses are optional
 
