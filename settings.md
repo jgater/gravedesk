@@ -38,9 +38,10 @@ var defaultAdmin = {
 
 
 
-//--------------------------------
-No need to make changes below this
-//--------------------------------
+//-----------------------------------
+// No need to make changes below this
+//-----------------------------------
+
 
 
 var settingsModel = function () {
