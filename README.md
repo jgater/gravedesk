@@ -36,6 +36,16 @@ This is a project to scratch my own itch - building a helpdesk ticket system for
 Changelog
 =========
 
+Version 1.1.2
+-------------
+
+ * Added options to settings.js to enable node server to run on https and/or behind a cacheing proxy, aka nginx
+
+Version 1.1.1
+-------------
+
+* add SMTP server support
+
 Version 1.1.0
 -------------
 
@@ -47,7 +57,6 @@ Version 1.1.0
 * imap emails -> ticket library complete; 'processed' emails marked as read.
 * functional - if basic - helpdesk complete.
 
-Next version - Adding SMTP library for sending email replies, and the ability to see and edit more detail of individual tickets.
 
 Todo:
 

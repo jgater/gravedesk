@@ -47,7 +47,7 @@ var blankTicketSettings = {
 // this will be the default port for node to listen on
 var defaultPort = 3000;
 
-// enabling this will setup node itself to work over https - port 443.
+// enabling this will setup node itself to work over https - default port is 443.
 // defaultPort will be ignored.
 // keys need to be valid for the full DNS hostname the node process will be accessed on - you will have to provide your own!
 // they will also need to be copied into the path specified; it's relative to the path of app.js
@@ -55,7 +55,8 @@ var defaultPort = 3000;
 var nodeHTTPS = {
 	enable: false,
 	key: "keys/cert.key",
-	cert: "keys/cert.pem"
+	cert: "keys/cert.pem",
+	port: 443
 }
 
 // this will enable the node server to be accessed through a reverse proxy, such as nginx. This is useful if you wish
