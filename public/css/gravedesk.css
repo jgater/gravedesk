@@ -30,6 +30,13 @@ body {
 	display: none;
 }
 
+.bigmodal {
+	width:940px;
+	margin-left:-470px;
+	margin-top:-300px;
+}
+}
+
 .mymodal-body {
   overflow-y: auto;
   max-height: 400px;

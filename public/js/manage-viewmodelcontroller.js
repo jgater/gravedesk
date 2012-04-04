@@ -100,6 +100,11 @@ function ticketViewModel() {
 		else {return false;}	
 	});
 	// Operations
+	self.sendEmail = function(formElement) {
+		$('#writeEmailModal').modal('hide');
+		console.log("email");
+	};
+
 	self.getData = function(ticketId){
 		$.getJSON('/api/tickets/'+ticketId, function(data){ //get ticket with _id of ticketId
 				data.emails = $.map(data.emails, function(item) { return new Email(item) } );
