@@ -1,6 +1,6 @@
 {
   "name": "gravedesk",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "author": "jgater@gmail.com",
   "description": "an email driven helpdesk ticket system",
   "dependencies" : {
