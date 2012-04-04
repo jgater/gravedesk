@@ -66,6 +66,21 @@
 					hr
 				div(data-bind="with: ticketData, visible: showTicket, css: {hide: !showTicket}").hide.span10.well
 					p(data-bind="html: description")
+				div(data-bind="with: ticketData, visible: showTicket, css: {hide: !showTicket}").hide.span10
+					.btn-toolbar.pull-right
+						.btn-group
+							a().btn.btn-success <i class="icon-envelope icon-white"></i> Write email
+					br
+					strong Email history:
+					hr
+					div(data-bind="foreach: emails")
+						div <span class="accordion-heading" data-bind="click: reverseShow"><i class="icon-resize-full"></i> <a data-bind="text: friendlydate"></a>, <span data-bind="html:from"></span>,  <span data-bind="html:subject"></span></span>
+							hr(data-bind="slideVisible: show")
+							div(data-bind="slideVisible: show, html: body")
+							hr(data-bind="slideVisible: show")
+						br
+						
+
 
 
 <script Id="ticketListTemplate" type="text/html">

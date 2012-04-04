@@ -101,9 +101,11 @@ function ticketViewModel() {
 	});
 	// Operations
 	self.getData = function(ticketId){
-		$.getJSON('/api/tickets/'+ticketId, function(allData){ //get ticket with _id of ticketId
-				self.ticketData(new incomingTicket(allData)); //put into ticketData
-			});
+		$.getJSON('/api/tickets/'+ticketId, function(data){ //get ticket with _id of ticketId
+				data.emails = $.map(data.emails, function(item) { return new Email(item) } );
+				var koTicket = new incomingTicket(data);			 
+				self.ticketData(koTicket);
+		});
 	};
 	self.updateData = function(ticketId){
 		var data = new outgoingTicket(ko.toJS(self.ticketData));
@@ -149,11 +151,22 @@ function incomingTicket(data) {
 	this.status = ko.observable(data.status);
 	this.description = data.description;
 	this.notes = data.notes;
-	this.attachments = data.attachments;
-	this.emails = data.emails;
+	this.emails = ko.observableArray(data.emails);
 	this.impact = ko.observable(data.impact || "normal");
 	this.cc = data.cc;
 	this.labels = data.labels;
+	this.attachments = ko.observableArray();
+}
+
+function Email(data) {
+	this.from = data.from;
+	this.to = data.to;
+	this.subject = data.subject;
+	this.friendlydate = moment(data.date).format('ddd MMM Do YYYY, HH:mm');
+	this.body = data.html || data.plaintext;
+	this.show = ko.observable(false);
+	this.attachments = data.attachments;
+	this.reverseShow = function(){this.show( !this.show() )};
 }
 
 function outgoingTicket(data) {
@@ -163,9 +176,29 @@ function outgoingTicket(data) {
 	this.status = data.status;
 	this.description = data.description;
 	this.notes = data.notes;
-	this.attachments = data.attachments;
 	this.emails = data.emails;
 	this.impact = data.impact;
 	this.cc = data.cc;
 	this.labels = data.labels;
 }
+
+
+ko.bindingHandlers.slideVisible = {
+    update: function(element, valueAccessor, allBindingsAccessor) {
+        // First get the latest data that we're bound to
+        var value = valueAccessor(), allBindings = allBindingsAccessor();
+         
+        // Next, whether or not the supplied model property is observable, get its current value
+        var valueUnwrapped = ko.utils.unwrapObservable(value); 
+         
+        // Grab some more data from another binding property
+        var duration = allBindings.slideDuration || 400; // 400ms is default duration unless otherwise specified
+         
+        // Now manipulate the DOM element
+        if (valueUnwrapped == true) 
+            $(element).slideDown(duration); // Make the element visible
+        else
+            $(element).slideUp(duration);   // Make the element invisible
+    }
+};
+
