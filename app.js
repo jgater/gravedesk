@@ -64,7 +64,7 @@ async.series([
   },
   // fire up web server
   function(callback) {
-    if (settings.https.enable) { app.listen(443,callback); }
+    if (settings.https.enable) { app.listen(settings.https.port,callback); }
     else { app.listen(settings.defaultPort,callback); }
     console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
   },
@@ -82,7 +82,7 @@ if (settings.proxy.enable) {
     socketio: {transports:['xhr-polling', 'jsonp-polling']} 
   }); 
 }
-else if (settings.https.enable) { var everyone = nowjs.initialize(app, {port: 443}); }
+else if (settings.https.enable) { var everyone = nowjs.initialize(app, {port: settings.https.port}); }
 else { var everyone = nowjs.initialize(app, {port: settings.defaultPort} ); }
 console.log("now.js added to server app.");
 
