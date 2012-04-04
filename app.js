@@ -2,22 +2,33 @@
  * Module dependencies.
  */
 var express = require('express');
+var fs = require('fs');
 var nowjs = require('now');
 var async = require('async');
 var util = require('util');
 var ImapHandler = require('./lib/emailhandler').ImapHandler;
+var sendMail = require('./lib/emailhandler').sendMail;
 var dbhandler = require('./lib/dbhandler');
 var passport = require('passport');
 var settings = require('./settings');
 var events = require('events');
 
+
 var imap = new ImapHandler();
 var db = new dbhandler.DB();
 var ticketdb = dbhandler.TicketProvider;
 var userdb = dbhandler.UserProvider;
-var app = module.exports = express.createServer();
 
 // Configuration
+
+if (settings.https.enable) {
+  var app = module.exports = express.createServer({
+  key: fs.readFileSync(settings.https.key),
+  cert: fs.readFileSync(settings.https.cert)
+  });  
+} else {
+  var app = module.exports = express.createServer();
+}
 
 app.configure(function(){
   app.set('views', __dirname + '/views');
@@ -53,7 +64,8 @@ async.series([
   },
   // fire up web server
   function(callback) {
-    app.listen(3000,callback);
+    if (settings.https.enable) { app.listen(443,callback); }
+    else { app.listen(settings.defaultPort,callback); }
     console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
   },
   //start imap
@@ -65,7 +77,13 @@ function(err) {
 });
 
 // initialize now.js
-var everyone = nowjs.initialize(app);
+if (settings.proxy.enable) { 
+  var everyone = nowjs.initialize(app, {port: settings.proxy.proxyPort, 
+    socketio: {transports:['xhr-polling', 'jsonp-polling']} 
+  }); 
+}
+else if (settings.https.enable) { var everyone = nowjs.initialize(app, {port: 443}); }
+else { var everyone = nowjs.initialize(app, {port: settings.defaultPort} ); }
 console.log("now.js added to server app.");
 
 // now functions    
@@ -97,6 +115,10 @@ everyone.now.deleteAdminUser = function(user,callback){
   userdb.deleteUser(user,callback);
 };
 
+everyone.now.sendMail = function(mail,callback){
+  sendMail(mail,callback);
+};
+
 //when db updates a ticket, trigger this event and tell the client to update tab ticket counts
 ticketdb.on("ticketUpdated", function(){
   ticketdb.countAllByStatus(function(err,ticketcount){
@@ -112,6 +134,9 @@ ticketdb.on("ticketListChange", function(){
     else {if (everyone.now.newTicket) {everyone.now.newTicket(ticketcount);} }
   });
 });
+
+
+
 
 
 
