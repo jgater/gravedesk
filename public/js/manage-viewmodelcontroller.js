@@ -21,14 +21,15 @@ function ManageViewModelController(ticketcount,statuslist) {
 	Sammy(function() {
 		this.get('/manage#/:ticketid', function (){
 			self.tabsView.chosenTabId(null); //unselect all tabs
-			var array = self.tableView.tickets;
 			self.tableView.showTable(false);
 			self.ticketView.showTicket(true);
+			self.ticketView.showMailForm(false);
 			self.ticketView.getData(this.params.ticketid);
 		});
 		this.get('/manage#:tab', function() {
 			self.ticketView.showTicket(false);
 			self.tableView.showTable(true);
+			self.ticketView.showMailForm(false);
 			self.tabsView.chosenTabId(this.params.tab); //make the selected tab match the request
 			self.tableView.getData(this.params.tab);
 		});
@@ -94,13 +95,35 @@ function ticketViewModel() {
 	self.impacts = ko.observableArray(['High', 'Normal', 'Low']);
 	self.ticketData = ko.observable();
 	self.showTicket = ko.observable(false);
+	self.showMailForm = ko.observable(false);
+	self.mailForm = {
+		from: "help@clayesmore.com",
+		to: ko.observable(),
+		subject: ko.observable(),
+		html: ko.observable("<b>html body</b>")
+	}
 	self.isClosed = ko.computed( function() {
 		if (!self.ticketData()) { return false; } 
 		else if (self.ticketData().status() == "Closed") {return true;}
 		else {return false;}	
 	});
 	// Operations
-	self.sendEmail = function(formElement) {
+	self.reverseShowMail = function() {
+		self.showMailForm( !self.showMailForm() );
+	};
+
+	self.writeMail = function() {
+		var id = self.ticketData()._id;
+		var from = self.ticketData().from;
+		var sub = self.ticketData().subject;
+		self.mailForm.to(from);
+		self.mailForm.subject("RE: " + sub + " (ID: " + id + ")");
+		self.reverseShowMail();
+
+
+	}
+
+	self.sendMail = function(formElement) {
 		$('#writeEmailModal').modal('hide');
 		console.log("email");
 	};
@@ -197,7 +220,7 @@ ko.bindingHandlers.slideVisible = {
         var valueUnwrapped = ko.utils.unwrapObservable(value); 
          
         // Grab some more data from another binding property
-        var duration = allBindings.slideDuration || 400; // 400ms is default duration unless otherwise specified
+        var duration = allBindings.slideDuration || 200; // 400ms is default duration unless otherwise specified
          
         // Now manipulate the DOM element
         if (valueUnwrapped == true) 
