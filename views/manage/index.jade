@@ -72,17 +72,17 @@
 						.btn-toolbar.pull-right
 							.btn-group
 								a(data-bind="click: writeMail").btn.btn-info <i class="icon-envelope icon-white"></i> Write reply
+					
 					div(data-bind="slideVisible: showMailForm, visible: showMailForm()")
+						//input(data-bind="value: mailForm.to", disabled).span4
+						p <span class="label label-info">Subject</span>&nbsp;&nbsp;<input data-bind="value: mailForm.subject">
+						textarea(data-bind="value: mailForm.html", rows='20').span10
 						.btn-toolbar.pull-right
 							.btn-group
 								a(data-bind="click: reverseShowMail").btn Cancel reply
 							.btn-group
 								a(data-bind="click: sendMail").btn.btn-success <i class="icon-envelope icon-white"></i> Send email
 
-						div(data-bind="text: mailForm.from")
-						div(data-bind="text: mailForm.to")
-						div(data-bind="text: mailForm.subject")
-						div(data-bind="html: mailForm.html")
 
 				div(data-bind="with: ticketData, visible: showTicket, css: {hide: !showTicket}").hide.span10
 					br							
