@@ -75,13 +75,20 @@
 					
 					div(data-bind="slideVisible: showMailForm, visible: showMailForm()")
 						//input(data-bind="value: mailForm.to", disabled).span4
-						p <span class="label label-info">Subject</span>&nbsp;&nbsp;<input data-bind="value: mailForm.subject">
-						textarea(data-bind="value: mailForm.html", rows='20').span10
-						.btn-toolbar.pull-right
-							.btn-group
-								a(data-bind="click: reverseShowMail").btn Cancel reply
-							.btn-group
-								a(data-bind="click: sendMail").btn.btn-success <i class="icon-envelope icon-white"></i> Send email
+						form
+							div.control-group
+								label.control-label(for="formsubject") Subject:
+								div.controls
+									input.span8(id="formsubject", data-bind="value: mailForm.subject")
+							div.control-group
+								label.control-label(for="formtextarea") Message:
+								div.controls
+									textarea(data-bind="wysiwyg: mailForm.html", id="formtextarea", rows="25", cols="120")
+							.btn-toolbar.pull-right
+								.btn-group
+									a(data-bind="click: reverseShowMail").btn Cancel reply
+								.btn-group
+									a(data-bind="click: sendMail").btn.btn-success <i class="icon-envelope icon-white"></i> Send email
 
 
 				div(data-bind="with: ticketData, visible: showTicket, css: {hide: !showTicket}").hide.span10
@@ -110,11 +117,19 @@
 
 script(src="/js/lib/moment.min.js")		
 script(src="/js/lib/knockout.bindings.dataTables.js")
+script(src="/js/lib/knockout.bindings.wysiwyg.js")
+script(src="/js/lib/jquery.wysiwyg.js")
 script(src="/js/lib/knockout.mapping.js")	
 script(src="/js/lib/jquery.dataTables.min.js")	
 script(src="/js/lib/bootstrap.datatables.js")		
 script(src="/js/topbar-viewmodel.js")
 script(src="/js/manage-viewmodelcontroller.js")
+
+script(src="/js/lib/controls/wysiwyg.image.js")
+script(src="/js/lib/controls/wysiwyg.link.js")
+script(src="/js/lib/controls/wysiwyg.table.js")
+
+
 script
 	//get to work!
 	now.ready(function(){

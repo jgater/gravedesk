@@ -100,7 +100,7 @@ function ticketViewModel() {
 		from: "help@clayesmore.com",
 		to: ko.observable(),
 		subject: ko.observable(),
-		html: ko.observable("<b>html body</b>")
+		html: ko.observable()
 	}
 	self.isClosed = ko.computed( function() {
 		if (!self.ticketData()) { return false; } 
@@ -113,14 +113,17 @@ function ticketViewModel() {
 	};
 
 	self.writeMail = function() {
+		//pull init data from ticketData
 		var id = self.ticketData()._id;
 		var from = self.ticketData().from;
 		var sub = self.ticketData().subject;
+		var description = self.ticketData().description;
+		// pre-populate the form text fields
 		self.mailForm.to(from);
 		self.mailForm.subject("RE: " + sub + " (ID: " + id + ")");
+		self.mailForm.html(description);
+		// reveal the form
 		self.reverseShowMail();
-
-
 	}
 
 	self.sendMail = function(formElement) {
@@ -229,4 +232,5 @@ ko.bindingHandlers.slideVisible = {
             $(element).slideUp(duration);   // Make the element invisible
     }
 };
+
 
