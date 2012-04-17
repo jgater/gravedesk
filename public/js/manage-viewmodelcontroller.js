@@ -136,8 +136,8 @@ function ticketViewModel() {
 			if (err) {
 				alert("Error encountered sending email: " + JSON.stringify(err));
 			} else {
-				self.reverseShowMail();
-				alert("email sent!");
+				self.showMailForm(false);
+				console.log("email sent!");
 			}
 		});
 	};
@@ -171,6 +171,14 @@ function ticketViewModel() {
 	};
 	self.closeTicket = function() {
 		self.changeStatus("Closed");
+		var id = self.ticketData()._id;
+		var from = self.ticketData().from;
+		var sub = self.ticketData().subject;
+		var description = self.ticketData().description;
+		self.mailForm.to(from);
+		self.mailForm.subject("RE: " + sub + " - Closed - ID: [" + id + "]");
+		self.mailForm.html("<p>This job ticket with the IT Support team has now been closed, as we believe the reported issue has been resolved. Thank you.</p><br><br><br><br><br><hr><small>Original description:</small><br><br>" + description);
+		self.sendMail();
 	};
 	self.deleteTicket = function() {
 		self.deleteData(self.ticketData()._id);
