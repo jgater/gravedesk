@@ -115,8 +115,8 @@ everyone.now.deleteAdminUser = function(user,callback){
   userdb.deleteUser(user,callback);
 };
 
-everyone.now.sendMail = function(mail,callback){
-  sendMail(mail,callback);
+everyone.now.sendMail = function(mail,id,callback){
+  sendMail(mail,id,callback);
 };
 
 //when db updates a ticket, trigger this event and tell the client to update tab ticket counts

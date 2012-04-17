@@ -77,13 +77,16 @@
 						//input(data-bind="value: mailForm.to", disabled).span4
 						form
 							div.control-group
+								label.control-label(for="formto") To:
+								div.controls
+									input.span8(id="formsto", data-bind="value: mailForm.to")
 								label.control-label(for="formsubject") Subject:
 								div.controls
 									input.span8(id="formsubject", data-bind="value: mailForm.subject")
 							div.control-group
 								label.control-label(for="formtextarea") Message:
 								div.controls
-									textarea(data-bind="wysiwyg: mailForm.html", id="formtextarea", rows="25", cols="120")
+									textarea(data-bind="wysiwyg: mailForm.html", id="formtextarea", rows="50", cols="120")
 							.btn-toolbar.pull-right
 								.btn-group
 									a(data-bind="click: reverseShowMail").btn Cancel reply
@@ -98,7 +101,8 @@
 					div(data-bind="foreach: emails")
 						div <span class="accordion-heading" data-bind="click: reverseShow"><i class="icon-resize-full"></i> <a data-bind="text: friendlydate"></a>, <span data-bind="html:from"></span>,  <span data-bind="html:subject"></span></span>
 							hr(data-bind="slideVisible: show")
-							div(data-bind="slideVisible: show, html: body")
+							blockquote(data-bind="slideVisible: show")
+								span(data-bind="slideVisible: show, html: body")
 							hr(data-bind="slideVisible: show")
 						br
 						

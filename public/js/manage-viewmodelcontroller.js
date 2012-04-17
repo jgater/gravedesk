@@ -97,7 +97,6 @@ function ticketViewModel() {
 	self.showTicket = ko.observable(false);
 	self.showMailForm = ko.observable(false);
 	self.mailForm = {
-		from: "help@clayesmore.com",
 		to: ko.observable(),
 		subject: ko.observable(),
 		html: ko.observable()
@@ -120,15 +119,21 @@ function ticketViewModel() {
 		var description = self.ticketData().description;
 		// pre-populate the form text fields
 		self.mailForm.to(from);
-		self.mailForm.subject("RE: " + sub + " (ID: " + id + ")");
-		self.mailForm.html(description);
+		self.mailForm.subject("RE: " + sub + "  - ID: [" + id + "]");
+		self.mailForm.html("<br><br><br><br><br><hr><small>Original description:</small><br><br>" + description);
 		// reveal the form
 		self.reverseShowMail();
 	}
 
-	self.sendMail = function(formElement) {
-		$('#writeEmailModal').modal('hide');
-		console.log("email");
+	self.sendMail = function() {
+		now.sendMail(ko.toJS(self.mailForm),self.ticketData()._id,function(err){
+			if (err) {
+				alert("Error encountered sending email: " + JSON.stringify(err));
+			} else {
+				self.reverseShowMail();
+				alert("email sent!");
+			}
+		});
 	};
 
 	self.getData = function(ticketId){
@@ -193,7 +198,12 @@ function Email(data) {
 	this.from = data.from;
 	this.to = data.to;
 	this.subject = data.subject;
-	this.friendlydate = moment(data.date).format('ddd MMM Do YYYY, HH:mm');
+	if (data.date) {
+		this.friendlydate = moment(data.date).format('ddd MMM Do YYYY, HH:mm');	
+	} else {
+		this.friendlydate = "no date set";
+	}
+	
 	this.body = data.html || data.plaintext;
 	this.show = ko.observable(false);
 	this.attachments = data.attachments;

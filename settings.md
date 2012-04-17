@@ -19,6 +19,9 @@ var smtpServerSettings = {
   }
 };
 
+// default from address that email auto-responses and replies will appear to come from
+var smtpFrom = "Gravedesk Helpdesk <help@example.com>";
+
 // Branding will show up throughout the web interface.
 var brand = "Gravedesk";
 
@@ -83,6 +86,7 @@ var settingsModel = function () {
 	this.proxy = proxy;
 	this.imap = imapServerSettings;
 	this.smtp = smtpServerSettings;
+	this.smtpFrom = smtpFrom;
 	this.statusList = statusList;
 	this.blankticket = blankTicketSettings;
 	this.blankticket.status = statusList[0];
