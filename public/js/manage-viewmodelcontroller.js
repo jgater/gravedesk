@@ -73,13 +73,19 @@ function tableViewModel() {
 				self.sortByDate();
 			});
 	};
-};
+}
 
 //data model
 function TicketSummary(rawticket) {
 	this.id = rawticket._id;
-	this.age = ko.observable( moment(rawticket.date).fromNow(true) );
-	this.friendlydate = ko.observable( moment(rawticket.date).format('ddd MMM Do YYYY, HH:mm') );
+	this.age = moment(rawticket.date).fromNow(true);
+	this.created = moment(rawticket.date).format('ddd MMM Do YYYY, HH:mm');
+	if (rawticket.lastmodified) {
+		this.lastmodified = moment(rawticket.lastmodified).fromNow();	
+	} else {
+		this.lastmodified = "Unknown"
+	}
+	
 	this.subject = rawticket.subject;
 	this.from = rawticket.from;
 	this.date = rawticket.date;
@@ -180,7 +186,9 @@ function ticketViewModel() {
 
 function incomingTicket(data) {
 	this.age = moment(data.date).fromNow();
-	this.friendlydate = moment(data.date).format('ddd MMM Do YYYY, HH:mm');
+	this.created = moment(data.date).format('ddd MMM Do YYYY, HH:mm');
+	this.lastmodified = moment(data.lastmodified).fromNow();
+	this.friendlylastmodified = moment(data.lastmodified).format('ddd MMM Do YYYY, HH:mm');
 	this.subject = data.subject;
 	this.from = data.from;
 	this._id = data._id;
@@ -211,6 +219,7 @@ function Email(data) {
 }
 
 function outgoingTicket(data) {
+	this.lastmodified = new Date();
 	this.subject = data.subject;
 	this.from = data.from;
 	this._id = data._id;

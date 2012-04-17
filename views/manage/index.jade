@@ -17,14 +17,16 @@
 			//ticket list view		
 			div(data-bind="with:tableView").span10
 				div(data-bind="visible: showTable, css: {hide: !showTable}").hide
-					table#ticketlist.table.table-bordered.table-striped(data-bind="dataTable: { dataSource: tickets, rowTemplate: 'ticketListTemplate',  options: {bSort: false, iDisplayLength: 25}, columns: ['age', 'subject', 'from', 'friendlydate', 'impact'] }")
+					table#ticketlist.table.table-bordered.table-striped(data-bind="dataTable: { dataSource: tickets, rowTemplate: 'ticketListTemplate',  options: {bSort: false, iDisplayLength: 25}, columns: ['impact', 'age', 'lastmodified', 'subject', 'from', 'created'] }")
 							thead
 									tr
-										th age									
 										th impact
+										th age
+										th last modified									
 										th subject									
 										th from
-										th date
+										th created
+										
 
 			//individual ticket view
 			div(data-bind="with:ticketView").span10			
@@ -53,7 +55,9 @@
 						li
 							p <span class="label label-info">ID</span> <span data-bind="text: _id"></span>
 						li
-							p <span class="label label-info">age</span> <span data-bind="text: age"></span> - <span data-bind="text: friendlydate"></span>
+							p <span class="label label-info">created</span> <span data-bind="text: age"></span> - <span data-bind="text: created"></span>
+						li
+							p <span class="label label-info">last modified</span> <span data-bind="text: lastmodified"></span> - <span data-bind="text: friendlylastmodified"></span>
 						li
 							p <span class="label label-info">status</span> <span data-bind="text: status"></span>
 						li
@@ -72,7 +76,7 @@
 						.btn-toolbar.pull-right
 							.btn-group
 								button(data-bind="click: writeMail, disable: isClosed").btn.btn-info <i class="icon-envelope icon-white"></i> Write reply
-								
+
 					// sending email form					
 					div(data-bind="slideVisible: showMailForm, visible: showMailForm()")
 						//input(data-bind="value: mailForm.to", disabled).span4
@@ -111,11 +115,13 @@
 
 
 <script Id="ticketListTemplate" type="text/html">
-<td width=7.5% data-bind="text: age"></td>
-<td width=7.5% data-bind="text: impact"></td>
-<td width= 50%><a data-bind="text: subject"></a></td>
+<td width=5% data-bind="text: impact"></td>
+<td width=8% data-bind="text: age"></td>
+<td width=10% data-bind="text: lastmodified"></td>
+<td width=50%><a data-bind="text: subject"></a></td>
 <td data-bind="text: from"></td>
-<td data-bind="text: friendlydate"></td>
+<td data-bind="text: created"></td>
+
 </script>
 
 != partial('modals.jade')
