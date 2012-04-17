@@ -46,7 +46,7 @@
 						.btn-group
 							button(data-bind="css:{disabled: true}").btn Edit Ticket
 						.btn-group
-							button(data-bind="click: $parent.closeTicket, disable: $parent.isClosed").btn.btn-info Close Ticket
+							button(data-bind="click: $parent.closeTicket, disable: $parent.isClosed").btn.btn-success Close Ticket
 
 					br
 					ul.unstyled	
@@ -71,8 +71,9 @@
 					div(data-bind="visible: !showMailForm()")
 						.btn-toolbar.pull-right
 							.btn-group
-								a(data-bind="click: writeMail").btn.btn-info <i class="icon-envelope icon-white"></i> Write reply
-					
+								button(data-bind="click: writeMail, disable: isClosed").btn.btn-info <i class="icon-envelope icon-white"></i> Write reply
+								
+					// sending email form					
 					div(data-bind="slideVisible: showMailForm, visible: showMailForm()")
 						//input(data-bind="value: mailForm.to", disabled).span4
 						form
@@ -89,9 +90,9 @@
 									textarea(data-bind="wysiwyg: mailForm.html", id="formtextarea", rows="50", cols="120")
 							.btn-toolbar.pull-right
 								.btn-group
-									a(data-bind="click: reverseShowMail").btn Cancel reply
+									button(data-bind="click: reverseShowMail").btn Cancel reply
 								.btn-group
-									a(data-bind="click: sendMail").btn.btn-success <i class="icon-envelope icon-white"></i> Send email
+									button(data-bind="click: sendMail, disable: isClosed").btn.btn-success <i class="icon-envelope icon-white"></i> Send email
 
 
 				div(data-bind="with: ticketData, visible: showTicket, css: {hide: !showTicket}").hide.span10
