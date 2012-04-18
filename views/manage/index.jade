@@ -15,102 +15,105 @@
 						<!-- /ko -->
 
 			//ticket list view		
-			div(data-bind="with:tableView").span10
-				div(data-bind="visible: showTable, css: {hide: !showTable}").hide
+			div(data-bind="visible: tableView.showTable, css: {hide: !tableView.showTable}").hide.span10
+				div(data-bind="with:tableView")
 					table#ticketlist.table.table-bordered.table-striped(data-bind="dataTable: { dataSource: tickets, rowTemplate: 'ticketListTemplate',  options: {bSort: false, iDisplayLength: 25}, columns: ['impact', 'age', 'lastmodified', 'subject', 'from', 'created'] }")
-							thead
-									tr
-										th impact
-										th age
-										th last modified									
-										th subject									
-										th from
-										th created
+						thead
+							tr
+								th impact
+								th age
+								th last modified									
+								th subject									
+								th from
+								th created
 										
 
 			//individual ticket view
-			div(data-bind="with:ticketView").span10			
-				//section only shown if ticketData has content
-				div(data-bind="with: ticketData, visible: showTicket, css: {hide: !showTicket}").hide.span12
-					.btn-toolbar.pull-right
-						.btn-group
-							a(data-toggle="modal", data-target="#deleteModal").btn.btn-danger <i class="icon-trash icon-white"></i> Delete Ticket
-						.btn-group
-							button(data-toggle="dropdown").btn Impact <span class="caret"></span>
-								ul(data-bind="foreach: $parent.impacts").dropdown-menu
-									li
-										a(data-bind="text: $data, click: $root.ticketView.changeImpact")
-						.btn-group
-							button(data-toggle="dropdown").btn Status <span class="caret"></span>
-								ul(data-bind="foreach: $root.tabsView.tabs").dropdown-menu
-									li
-										a(data-bind="text: $data, click: $root.ticketView.changeStatus")
-						.btn-group
-							button(data-bind="css:{disabled: true}").btn Edit Ticket
-						.btn-group
-							button(data-bind="click: $parent.closeTicket, disable: $parent.isClosed").btn.btn-success Close Ticket
-
-					br
-					ul.unstyled	
-						li
-							p <span class="label label-info">ID</span> <span data-bind="text: _id"></span>
-						li
-							p <span class="label label-info">created</span> <span data-bind="text: age"></span> - <span data-bind="text: created"></span>
-						li
-							p <span class="label label-info">last modified</span> <span data-bind="text: lastmodified"></span> - <span data-bind="text: friendlylastmodified"></span>
-						li
-							p <span class="label label-info">status</span> <span data-bind="text: status"></span>
-						li
-							p <span class="label label-info">impact</span> <span class="badge" data-bind="text: impact"></span>
-						li
-							p <span class="label label-info">from:</span> <strong data-bind="text: from"></strong>
-					hr
-					h1(data-bind="text: subject")
-					hr
-
-				div(data-bind="with: ticketData, visible: showTicket, css: {hide: !showTicket}").hide.span12.well
-					p(data-bind="html: description")
-
-				div(data-bind="visible: showTicket, css: {hide: !showTicket}").hide.span12
-					div(data-bind="visible: !showMailForm()")
+			div(data-bind="if: ticketView.showTicket, css: {hide: !ticketView.showTicket}").hide.span10
+				div(data-bind="with:ticketView")					
+					div(data-bind="with: ticketData").span12
 						.btn-toolbar.pull-right
 							.btn-group
-								button(data-bind="click: writeMail, disable: isClosed").btn.btn-info <i class="icon-envelope icon-white"></i> Write reply
-
-					// sending email form					
-					div(data-bind="visible: showMailForm, slideVisible: showMailForm")
-						form
-							div.control-group
-								label.control-label(for="formto") To:
-								div.controls
-									input.span10(id="formsto", data-bind="value: mailForm.to")
-								label.control-label(for="formsubject") Subject:
-								div.controls
-									input.span10(id="formsubject", data-bind="value: mailForm.subject")
-							div.control-group
-								label.control-label(for="formtextarea") Message:
-								div.controls
-									textarea(data-bind="wysiwyg: mailForm.html", id="formtextarea", rows="50", cols="140").span12
+								a(data-toggle="modal", data-target="#deleteModal").btn.btn-danger <i class="icon-trash icon-white"></i> Delete Ticket
+							.btn-group
+								button(data-toggle="dropdown").btn Impact <span class="caret"></span>
+									ul(data-bind="foreach: $parent.impacts").dropdown-menu
+										li
+											a(data-bind="text: $data, click: $root.ticketView.changeImpact")
+							.btn-group
+								button(data-toggle="dropdown").btn Status <span class="caret"></span>
+									ul(data-bind="foreach: $root.tabsView.tabs").dropdown-menu
+										li
+											a(data-bind="text: $data, click: $root.ticketView.changeStatus")
+							.btn-group
+								button(data-bind="click: $parent.editTicket").btn Edit Ticket
+							.btn-group
+								button(data-bind="click: $parent.closeTicket, disable: $parent.isClosed").btn.btn-success Close Ticket
+	
+						br
+						ul.unstyled	
+							li
+								p <span class="label label-info">ID</span> <span data-bind="text: _id"></span>
+							li
+								p <span class="label label-info">created</span> <span data-bind="text: age"></span> - <span data-bind="text: created"></span>
+							li
+								p <span class="label label-info">last modified</span> <span data-bind="text: lastmodified"></span> - <span data-bind="text: friendlylastmodified"></span>
+							li
+								p <span class="label label-info">status</span> <span data-bind="text: status"></span>
+							li
+								p <span class="label label-info">impact</span> <span class="badge" data-bind="text: impact"></span>
+							li
+								p <span class="label label-info">from:</span> <strong data-bind="text: from"></strong>
+						hr
+						div(data-bind="ifnot: $parent.editMode")
+							h1(data-bind="text: subject")
+						div(data-bind="if: $parent.editMode")
+							input(data-bind="value: subject, valueUpdate: 'afterkeydown'").span12
+						hr
+	
+					div(data-bind="with: ticketData").span12.well
+						p(data-bind="html: description")
+	
+					div.span12
+						div(data-bind="ifnot: showMailForm")
 							.btn-toolbar.pull-right
 								.btn-group
-									button(data-bind="click: function(){showMailForm(false)}").btn Cancel reply
-								.btn-group
-									button(data-bind="click: sendMail, disable: isClosed").btn.btn-success <i class="icon-envelope icon-white"></i> Send email
-
-
-				div(data-bind="with: ticketData, visible: showTicket, css: {hide: !showTicket}").hide.span12
-					br							
-					strong Email history:
-					hr
-					div(data-bind="foreach: emails")
-						div <span class="accordion-heading" data-bind="click: reverseShow"><i class="icon-resize-full"></i> <a data-bind="text: friendlydate"></a> &bull; <span data-bind="html:from"></span> &bull; <span data-bind="html:subject"></span></span>
-							hr(data-bind="slideVisible: show")
-							blockquote(data-bind="slideVisible: show")
-								span(data-bind="slideVisible: show, html: body")
-							hr(data-bind="slideVisible: show")
-						br
-						
-
+									button(data-bind="click: writeMail, disable: isClosed").btn.btn-info <i class="icon-envelope icon-white"></i> Write reply
+	
+						// sending email form					
+						div(data-bind="if: showMailForm")
+							form(data-bind="slideVisible: showMailForm")
+								div.control-group
+									label.control-label(for="formto") To:
+									div.controls
+										input.span10(id="formsto", data-bind="value: mailForm.to")
+									label.control-label(for="formsubject") Subject:
+									div.controls
+										input.span10(id="formsubject", data-bind="value: mailForm.subject")
+								div.control-group
+									label.control-label(for="formtextarea") Message:
+									div.controls
+										textarea(data-bind="wysiwyg: mailForm.html", id="formtextarea", rows="50", cols="140").span12
+								.btn-toolbar.pull-right
+									.btn-group
+										button(data-bind="click: function(){showMailForm(false)}").btn Cancel reply
+									.btn-group
+										button(data-bind="click: sendMail, disable: isClosed").btn.btn-success <i class="icon-envelope icon-white"></i> Send email
+	
+	
+					div(data-bind="with: ticketData").span12
+						br							
+						strong Email history:
+						hr
+						div(data-bind="foreach: emails")
+							div <span class="accordion-heading" data-bind="click: reverseShow"><i class="icon-resize-full"></i> <a data-bind="text: friendlydate"></a> &bull; <span data-bind="html:from"></span> &bull; <span data-bind="html:subject"></span></span>
+								hr(data-bind="slideVisible: show")
+								blockquote(data-bind="slideVisible: show")
+									span(data-bind="slideVisible: show, html: body")
+								hr(data-bind="slideVisible: show")
+							br
+							
+	
 
 
 <script Id="ticketListTemplate" type="text/html">

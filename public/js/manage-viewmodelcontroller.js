@@ -20,18 +20,19 @@ function ManageViewModelController(ticketcount,statuslist,lang) {
 
 	Sammy(function() {
 		this.get('/manage#/:ticketid', function (){
+			self.ticketView.getData(this.params.ticketid);
 			self.tabsView.chosenTabId(null); //unselect all tabs
 			self.tableView.showTable(false);
 			self.ticketView.showMailForm(false);
 			self.ticketView.showTicket(true);
-			self.ticketView.getData(this.params.ticketid);
+			
 		});
 		this.get('/manage#:tab', function() {
-			self.ticketView.showTicket(false);
-			self.tableView.showTable(true);
-			self.ticketView.showMailForm(false);
-			self.tabsView.chosenTabId(this.params.tab); //make the selected tab match the request
 			self.tableView.getData(this.params.tab);
+			self.ticketView.showTicket(false);
+			self.ticketView.showMailForm(false);
+			self.tableView.showTable(true);
+			self.tabsView.chosenTabId(this.params.tab); //make the selected tab match the request
 		});
 		this.get('/manage', function() { this.app.runRoute('get', '/manage#'+self.tabsView.tabs[0]) }); //if no specific page requested, open the first tab view		
 	}).run();
@@ -89,7 +90,7 @@ function TicketSummary(rawticket) {
 	this.subject = rawticket.subject;
 	this.from = rawticket.from;
 	this.date = rawticket.date;
-	this.impact = rawticket.impact || "normal";
+	this.impact = rawticket.impact || "Normal";
 }
 
 //-------------------------------
@@ -102,6 +103,7 @@ function ticketViewModel(lang) {
 	self.ticketData = ko.observable();
 	self.showTicket = ko.observable(false);
 	self.showMailForm = ko.observable(false);
+	self.editMode = ko.observable(false);
 	self.mailForm = {
 		to: ko.observable(),
 		subject: ko.observable(),
@@ -185,7 +187,9 @@ function ticketViewModel(lang) {
 		self.ticketData().impact(data);
 		self.updateData(self.ticketData()._id);
 	};
-	
+	self.editTicket = function() {
+		self.editMode(true);
+	}
 }
 
 //data models
@@ -195,7 +199,7 @@ function incomingTicket(data) {
 	this.created = moment(data.date).format('ddd MMM Do YYYY, HH:mm');
 	this.lastmodified = moment(data.lastmodified).fromNow();
 	this.friendlylastmodified = moment(data.lastmodified).format('ddd MMM Do YYYY, HH:mm');
-	this.subject = data.subject;
+	this.subject = ko.observable(data.subject);
 	this.from = data.from;
 	this._id = data._id;
 	this.status = ko.observable(data.status);
