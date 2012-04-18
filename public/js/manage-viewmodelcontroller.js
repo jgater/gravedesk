@@ -1,10 +1,10 @@
 //view model controller
-function ManageViewModelController(ticketcount,statuslist) {
+function ManageViewModelController(ticketcount,statuslist,lang) {
 	var self = this;
 	self.topbarView = new TopBarViewModel();
   self.tabsView = new tabsViewModel(ko.mapping.fromJS(ticketcount),statuslist);
 	self.tableView = new tableViewModel();
-	self.ticketView = new ticketViewModel();
+	self.ticketView = new ticketViewModel(lang);
 	// respond to server command to update ticket views
 	now.ticketUpdate = function(ticketcount){
 		ko.mapping.fromJS(ticketcount,self.tabsView.tabcount);
@@ -22,8 +22,8 @@ function ManageViewModelController(ticketcount,statuslist) {
 		this.get('/manage#/:ticketid', function (){
 			self.tabsView.chosenTabId(null); //unselect all tabs
 			self.tableView.showTable(false);
-			self.ticketView.showTicket(true);
 			self.ticketView.showMailForm(false);
+			self.ticketView.showTicket(true);
 			self.ticketView.getData(this.params.ticketid);
 		});
 		this.get('/manage#:tab', function() {
@@ -95,7 +95,7 @@ function TicketSummary(rawticket) {
 //-------------------------------
 
 //view model
-function ticketViewModel() {
+function ticketViewModel(lang) {
 	// associated Data
 	var self = this; //using self avoids scope problems with methods
 	self.impacts = ko.observableArray(['High', 'Normal', 'Low']);
@@ -113,9 +113,6 @@ function ticketViewModel() {
 		else {return false;}	
 	});
 	// Operations
-	self.reverseShowMail = function() {
-		self.showMailForm( !self.showMailForm() );
-	};
 
 	self.writeMail = function() {
 		//pull init data from ticketData
@@ -125,10 +122,10 @@ function ticketViewModel() {
 		var description = self.ticketData().description;
 		// pre-populate the form text fields
 		self.mailForm.to(from);
-		self.mailForm.subject("RE: " + sub + "  - ID: [" + id + "]");
-		self.mailForm.html("<br><br><br><br><br><hr><small>Original description:</small><br><br>" + description);
+		self.mailForm.subject("RE: " + sub + " - " + lang.reply.subject + " - ID: [" + id + "]");
+		self.mailForm.html(lang.reply.body + description);
 		// reveal the form
-		self.reverseShowMail();
+		self.showMailForm(true);
 	}
 
 	self.sendMail = function() {
@@ -176,8 +173,8 @@ function ticketViewModel() {
 		var sub = self.ticketData().subject;
 		var description = self.ticketData().description;
 		self.mailForm.to(from);
-		self.mailForm.subject("RE: " + sub + " - Closed - ID: [" + id + "]");
-		self.mailForm.html("<p>This job ticket with the IT Support team has now been closed, as we believe the reported issue has been resolved. Thank you.</p><br><br><br><br><br><hr><small>Original description:</small><br><br>" + description);
+		self.mailForm.subject("RE: " + sub + " - " + lang.closeReply.subject + " - ID: [" + id + "]");
+		self.mailForm.html(lang.closeReply.body + description);
 		self.sendMail();
 	};
 	self.deleteTicket = function() {

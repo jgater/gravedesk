@@ -15,16 +15,15 @@ Installation
 	`git clone git@bitbucket.org:jgater/gravedesk.git`
 * install the necessary node.js modules via npm in the root of that folder (the one with app.js in)
 	`npm install -d`
-* copy settings.md to settings.js for default settings; edit settings.js as appropriate. You'll need to change the email server and IMAP login at the very least
+* copy settings.example to settings.js for default settings; edit settings.js as appropriate. You'll need to change the email server and IMAP login at the very least
 * Note, it will read 'unread' emails in the mailbox folder specified, and mark them as read. Don't point at a folder you use for other purposes! Best to point at a dedicated IMAP account, of course.
 * run from the root folder with node:
 	`node app.js`
 * server should now be available on http://localhost:3000 - you can login with the default admin account details in your settings.js
 
 For 'production use', you'll need to set express into production mode. I also advise running on a proper node.js host or dedicated server (ubuntu, for example), likely with nodemon
-or forever to keep the server running!
-I also heavily recommend using a proxy front server, such as nginx with https support, though express can be configured to do https directly if you wish.
-Given this is still under heavy development, you probably don't want to rely on it just yet!
+or forever to keep the server running! You can also use the settings.js to enable SSL support and/or put the node server behind a proxy, such as nginx.
+
 
 
 Author's note

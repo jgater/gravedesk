@@ -6,12 +6,19 @@ var fs = require('fs');
 var nowjs = require('now');
 var async = require('async');
 var util = require('util');
+var passport = require('passport');
+var events = require('events');
+
+
+// gravedesk internal library modules
 var ImapHandler = require('./lib/emailhandler').ImapHandler;
 var sendMail = require('./lib/emailhandler').sendMail;
 var dbhandler = require('./lib/dbhandler');
-var passport = require('passport');
+
+
+// settings files
 var settings = require('./settings');
-var events = require('events');
+var lang = require('./lang/english');
 
 
 var imap = new ImapHandler();
@@ -91,7 +98,7 @@ everyone.now.getManageStartupData = function(callback){
   ticketdb.countAllByStatus(function(err,ticketcount){
     if (err) {console.error("Could not get ticket counts; ");}
     else {
-      callback(ticketcount,settings.statusList);
+      callback(ticketcount,settings.statusList,lang);
     }
   });
 };

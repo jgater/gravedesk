@@ -31,7 +31,7 @@
 			//individual ticket view
 			div(data-bind="with:ticketView").span10			
 				//section only shown if ticketData has content
-				div(data-bind="with: ticketData, visible: showTicket, css: {hide: !showTicket}").hide.span10
+				div(data-bind="with: ticketData, visible: showTicket, css: {hide: !showTicket}").hide.span12
 					.btn-toolbar.pull-right
 						.btn-group
 							a(data-toggle="modal", data-target="#deleteModal").btn.btn-danger <i class="icon-trash icon-white"></i> Delete Ticket
@@ -68,38 +68,37 @@
 					h1(data-bind="text: subject")
 					hr
 
-				div(data-bind="with: ticketData, visible: showTicket, css: {hide: !showTicket}").hide.span10.well
+				div(data-bind="with: ticketData, visible: showTicket, css: {hide: !showTicket}").hide.span12.well
 					p(data-bind="html: description")
 
-				div(data-bind="visible: showTicket, css: {hide: !showTicket}").hide.span10
+				div(data-bind="visible: showTicket, css: {hide: !showTicket}").hide.span12
 					div(data-bind="visible: !showMailForm()")
 						.btn-toolbar.pull-right
 							.btn-group
 								button(data-bind="click: writeMail, disable: isClosed").btn.btn-info <i class="icon-envelope icon-white"></i> Write reply
 
 					// sending email form					
-					div(data-bind="slideVisible: showMailForm, visible: showMailForm()")
-						//input(data-bind="value: mailForm.to", disabled).span4
+					div(data-bind="visible: showMailForm, slideVisible: showMailForm")
 						form
 							div.control-group
 								label.control-label(for="formto") To:
 								div.controls
-									input.span8(id="formsto", data-bind="value: mailForm.to")
+									input.span10(id="formsto", data-bind="value: mailForm.to")
 								label.control-label(for="formsubject") Subject:
 								div.controls
-									input.span8(id="formsubject", data-bind="value: mailForm.subject")
+									input.span10(id="formsubject", data-bind="value: mailForm.subject")
 							div.control-group
 								label.control-label(for="formtextarea") Message:
 								div.controls
-									textarea(data-bind="wysiwyg: mailForm.html", id="formtextarea", rows="50", cols="120")
+									textarea(data-bind="wysiwyg: mailForm.html", id="formtextarea", rows="50", cols="140").span12
 							.btn-toolbar.pull-right
 								.btn-group
-									button(data-bind="click: reverseShowMail").btn Cancel reply
+									button(data-bind="click: function(){showMailForm(false)}").btn Cancel reply
 								.btn-group
 									button(data-bind="click: sendMail, disable: isClosed").btn.btn-success <i class="icon-envelope icon-white"></i> Send email
 
 
-				div(data-bind="with: ticketData, visible: showTicket, css: {hide: !showTicket}").hide.span10
+				div(data-bind="with: ticketData, visible: showTicket, css: {hide: !showTicket}").hide.span12
 					br							
 					strong Email history:
 					hr
@@ -128,14 +127,15 @@
 
 script(src="/js/lib/moment.min.js")		
 script(src="/js/lib/knockout.bindings.dataTables.js")
-script(src="/js/lib/knockout.bindings.wysiwyg.js")
-script(src="/js/lib/jquery.wysiwyg.js")
 script(src="/js/lib/knockout.mapping.js")	
 script(src="/js/lib/jquery.dataTables.min.js")	
 script(src="/js/lib/bootstrap.datatables.js")		
 script(src="/js/topbar-viewmodel.js")
 script(src="/js/manage-viewmodelcontroller.js")
 
+script(src="/js/lib/knockout.bindings.wysiwyg.js")
+script(src="/js/lib/jquery.wysiwyg.js")
+link(href='/css/jquery.wysiwyg.css', rel='stylesheet')
 script(src="/js/lib/controls/wysiwyg.image.js")
 script(src="/js/lib/controls/wysiwyg.link.js")
 script(src="/js/lib/controls/wysiwyg.table.js")
@@ -145,8 +145,8 @@ script
 	//get to work!
 	now.ready(function(){
 		//fire up a viewcontroller for the page via knockout, attach to global window
-		now.getManageStartupData(function(ticketcount,statuslist){
-			window.controller = ko.applyBindings( new ManageViewModelController(ticketcount,statuslist) );
+		now.getManageStartupData(function(ticketcount,statuslist,lang){
+			window.controller = ko.applyBindings( new ManageViewModelController(ticketcount,statuslist,lang) );
 		});
 	});
 
