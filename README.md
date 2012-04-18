@@ -1,7 +1,7 @@
 GraveDesk
 =========
 
-Helpdesk issue tracker focused on receiving emails via IMAP as the primary source of new tickets.
+Helpdesk issue tracker focused on using emails as the primary method of communication.
 
 written in Javascript; using node.js, express/jade, mongoose/mongodb and node-imap.
 Client-side rendering done with twitter-bootstrap, knockout.js and socketio (now.js)
@@ -9,7 +9,7 @@ Client-side rendering done with twitter-bootstrap, knockout.js and socketio (now
 Installation
 ============
 
-* You'll need to download and install Node.js, obviously. Tested on 0.6.14 from nodejs.org
+* You'll need to download and install Node.js, obviously. Tested on 0.6.15 from nodejs.org
 * A copy of mongodb from mongodb.org running on localhost, default port (27017)
 * git clone this repository to a suitable folder
 	`git clone git@bitbucket.org:jgater/gravedesk.git`
@@ -34,6 +34,13 @@ This is a project to scratch my own itch - building a helpdesk ticket system for
 
 Changelog
 =========
+
+Version 1.2.0
+-------------
+
+* Added sending email support via SMTP. Can send emails as replies from individual tickets.
+* SMTP auto-sender for creating new tickets, merging incoming replies into existing tickets and closing tickets.
+* email history shown as accordion on ticket view.
 
 Version 1.1.2
 -------------
@@ -64,9 +71,7 @@ Todo:
 * change look from bootstrap basic view
 * better alert messages for administration registration & deletion and ticket views
 * better visual indicator for high status tickets, both in list and individual views
-* add ability to send reply and automatic emails via smtp
-* allow disabling of auto-replies for status changes
-* show attachments, notes and email history on individual ticket view
+* show attachments and notes on individual ticket view
 * allow private internal notes to be added to individual tickets
 * allow non-admins to view their own tickets and status (Active Directory integration)
 * web-form for submission of tickets outside of email
@@ -75,6 +80,8 @@ Todo:
 
 Done:
 
+* show email history on individual ticket
+* add ability to send reply and automatic emails via smtp
 * imap handler for importing tickets to db
 * DB handler framework
 * front-end framework using knockout
