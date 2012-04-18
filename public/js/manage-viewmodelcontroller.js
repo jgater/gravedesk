@@ -126,6 +126,8 @@ function ticketViewModel(lang) {
 		self.mailForm.html(lang.reply.body + description);
 		// reveal the form
 		self.showMailForm(true);
+		// give focus to textarea editor
+		$("#formtextarea-wysiwyg-iframe").focus(); 
 	}
 
 	self.sendMail = function() {
@@ -141,7 +143,6 @@ function ticketViewModel(lang) {
 
 	self.getData = function(ticketId){
 		$.getJSON('/api/tickets/'+ticketId, function(data){ //get ticket with _id of ticketId
-				data.emails = $.map(data.emails, function(item) { return new Email(item) } );
 				var koTicket = new incomingTicket(data);			 
 				self.ticketData(koTicket);
 		});
@@ -200,42 +201,39 @@ function incomingTicket(data) {
 	this.status = ko.observable(data.status);
 	this.description = data.description;
 	this.notes = data.notes;
-	this.emails = ko.observableArray(data.emails);
+	this.emails = ko.observableArray( $.map(data.emails, function(item) { return new incomingEmail(item) } ) );
 	this.impact = ko.observable(data.impact || "normal");
 	this.cc = data.cc;
 	this.labels = data.labels;
 	this.attachments = ko.observableArray();
 }
 
-function Email(data) {
+function outgoingTicket(data) {
+	this.lastmodified = new Date();
+	this._id = data._id;
+	this.status = data.status;
+	this.impact = data.impact;
+}
+
+function incomingEmail(data) {
 	this.from = data.from;
 	this.to = data.to;
 	this.subject = data.subject;
 	if (data.date) {
 		this.friendlydate = moment(data.date).format('ddd MMM Do YYYY, HH:mm');	
+		this.date = data.date;
 	} else {
 		this.friendlydate = "no date set";
-	}
-	
+	}	
 	this.body = data.html || data.plaintext;
+	this.plaintext = data.plaintext;
+	this.html = data.html;
 	this.show = ko.observable(false);
 	this.attachments = data.attachments;
 	this.reverseShow = function(){this.show( !this.show() )};
 }
 
-function outgoingTicket(data) {
-	this.lastmodified = new Date();
-	this.subject = data.subject;
-	this.from = data.from;
-	this._id = data._id;
-	this.status = data.status;
-	this.description = data.description;
-	this.notes = data.notes;
-	this.emails = data.emails;
-	this.impact = data.impact;
-	this.cc = data.cc;
-	this.labels = data.labels;
-}
+
 
 
 ko.bindingHandlers.slideVisible = {

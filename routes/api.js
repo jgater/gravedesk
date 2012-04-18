@@ -63,7 +63,7 @@ module.exports = {
       if (ticket) {
         res.send(ticket); 
       } else {
-        console.error("ticket not found;" + err);
+        console.error("ticket not found; " + err);
         res.send();
       } 
     }); 
