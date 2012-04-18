@@ -10,3 +10,29 @@
 	.modal-footer
 		a(data-dismiss="modal").btn Cancel delete
 		a(data-bind="click: $root.ticketView.deleteTicket", data-dismiss="modal").btn.btn-danger <i class="icon-trash icon-white"></i> Delete Ticket
+
+
+#writeEmailModal.modal.bigmodal(style="display: none;").fade
+	.modal-header
+		a(data-dismiss="modal").close ×
+		h3 Write a new email response
+	.mymodal-body
+		br
+		form.form-horizontal
+			fieldset
+				.control-group
+					label.control-label(to='') To:
+					.controls
+						input#to.input(type='text', name='to', data-bind="")
+				.control-group
+					label.control-label(for='subject') Subject:
+					.controls
+						input#subject.input.span7(type='text', name='subject')
+				.control-group
+					label.control-label(for='message') Message:
+					.controls
+						textarea#message.input.span7(rows='25', name='message')
+			.mymodal-footer
+					a(data-dismiss="modal").btn Cancel email
+					button.btn.btn-success(data-bind="click: ticketView.sendEmail") Send email
+

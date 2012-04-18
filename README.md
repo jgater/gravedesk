@@ -1,7 +1,7 @@
 GraveDesk
 =========
 
-Helpdesk issue tracker focused on receiving emails via IMAP as the primary source of new tickets.
+Helpdesk issue tracker focused on using emails as the primary method of communication.
 
 written in Javascript; using node.js, express/jade, mongoose/mongodb and node-imap.
 Client-side rendering done with twitter-bootstrap, knockout.js and socketio (now.js)
@@ -9,22 +9,21 @@ Client-side rendering done with twitter-bootstrap, knockout.js and socketio (now
 Installation
 ============
 
-* You'll need to download and install Node.js, obviously. Tested on 0.6.14 from nodejs.org
+* You'll need to download and install Node.js, obviously. Tested on 0.6.15 from nodejs.org
 * A copy of mongodb from mongodb.org running on localhost, default port (27017)
 * git clone this repository to a suitable folder
 	`git clone git@bitbucket.org:jgater/gravedesk.git`
 * install the necessary node.js modules via npm in the root of that folder (the one with app.js in)
 	`npm install -d`
-* copy settings.md to settings.js for default settings; edit settings.js as appropriate. You'll need to change the email server and IMAP login at the very least
+* copy settings.example to settings.js for default settings; edit settings.js as appropriate. You'll need to change the email server and IMAP login at the very least
 * Note, it will read 'unread' emails in the mailbox folder specified, and mark them as read. Don't point at a folder you use for other purposes! Best to point at a dedicated IMAP account, of course.
 * run from the root folder with node:
 	`node app.js`
 * server should now be available on http://localhost:3000 - you can login with the default admin account details in your settings.js
 
 For 'production use', you'll need to set express into production mode. I also advise running on a proper node.js host or dedicated server (ubuntu, for example), likely with nodemon
-or forever to keep the server running!
-I also heavily recommend using a proxy front server, such as nginx with https support, though express can be configured to do https directly if you wish.
-Given this is still under heavy development, you probably don't want to rely on it just yet!
+or forever to keep the server running! You can also use the settings.js to enable SSL support and/or put the node server behind a proxy, such as nginx.
+
 
 
 Author's note
@@ -35,6 +34,13 @@ This is a project to scratch my own itch - building a helpdesk ticket system for
 
 Changelog
 =========
+
+Version 1.2.0
+-------------
+
+* Added sending email support via SMTP. Can send emails as replies from individual tickets.
+* SMTP auto-sender for creating new tickets, merging incoming replies into existing tickets and closing tickets.
+* email history shown as accordion on ticket view.
 
 Version 1.1.2
 -------------
@@ -65,9 +71,7 @@ Todo:
 * change look from bootstrap basic view
 * better alert messages for administration registration & deletion and ticket views
 * better visual indicator for high status tickets, both in list and individual views
-* add ability to send reply and automatic emails via smtp
-* allow disabling of auto-replies for status changes
-* show attachments, notes and email history on individual ticket view
+* show attachments and notes on individual ticket view
 * allow private internal notes to be added to individual tickets
 * allow non-admins to view their own tickets and status (Active Directory integration)
 * web-form for submission of tickets outside of email
@@ -76,6 +80,8 @@ Todo:
 
 Done:
 
+* show email history on individual ticket
+* add ability to send reply and automatic emails via smtp
 * imap handler for importing tickets to db
 * DB handler framework
 * front-end framework using knockout

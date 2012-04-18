@@ -17,19 +17,21 @@
 			//ticket list view		
 			div(data-bind="with:tableView").span10
 				div(data-bind="visible: showTable, css: {hide: !showTable}").hide
-					table#ticketlist.table.table-bordered.table-striped(data-bind="dataTable: { dataSource: tickets, rowTemplate: 'ticketListTemplate',  options: {bSort: false, iDisplayLength: 25}, columns: ['age', 'subject', 'from', 'friendlydate', 'impact'] }")
+					table#ticketlist.table.table-bordered.table-striped(data-bind="dataTable: { dataSource: tickets, rowTemplate: 'ticketListTemplate',  options: {bSort: false, iDisplayLength: 25}, columns: ['impact', 'age', 'lastmodified', 'subject', 'from', 'created'] }")
 							thead
 									tr
-										th age									
 										th impact
+										th age
+										th last modified									
 										th subject									
 										th from
-										th date
+										th created
+										
 
 			//individual ticket view
 			div(data-bind="with:ticketView").span10			
 				//section only shown if ticketData has content
-				div(data-bind="with: ticketData, visible: showTicket, css: {hide: !showTicket}").hide.span10
+				div(data-bind="with: ticketData, visible: showTicket, css: {hide: !showTicket}").hide.span12
 					.btn-toolbar.pull-right
 						.btn-group
 							a(data-toggle="modal", data-target="#deleteModal").btn.btn-danger <i class="icon-trash icon-white"></i> Delete Ticket
@@ -46,34 +48,79 @@
 						.btn-group
 							button(data-bind="css:{disabled: true}").btn Edit Ticket
 						.btn-group
-							button(data-bind="click: $parent.closeTicket, disable: $parent.isClosed, css:{disabled: $parent.isClosed}").btn.btn-primary Close Ticket
+							button(data-bind="click: $parent.closeTicket, disable: $parent.isClosed").btn.btn-success Close Ticket
 
 					br
 					ul.unstyled	
 						li
 							p <span class="label label-info">ID</span> <span data-bind="text: _id"></span>
 						li
-							p <span class="label label-info">age</span> <span data-bind="text: age"></span> - <span data-bind="text: friendlydate"></span>
+							p <span class="label label-info">created</span> <span data-bind="text: age"></span> - <span data-bind="text: created"></span>
 						li
-							p <span class="label label-info">status</span> <span data-bind="text: status()"></span>
+							p <span class="label label-info">last modified</span> <span data-bind="text: lastmodified"></span> - <span data-bind="text: friendlylastmodified"></span>
 						li
-							p <span class="label label-info">impact</span> <span class="badge" data-bind="text: impact()"></span>
+							p <span class="label label-info">status</span> <span data-bind="text: status"></span>
+						li
+							p <span class="label label-info">impact</span> <span class="badge" data-bind="text: impact"></span>
 						li
 							p <span class="label label-info">from:</span> <strong data-bind="text: from"></strong>
-
 					hr
 					h1(data-bind="text: subject")
 					hr
-				div(data-bind="with: ticketData, visible: showTicket, css: {hide: !showTicket}").hide.span10.well
+
+				div(data-bind="with: ticketData, visible: showTicket, css: {hide: !showTicket}").hide.span12.well
 					p(data-bind="html: description")
+
+				div(data-bind="visible: showTicket, css: {hide: !showTicket}").hide.span12
+					div(data-bind="visible: !showMailForm()")
+						.btn-toolbar.pull-right
+							.btn-group
+								button(data-bind="click: writeMail, disable: isClosed").btn.btn-info <i class="icon-envelope icon-white"></i> Write reply
+
+					// sending email form					
+					div(data-bind="visible: showMailForm, slideVisible: showMailForm")
+						form
+							div.control-group
+								label.control-label(for="formto") To:
+								div.controls
+									input.span10(id="formsto", data-bind="value: mailForm.to")
+								label.control-label(for="formsubject") Subject:
+								div.controls
+									input.span10(id="formsubject", data-bind="value: mailForm.subject")
+							div.control-group
+								label.control-label(for="formtextarea") Message:
+								div.controls
+									textarea(data-bind="wysiwyg: mailForm.html", id="formtextarea", rows="50", cols="140").span12
+							.btn-toolbar.pull-right
+								.btn-group
+									button(data-bind="click: function(){showMailForm(false)}").btn Cancel reply
+								.btn-group
+									button(data-bind="click: sendMail, disable: isClosed").btn.btn-success <i class="icon-envelope icon-white"></i> Send email
+
+
+				div(data-bind="with: ticketData, visible: showTicket, css: {hide: !showTicket}").hide.span12
+					br							
+					strong Email history:
+					hr
+					div(data-bind="foreach: emails")
+						div <span class="accordion-heading" data-bind="click: reverseShow"><i class="icon-resize-full"></i> <a data-bind="text: friendlydate"></a> &bull; <span data-bind="html:from"></span> &bull; <span data-bind="html:subject"></span></span>
+							hr(data-bind="slideVisible: show")
+							blockquote(data-bind="slideVisible: show")
+								span(data-bind="slideVisible: show, html: body")
+							hr(data-bind="slideVisible: show")
+						br
+						
+
 
 
 <script Id="ticketListTemplate" type="text/html">
-<td width=7.5% data-bind="text: age"></td>
-<td width=7.5% data-bind="text: impact"></td>
-<td width= 50%><a data-bind="text: subject"></a></td>
+<td width=5% data-bind="text: impact"></td>
+<td width=8% data-bind="text: age"></td>
+<td width=10% data-bind="text: lastmodified"></td>
+<td width=50%><a data-bind="text: subject"></a></td>
 <td data-bind="text: from"></td>
-<td data-bind="text: friendlydate"></td>
+<td data-bind="text: created"></td>
+
 </script>
 
 != partial('modals.jade')
@@ -85,12 +132,21 @@ script(src="/js/lib/jquery.dataTables.min.js")
 script(src="/js/lib/bootstrap.datatables.js")		
 script(src="/js/topbar-viewmodel.js")
 script(src="/js/manage-viewmodelcontroller.js")
+
+script(src="/js/lib/knockout.bindings.wysiwyg.js")
+script(src="/js/lib/jquery.wysiwyg.js")
+link(href='/css/jquery.wysiwyg.css', rel='stylesheet')
+script(src="/js/lib/controls/wysiwyg.image.js")
+script(src="/js/lib/controls/wysiwyg.link.js")
+script(src="/js/lib/controls/wysiwyg.table.js")
+
+
 script
 	//get to work!
 	now.ready(function(){
 		//fire up a viewcontroller for the page via knockout, attach to global window
-		now.getManageStartupData(function(ticketcount,statuslist){
-			window.controller = ko.applyBindings( new ManageViewModelController(ticketcount,statuslist) );
+		now.getManageStartupData(function(ticketcount,statuslist,lang){
+			window.controller = ko.applyBindings( new ManageViewModelController(ticketcount,statuslist,lang) );
 		});
 	});
 

@@ -1,10 +1,10 @@
 //view model controller
-function ManageViewModelController(ticketcount,statuslist) {
+function ManageViewModelController(ticketcount,statuslist,lang) {
 	var self = this;
 	self.topbarView = new TopBarViewModel();
   self.tabsView = new tabsViewModel(ko.mapping.fromJS(ticketcount),statuslist);
 	self.tableView = new tableViewModel();
-	self.ticketView = new ticketViewModel();
+	self.ticketView = new ticketViewModel(lang);
 	// respond to server command to update ticket views
 	now.ticketUpdate = function(ticketcount){
 		ko.mapping.fromJS(ticketcount,self.tabsView.tabcount);
@@ -21,14 +21,15 @@ function ManageViewModelController(ticketcount,statuslist) {
 	Sammy(function() {
 		this.get('/manage#/:ticketid', function (){
 			self.tabsView.chosenTabId(null); //unselect all tabs
-			var array = self.tableView.tickets;
 			self.tableView.showTable(false);
+			self.ticketView.showMailForm(false);
 			self.ticketView.showTicket(true);
 			self.ticketView.getData(this.params.ticketid);
 		});
 		this.get('/manage#:tab', function() {
 			self.ticketView.showTicket(false);
 			self.tableView.showTable(true);
+			self.ticketView.showMailForm(false);
 			self.tabsView.chosenTabId(this.params.tab); //make the selected tab match the request
 			self.tableView.getData(this.params.tab);
 		});
@@ -72,13 +73,19 @@ function tableViewModel() {
 				self.sortByDate();
 			});
 	};
-};
+}
 
 //data model
 function TicketSummary(rawticket) {
 	this.id = rawticket._id;
-	this.age = ko.observable( moment(rawticket.date).fromNow(true) );
-	this.friendlydate = ko.observable( moment(rawticket.date).format('ddd MMM Do YYYY, HH:mm') );
+	this.age = moment(rawticket.date).fromNow(true);
+	this.created = moment(rawticket.date).format('ddd MMM Do YYYY, HH:mm');
+	if (rawticket.lastmodified) {
+		this.lastmodified = moment(rawticket.lastmodified).fromNow();	
+	} else {
+		this.lastmodified = "Unknown"
+	}
+	
 	this.subject = rawticket.subject;
 	this.from = rawticket.from;
 	this.date = rawticket.date;
@@ -88,22 +95,57 @@ function TicketSummary(rawticket) {
 //-------------------------------
 
 //view model
-function ticketViewModel() {
+function ticketViewModel(lang) {
 	// associated Data
 	var self = this; //using self avoids scope problems with methods
 	self.impacts = ko.observableArray(['High', 'Normal', 'Low']);
 	self.ticketData = ko.observable();
 	self.showTicket = ko.observable(false);
+	self.showMailForm = ko.observable(false);
+	self.mailForm = {
+		to: ko.observable(),
+		subject: ko.observable(),
+		html: ko.observable()
+	}
 	self.isClosed = ko.computed( function() {
 		if (!self.ticketData()) { return false; } 
 		else if (self.ticketData().status() == "Closed") {return true;}
 		else {return false;}	
 	});
 	// Operations
+
+	self.writeMail = function() {
+		//pull init data from ticketData
+		var id = self.ticketData()._id;
+		var from = self.ticketData().from;
+		var sub = self.ticketData().subject;
+		var description = self.ticketData().description;
+		// pre-populate the form text fields
+		self.mailForm.to(from);
+		self.mailForm.subject("RE: " + sub + " - " + lang.reply.subject + " - ID: [" + id + "]");
+		self.mailForm.html(lang.reply.body + description);
+		// reveal the form
+		self.showMailForm(true);
+		// give focus to textarea editor
+		$("#formtextarea-wysiwyg-iframe").focus(); 
+	}
+
+	self.sendMail = function() {
+		now.sendMail(ko.toJS(self.mailForm),self.ticketData()._id,function(err){
+			if (err) {
+				alert("Error encountered sending email: " + JSON.stringify(err));
+			} else {
+				self.showMailForm(false);
+				console.log("email sent!");
+			}
+		});
+	};
+
 	self.getData = function(ticketId){
-		$.getJSON('/api/tickets/'+ticketId, function(allData){ //get ticket with _id of ticketId
-				self.ticketData(new incomingTicket(allData)); //put into ticketData
-			});
+		$.getJSON('/api/tickets/'+ticketId, function(data){ //get ticket with _id of ticketId
+				var koTicket = new incomingTicket(data);			 
+				self.ticketData(koTicket);
+		});
 	};
 	self.updateData = function(ticketId){
 		var data = new outgoingTicket(ko.toJS(self.ticketData));
@@ -127,6 +169,14 @@ function ticketViewModel() {
 	};
 	self.closeTicket = function() {
 		self.changeStatus("Closed");
+		var id = self.ticketData()._id;
+		var from = self.ticketData().from;
+		var sub = self.ticketData().subject;
+		var description = self.ticketData().description;
+		self.mailForm.to(from);
+		self.mailForm.subject("RE: " + sub + " - " + lang.closeReply.subject + " - ID: [" + id + "]");
+		self.mailForm.html(lang.closeReply.body + description);
+		self.sendMail();
 	};
 	self.deleteTicket = function() {
 		self.deleteData(self.ticketData()._id);
@@ -142,30 +192,67 @@ function ticketViewModel() {
 
 function incomingTicket(data) {
 	this.age = moment(data.date).fromNow();
-	this.friendlydate = moment(data.date).format('ddd MMM Do YYYY, HH:mm');
+	this.created = moment(data.date).format('ddd MMM Do YYYY, HH:mm');
+	this.lastmodified = moment(data.lastmodified).fromNow();
+	this.friendlylastmodified = moment(data.lastmodified).format('ddd MMM Do YYYY, HH:mm');
 	this.subject = data.subject;
 	this.from = data.from;
 	this._id = data._id;
 	this.status = ko.observable(data.status);
 	this.description = data.description;
 	this.notes = data.notes;
-	this.attachments = data.attachments;
-	this.emails = data.emails;
+	this.emails = ko.observableArray( $.map(data.emails, function(item) { return new incomingEmail(item) } ) );
 	this.impact = ko.observable(data.impact || "normal");
 	this.cc = data.cc;
 	this.labels = data.labels;
+	this.attachments = ko.observableArray();
 }
 
 function outgoingTicket(data) {
-	this.subject = data.subject;
-	this.from = data.from;
+	this.lastmodified = new Date();
 	this._id = data._id;
 	this.status = data.status;
-	this.description = data.description;
-	this.notes = data.notes;
-	this.attachments = data.attachments;
-	this.emails = data.emails;
 	this.impact = data.impact;
-	this.cc = data.cc;
-	this.labels = data.labels;
 }
+
+function incomingEmail(data) {
+	this.from = data.from;
+	this.to = data.to;
+	this.subject = data.subject;
+	if (data.date) {
+		this.friendlydate = moment(data.date).format('ddd MMM Do YYYY, HH:mm');	
+		this.date = data.date;
+	} else {
+		this.friendlydate = "no date set";
+	}	
+	this.body = data.html || data.plaintext;
+	this.plaintext = data.plaintext;
+	this.html = data.html;
+	this.show = ko.observable(false);
+	this.attachments = data.attachments;
+	this.reverseShow = function(){this.show( !this.show() )};
+}
+
+
+
+
+ko.bindingHandlers.slideVisible = {
+    update: function(element, valueAccessor, allBindingsAccessor) {
+        // First get the latest data that we're bound to
+        var value = valueAccessor(), allBindings = allBindingsAccessor();
+         
+        // Next, whether or not the supplied model property is observable, get its current value
+        var valueUnwrapped = ko.utils.unwrapObservable(value); 
+         
+        // Grab some more data from another binding property
+        var duration = allBindings.slideDuration || 200; // 400ms is default duration unless otherwise specified
+         
+        // Now manipulate the DOM element
+        if (valueUnwrapped == true) 
+            $(element).slideDown(duration); // Make the element visible
+        else
+            $(element).slideUp(duration);   // Make the element invisible
+    }
+};
+
+
