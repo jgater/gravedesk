@@ -59,13 +59,6 @@ ko.bindingHandlers.wysiwyg = {
         }
 
         var current = $e.wysiwyg('document');
-        var timer;
-        current.bind({    
-            keyup: function(){
-                clearTimeout(timer);
-                timer = setTimeout(detectFn, 1000);
-            }
-        });
 
         //handle disposal (if KO removes by the template binding)
         ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
