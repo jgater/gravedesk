@@ -35,6 +35,13 @@ This is a project to scratch my own itch - building a helpdesk ticket system for
 Changelog
 =========
 
+Version 1.2.1
+-------------
+
+* Added edit mode to ticket view
+* performance improvement for ticket layout (merge css files, js files, switch out visible for if bindings)
+* knockout.js and jquery version bumps
+
 Version 1.2.0
 -------------
 
