@@ -8,15 +8,16 @@ div(data-bind="with: topbarView").navbar.navbar-fixed-top
 				span.icon-bar
 			a.brand(href='/')= brand
 			.nav-collapse
-				ul(data-bind="foreach: navbarLinks").nav
-					li(data-bind="css:{active: $parent.matchingPath(path)}")
-						if adminUser
-							<a data-bind="attr: {href: path}"><i class="icon-white" data-bind="class: icon"></i> <span data-bind="text:name"></span>&nbsp;</a>
-						else
-							<!-- ko ifnot: showOnlyToAdmin -->
-							<a data-bind="attr: {href: path}"><i class="icon-white" data-bind="class: icon"></i> <span data-bind="text:name"></span>&nbsp;</a>
-							<!-- /ko -->
-							
+				ul.nav
+					li(data-bind="css:{active: matchingPath('/')}")
+						<a href="/"><i class="icon-white icon-home"></i> <span>Home</span>&nbsp;</a>
+					li(data-bind="css:{active: matchingPath('/manage')}")
+						<a href="/manage"><i class="icon-white icon-th-list"></i> <span>Manage Tickets</span>&nbsp;</a>
+					if adminUser	
+						li(data-bind="css:{active: matchingPath('/admin')}")
+							<a href="/admin"><i class="icon-white icon-cog"></i> <span>Admin Site</span>&nbsp;</a>
+					li(data-bind="css:{active: matchingPath('/account')}")
+						<a href="/account"><i class="icon-white icon-user"></i> <span>Account</span>&nbsp;</a>						
 				if adminUser
 					p.navbar-text.pull-right Logged in as 
 						a(href='/account') #{adminUser.username} &nbsp;

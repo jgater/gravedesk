@@ -80,7 +80,10 @@ async.series([
 ],
 //callback error handler
 function(err) {
-  if (err) { console.error("Problem with starting background services; "+err); }
+  if (err) { 
+    console.error("Problem with starting background services; "+err);
+    process.exit(err);
+   }
 });
 
 // initialize now.js
@@ -89,8 +92,16 @@ if (settings.proxy.enable) {
     socketio: {transports:['xhr-polling', 'jsonp-polling']} 
   }); 
 }
-else if (settings.https.enable) { var everyone = nowjs.initialize(app, {port: settings.https.port}); }
-else { var everyone = nowjs.initialize(app, {port: settings.defaultPort} ); }
+else if (settings.https.enable) { 
+  var everyone = nowjs.initialize(app, {port: settings.https.port,
+    socketio: {transports:['websocket', 'flashsocket', 'htmlfile', 'xhr-polling', 'jsonp-polling']} 
+  }); 
+}
+else { 
+  var everyone = nowjs.initialize(app, {port: settings.defaultPort,
+    socketio: {transports:['websocket', 'flashsocket', 'htmlfile', 'xhr-polling', 'jsonp-polling']} 
+  }); 
+}
 console.log("now.js added to server app.");
 
 // now functions    

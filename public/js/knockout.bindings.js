@@ -1,4 +1,85 @@
 /**
+* A KnockoutJs binding handler for jquery sliders              
+*/
+
+ko.bindingHandlers.slideVisible = {
+    update: function(element, valueAccessor, allBindingsAccessor) {
+        // First get the latest data that we're bound to
+        var value = valueAccessor(), allBindings = allBindingsAccessor();
+         
+        // Next, whether or not the supplied model property is observable, get its current value
+        var valueUnwrapped = ko.utils.unwrapObservable(value); 
+         
+        // Grab some more data from another binding property
+        var duration = allBindings.slideDuration || 200; // 400ms is default duration unless otherwise specified
+         
+        // Now manipulate the DOM element
+        if (valueUnwrapped == true) 
+            $(element).slideDown(duration); // Make the element visible
+        else
+            $(element).slideUp(duration);   // Make the element invisible
+    }
+};
+
+/**
+* A KnockoutJs binding handler for adding/removing css classes        
+*/
+
+ko.bindingHandlers['class'] = {
+    'update': function(element, valueAccessor) {
+        if (element['__ko__previousClassValue__']) {
+            $(element).removeClass(element['__ko__previousClassValue__']);
+        }
+        var value = ko.utils.unwrapObservable(valueAccessor());
+        $(element).addClass(value);
+        element['__ko__previousClassValue__'] = value;
+    }
+};
+
+/**
+* A KnockoutJs binding handler for the jwysiwyg editor               
+*/
+
+ko.bindingHandlers.wysiwyg = {
+    init: function (element, valueAccessor, allBindingsAccessor) {
+        var options = allBindingsAccessor().wysiwygOptions || {css : '/css/editor.css' };
+        var value = ko.utils.unwrapObservable(valueAccessor());
+        var $e = $(element);
+        $.extend(true, {
+            initialContent : value
+        }, options);
+
+        $e.wysiwyg(options);
+
+        //handle the field changing
+        function detectFn() {
+            var observable = valueAccessor();
+            var newvalue = $e.wysiwyg("getContent");
+            observable(newvalue);
+        }
+
+        var current = $e.wysiwyg('document');
+        var timer;
+        current.bind({    
+            keyup: function(){
+                clearTimeout(timer);
+                timer = setTimeout(detectFn, 1000);
+            }
+        });
+
+        //handle disposal (if KO removes by the template binding)
+        ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+            $e.wysiwyg('destroy');
+        });
+    },
+    update: function (element, valueAccessor) {
+        var value = ko.utils.unwrapObservable(valueAccessor());
+        $(element).wysiwyg("setContent", value);
+        ko.bindingHandlers.value.update(element, valueAccessor);
+    }
+};
+
+/**
 * A KnockoutJs binding handler for the html tables javascript library DataTables.                  
 */
 ko.bindingHandlers['dataTable'] = {
@@ -27,7 +108,7 @@ ko.bindingHandlers['dataTable'] = {
         if (binding.rowTemplate && binding.rowTemplate != '') {
             options.fnRowCallback = function (row, data, displayIndex, displayIndexFull) {
                 // Render the row template for this row.
-				ko.renderTemplate(binding.rowTemplate, data, null, row, "replaceChildren");
+                ko.renderTemplate(binding.rowTemplate, data, null, row, "replaceChildren");
                 // custom addclick on row function!
                 $(row).unbind('click').bind('click', function() {
                  location.href='/manage#/'+data.id;
@@ -118,8 +199,8 @@ ko.bindingHandlers['dataTable'] = {
                     // Insert the cell in the current row.
                     destRow.append(newCell);
                     // bind the cell to the observable in the current data row.
-					var accesor = eval("srcData['" + columnName.replace(".", "']['") + "']");
-					ko.applyBindingsToNode(newCell[0], { text: accesor }, srcData);
+                    var accesor = eval("srcData['" + columnName.replace(".", "']['") + "']");
+                    ko.applyBindingsToNode(newCell[0], { text: accesor }, srcData);
                 });
 
                 return destRow[0];
