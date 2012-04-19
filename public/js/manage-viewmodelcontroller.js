@@ -130,16 +130,20 @@ function ticketViewModel(lang) {
 		self.showMailForm(true);
 		// give focus to textarea editor
 		$("#formtextarea-wysiwyg-iframe").focus(); 
-	}
+	};
 
-	self.sendMail = function() {
+	self.sendMailForm = function() {
 		var newvalue = $("#formtextarea").wysiwyg("getContent");
     self.mailForm.html(newvalue);
+    self.showMailForm(false);
+    self.sendMail();
+	};
+
+	self.sendMail = function() {
 		now.sendMail(ko.toJS(self.mailForm),self.ticketData()._id,function(err){
 			if (err) {
 				alert("Error encountered sending email: " + JSON.stringify(err));
 			} else {
-				self.showMailForm(false);
 				console.log("email sent!");
 			}
 		});
@@ -221,7 +225,6 @@ function incomingTicket(data) {
 	this.impact = ko.observable(data.impact || "normal");
 	this.cc = data.cc;
 	this.labels = data.labels;
-	this.attachments = ko.observableArray();
 }
 
 function outgoingTicket(data) {
