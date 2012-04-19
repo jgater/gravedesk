@@ -51,15 +51,6 @@ ko.bindingHandlers.wysiwyg = {
 
         $e.wysiwyg(options);
 
-        //handle the field changing
-        function detectFn() {
-            var observable = valueAccessor();
-            var newvalue = $e.wysiwyg("getContent");
-            observable(newvalue);
-        }
-
-        var current = $e.wysiwyg('document');
-
         //handle disposal (if KO removes by the template binding)
         ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
             $e.wysiwyg('destroy');

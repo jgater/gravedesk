@@ -133,6 +133,8 @@ function ticketViewModel(lang) {
 	}
 
 	self.sendMail = function() {
+		var newvalue = $(formtextarea).wysiwyg("getContent");
+    self.mailForm.html(newvalue);
 		now.sendMail(ko.toJS(self.mailForm),self.ticketData()._id,function(err){
 			if (err) {
 				alert("Error encountered sending email: " + JSON.stringify(err));
@@ -195,7 +197,9 @@ function ticketViewModel(lang) {
 		self.getData(self.ticketData()._id);
 	};
 	self.saveEditChanges = function() {
-		self.editMode(false);
+		var newvalue = $(descriptiontextarea).wysiwyg("getContent");
+    self.ticketData().description(newvalue);
+    self.editMode(false);
 		self.updateData(self.ticketData()._id);
 	};
 }
