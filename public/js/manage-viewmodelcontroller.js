@@ -95,7 +95,7 @@ function TicketSummary(rawticket) {
 
 //-------------------------------
 
-//view model
+//individual ticket view model
 function ticketViewModel(lang) {
 	// associated Data
 	var self = this; //using self avoids scope problems with methods
@@ -119,9 +119,9 @@ function ticketViewModel(lang) {
 	self.writeMail = function() {
 		//pull init data from ticketData
 		var id = self.ticketData()._id;
-		var from = self.ticketData().from;
-		var sub = self.ticketData().subject;
-		var description = self.ticketData().description;
+		var from = self.ticketData().from();
+		var sub = self.ticketData().subject();
+		var description = self.ticketData().description();
 		// pre-populate the form text fields
 		self.mailForm.to(from);
 		self.mailForm.subject("RE: " + sub + " - " + lang.reply.subject + " - ID: [" + id + "]");
@@ -172,9 +172,9 @@ function ticketViewModel(lang) {
 	self.closeTicket = function() {
 		self.changeStatus("Closed");
 		var id = self.ticketData()._id;
-		var from = self.ticketData().from;
-		var sub = self.ticketData().subject;
-		var description = self.ticketData().description;
+		var from = self.ticketData().from();
+		var sub = self.ticketData().subject();
+		var description = self.ticketData().description();
 		self.mailForm.to(from);
 		self.mailForm.subject("RE: " + sub + " - " + lang.closeReply.subject + " - ID: [" + id + "]");
 		self.mailForm.html(lang.closeReply.body + description);
@@ -187,9 +187,17 @@ function ticketViewModel(lang) {
 		self.ticketData().impact(data);
 		self.updateData(self.ticketData()._id);
 	};
-	self.editTicket = function() {
+	self.enableEditTicket = function() {
 		self.editMode(true);
-	}
+	};
+	self.disableEditTicket = function() {
+		self.editMode(false);
+		self.getData(self.ticketData()._id);
+	};
+	self.saveEditChanges = function() {
+		self.editMode(false);
+		self.updateData(self.ticketData()._id);
+	};
 }
 
 //data models
@@ -200,10 +208,10 @@ function incomingTicket(data) {
 	this.lastmodified = moment(data.lastmodified).fromNow();
 	this.friendlylastmodified = moment(data.lastmodified).format('ddd MMM Do YYYY, HH:mm');
 	this.subject = ko.observable(data.subject);
-	this.from = data.from;
+	this.from = ko.observable(data.from);
 	this._id = data._id;
 	this.status = ko.observable(data.status);
-	this.description = data.description;
+	this.description = ko.observable(data.description);
 	this.notes = data.notes;
 	this.emails = ko.observableArray( $.map(data.emails, function(item) { return new incomingEmail(item) } ) );
 	this.impact = ko.observable(data.impact || "normal");
@@ -217,6 +225,9 @@ function outgoingTicket(data) {
 	this._id = data._id;
 	this.status = data.status;
 	this.impact = data.impact;
+	this.from = data.from;
+	this.subject = data.subject;
+	this.description = data.description;
 }
 
 function incomingEmail(data) {
@@ -237,26 +248,5 @@ function incomingEmail(data) {
 	this.reverseShow = function(){this.show( !this.show() )};
 }
 
-
-
-
-ko.bindingHandlers.slideVisible = {
-    update: function(element, valueAccessor, allBindingsAccessor) {
-        // First get the latest data that we're bound to
-        var value = valueAccessor(), allBindings = allBindingsAccessor();
-         
-        // Next, whether or not the supplied model property is observable, get its current value
-        var valueUnwrapped = ko.utils.unwrapObservable(value); 
-         
-        // Grab some more data from another binding property
-        var duration = allBindings.slideDuration || 200; // 400ms is default duration unless otherwise specified
-         
-        // Now manipulate the DOM element
-        if (valueUnwrapped == true) 
-            $(element).slideDown(duration); // Make the element visible
-        else
-            $(element).slideUp(duration);   // Make the element invisible
-    }
-};
 
 

@@ -3,7 +3,7 @@
 		.row-fluid
 			.span2
 				!= partial('sidebar.jade')
-			//tabs view
+			//- tabs view
 			div(data-bind="with:tabsView").span10
 				ul(data-bind="foreach: tabs").nav.nav-tabs
 					li(data-bind="css:{active: $data == $parent.chosenTabId()}, click: $parent.goToTab")
@@ -14,7 +14,7 @@
 						<a data-bind="text: $data"></a>
 						<!-- /ko -->
 
-			//ticket list view		
+			//- ticket list view		
 			div(data-bind="visible: tableView.showTable, css: {hide: !tableView.showTable}").hide.span10
 				div(data-bind="with:tableView")
 					table#ticketlist.table.table-bordered.table-striped(data-bind="dataTable: { dataSource: tickets, rowTemplate: 'ticketListTemplate',  options: {bSort: false, iDisplayLength: 25}, columns: ['impact', 'age', 'lastmodified', 'subject', 'from', 'created'] }")
@@ -28,13 +28,13 @@
 								th created
 										
 
-			//individual ticket view
+			//- individual ticket view
 			div(data-bind="if: ticketView.showTicket, css: {hide: !ticketView.showTicket}").hide.span10
 				div(data-bind="with:ticketView")					
 					div(data-bind="with: ticketData").span12
-						.btn-toolbar.pull-right
+						.btn-toolbar.pull-right(data-bind="ifnot: $parent.editMode")
 							.btn-group
-								a(data-toggle="modal", data-target="#deleteModal").btn.btn-danger <i class="icon-trash icon-white"></i> Delete Ticket
+								button(data-toggle="modal", data-target="#deleteModal").btn.btn-danger <i class="icon-trash icon-white"></i> Delete Ticket
 							.btn-group
 								button(data-toggle="dropdown").btn Impact <span class="caret"></span>
 									ul(data-bind="foreach: $parent.impacts").dropdown-menu
@@ -44,11 +44,18 @@
 								button(data-toggle="dropdown").btn Status <span class="caret"></span>
 									ul(data-bind="foreach: $root.tabsView.tabs").dropdown-menu
 										li
-											a(data-bind="text: $data, click: $root.ticketView.changeStatus")
+											a(data-bind="text: $data, click: $root.ticketView.changeStatus")	
 							.btn-group
-								button(data-bind="click: $parent.editTicket").btn Edit Ticket
+								button(data-bind="click: $parent.enableEditTicket").btn Edit Ticket
 							.btn-group
 								button(data-bind="click: $parent.closeTicket, disable: $parent.isClosed").btn.btn-success Close Ticket
+
+						.btn-toolbar.pull-right(data-bind="if: $parent.editMode")
+							.btn-group
+								button(data-bind="click: $parent.disableEditTicket").btn Cancel Edit
+							.btn-group
+								button(data-bind="click: $parent.saveEditChanges").btn.btn-success Save Changes
+
 	
 						br
 						ul.unstyled	
@@ -62,25 +69,33 @@
 								p <span class="label label-info">status</span> <span data-bind="text: status"></span>
 							li
 								p <span class="label label-info">impact</span> <span class="badge" data-bind="text: impact"></span>
-							li
+							li(data-bind="ifnot: $parent.editMode")
 								p <span class="label label-info">from:</span> <strong data-bind="text: from"></strong>
 						hr
 						div(data-bind="ifnot: $parent.editMode")
 							h1(data-bind="text: subject")
 						div(data-bind="if: $parent.editMode")
-							input(data-bind="value: subject, valueUpdate: 'afterkeydown'").span12
+							label from:
+								input(data-bind="value: from, valueUpdate: 'afterkeydown'").span12
+							label subject:
+								input(data-bind="value: subject, valueUpdate: 'afterkeydown'").span12
 						hr
 	
-					div(data-bind="with: ticketData").span12.well
-						p(data-bind="html: description")
+					div(data-bind="with: ticketData").span12
+						div(data-bind="ifnot: $parent.editMode")
+							p(data-bind="html: description").well
+						div(data-bind="if: $parent.editMode")
+							label description:
+							textarea(data-bind="wysiwyg: description", id="descriptiontextarea", rows="50", cols="140").span12
+							
 	
-					div.span12
+					div(data-bind="ifnot: editMode").span12
 						div(data-bind="ifnot: showMailForm")
 							.btn-toolbar.pull-right
 								.btn-group
 									button(data-bind="click: writeMail, disable: isClosed").btn.btn-info <i class="icon-envelope icon-white"></i> Write reply
 	
-						// sending email form					
+						//- sending email form					
 						div(data-bind="if: showMailForm")
 							form(data-bind="slideVisible: showMailForm")
 								div.control-group
@@ -129,16 +144,11 @@
 != partial('modals.jade')
 
 script(src="/js/lib/moment.min.js")		
-script(src="/js/lib/knockout.bindings.dataTables.js")
-script(src="/js/lib/knockout.mapping.js")	
 script(src="/js/lib/jquery.dataTables.min.js")	
 script(src="/js/lib/bootstrap.datatables.js")		
 script(src="/js/topbar-viewmodel.js")
 script(src="/js/manage-viewmodelcontroller.js")
-
-script(src="/js/lib/knockout.bindings.wysiwyg.js")
 script(src="/js/lib/jquery.wysiwyg.js")
-link(href='/css/jquery.wysiwyg.css', rel='stylesheet')
 script(src="/js/lib/controls/wysiwyg.image.js")
 script(src="/js/lib/controls/wysiwyg.link.js")
 script(src="/js/lib/controls/wysiwyg.table.js")
@@ -152,7 +162,3 @@ script
 			window.controller = ko.applyBindings( new ManageViewModelController(ticketcount,statuslist,lang) );
 		});
 	});
-
-
-
-
