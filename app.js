@@ -94,12 +94,12 @@ if (settings.proxy.enable) {
 }
 else if (settings.https.enable) { 
   var everyone = nowjs.initialize(app, {port: settings.https.port,
-    socketio: {transports:['websocket', 'flashsocket', 'htmlfile', 'xhr-polling', 'jsonp-polling']} 
+    socketio: {transports:['websocket', 'xhr-polling', 'jsonp-polling']} 
   }); 
 }
 else { 
   var everyone = nowjs.initialize(app, {port: settings.defaultPort,
-    socketio: {transports:['websocket', 'flashsocket', 'htmlfile', 'xhr-polling', 'jsonp-polling']} 
+    socketio: {transports:['websocket', 'xhr-polling', 'jsonp-polling']} 
   }); 
 }
 console.log("now.js added to server app.");

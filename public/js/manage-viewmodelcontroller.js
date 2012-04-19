@@ -8,14 +8,14 @@ function ManageViewModelController(ticketcount,statuslist,lang) {
 	// respond to server command to update ticket views
 	now.ticketUpdate = function(ticketcount){
 		ko.mapping.fromJS(ticketcount,self.tabsView.tabcount);
-		if (self.tableView.showTable) {self.tableView.getData( self.tabsView.chosenTabId() )}
+		if (self.tableView.showTable()) {self.tableView.getData( self.tabsView.chosenTabId() )}
 		//probably not watching the same ticket that triggered the update, but update everyone's just in case
-		if (self.ticketView.showTicket) {self.ticketView.getData( self.ticketView.ticketData()._id )}
+		if (self.ticketView.showTicket()) {self.ticketView.getData( self.ticketView.ticketData()._id )}
 	};
 	//respond to server advising new ticket added to db
 	now.newTicket = function(ticketcount){
 		ko.mapping.fromJS(ticketcount,self.tabsView.tabcount);
-		if (self.tableView.showTable) {self.tableView.getData( self.tabsView.chosenTabId() )}
+		if (self.tableView.showTable()) {self.tableView.getData( self.tabsView.chosenTabId() )}
 	};
 
 	Sammy(function() {
@@ -133,7 +133,7 @@ function ticketViewModel(lang) {
 	}
 
 	self.sendMail = function() {
-		var newvalue = $(formtextarea).wysiwyg("getContent");
+		var newvalue = $("#formtextarea").wysiwyg("getContent");
     self.mailForm.html(newvalue);
 		now.sendMail(ko.toJS(self.mailForm),self.ticketData()._id,function(err){
 			if (err) {
@@ -197,7 +197,7 @@ function ticketViewModel(lang) {
 		self.getData(self.ticketData()._id);
 	};
 	self.saveEditChanges = function() {
-		var newvalue = $(descriptiontextarea).wysiwyg("getContent");
+		var newvalue = $("#descriptiontextarea").wysiwyg("getContent");
     self.ticketData().description(newvalue);
     self.editMode(false);
 		self.updateData(self.ticketData()._id);
