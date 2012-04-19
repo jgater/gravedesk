@@ -35,6 +35,12 @@ This is a project to scratch my own itch - building a helpdesk ticket system for
 Changelog
 =========
 
+Version 1.2.2
+-------------
+
+* bugfix - handles [] in email subjects properly
+* bugfix - fixed jumping cursor in ticket editor
+
 Version 1.2.1
 -------------
 
