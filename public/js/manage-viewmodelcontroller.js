@@ -1,6 +1,8 @@
 //view model controller
 function ManageViewModelController(ticketcount,statuslist,lang) {
 	var self = this;
+	//instruct ajax queries not to cache - fix for IE9 JSON caching
+	jQuery.ajaxSetup({ cache: false });
 	self.topbarView = new TopBarViewModel();
   self.tabsView = new tabsViewModel(ko.mapping.fromJS(ticketcount),statuslist);
 	self.tableView = new tableViewModel();
@@ -72,7 +74,7 @@ function tableViewModel() {
 	self.getData = function (status) {
 			$.getJSON('/api/tickets/status/'+status, function(allData){ //get all tickets by status
 				var mappedTickets = $.map(allData, function(item) { return new TicketSummary(item) } ); //return an array of processed(mapped) tickets
-				self.tickets(mappedTickets); //put into tickets array (syntax like this because it's a function...)
+				self.tickets(mappedTickets); 
 				self.sortByDate();
 			});
 	};
@@ -155,7 +157,6 @@ function ticketViewModel(lang) {
 		$.getJSON('/api/tickets/'+ticketId, function(data){ //get ticket with _id of ticketId
 				var koTicket = new incomingTicket(data);			 
 				self.ticketData(koTicket);
-
 		});
 	};
 	self.updateData = function(ticketId){
