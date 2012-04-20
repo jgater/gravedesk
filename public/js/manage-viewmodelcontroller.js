@@ -124,7 +124,7 @@ function ticketViewModel(lang) {
 		var description = self.ticketData().description();
 		// pre-populate the form text fields
 		self.mailForm.to(from);
-		self.mailForm.subject("RE: " + sub + " - " + lang.reply.subject + " - ID: [" + id + "]");
+		self.mailForm.subject("RE: " + sub + " - " + lang.reply.subject + " - ID: <" + id + ">");
 		self.mailForm.html(lang.reply.body + description);
 		// reveal the form
 		self.showMailForm(true);
@@ -182,7 +182,7 @@ function ticketViewModel(lang) {
 		var sub = self.ticketData().subject();
 		var description = self.ticketData().description();
 		self.mailForm.to(from);
-		self.mailForm.subject("RE: " + sub + " - " + lang.closeReply.subject + " - ID: [" + id + "]");
+		self.mailForm.subject("RE: " + sub + " - " + lang.closeReply.subject + " - ID: <" + id + ">");
 		self.mailForm.html(lang.closeReply.body + description);
 		self.sendMail();
 	};
