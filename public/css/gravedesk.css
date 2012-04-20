@@ -9,6 +9,7 @@ body {
 
 .label {
 	vertical-align: text-top;
+	padding: 2px;
 }
 
 .align-inherit {

@@ -1,6 +1,8 @@
 //view model controller
 function ManageViewModelController(ticketcount,statuslist,lang) {
 	var self = this;
+	//instruct ajax queries not to cache - fix for IE9 JSON caching
+	jQuery.ajaxSetup({ cache: false });
 	self.topbarView = new TopBarViewModel();
   self.tabsView = new tabsViewModel(ko.mapping.fromJS(ticketcount),statuslist);
 	self.tableView = new tableViewModel();
@@ -8,20 +10,22 @@ function ManageViewModelController(ticketcount,statuslist,lang) {
 	// respond to server command to update ticket views
 	now.ticketUpdate = function(ticketcount){
 		ko.mapping.fromJS(ticketcount,self.tabsView.tabcount);
-		if (self.tableView.showTable) {self.tableView.getData( self.tabsView.chosenTabId() )}
+		if (self.tableView.showTable()) {self.tableView.getData( self.tabsView.chosenTabId() )}
 		//probably not watching the same ticket that triggered the update, but update everyone's just in case
-		if (self.ticketView.showTicket) {self.ticketView.getData( self.ticketView.ticketData()._id )}
+		if (self.ticketView.showTicket()) {
+			self.ticketView.getData( self.ticketView.ticketData()._id );
+			self.tabsView.chosenTabId(self.ticketView.ticketData().status());
+		}
 	};
 	//respond to server advising new ticket added to db
 	now.newTicket = function(ticketcount){
 		ko.mapping.fromJS(ticketcount,self.tabsView.tabcount);
-		if (self.tableView.showTable) {self.tableView.getData( self.tabsView.chosenTabId() )}
+		if (self.tableView.showTable()) {self.tableView.getData( self.tabsView.chosenTabId() )}
 	};
 
 	Sammy(function() {
 		this.get('/manage#/:ticketid', function (){
 			self.ticketView.getData(this.params.ticketid);
-			self.tabsView.chosenTabId(null); //unselect all tabs
 			self.tableView.showTable(false);
 			self.ticketView.showMailForm(false);
 			self.ticketView.showTicket(true);
@@ -70,7 +74,7 @@ function tableViewModel() {
 	self.getData = function (status) {
 			$.getJSON('/api/tickets/status/'+status, function(allData){ //get all tickets by status
 				var mappedTickets = $.map(allData, function(item) { return new TicketSummary(item) } ); //return an array of processed(mapped) tickets
-				self.tickets(mappedTickets); //put into tickets array (syntax like this because it's a function...)
+				self.tickets(mappedTickets); 
 				self.sortByDate();
 			});
 	};
@@ -124,22 +128,26 @@ function ticketViewModel(lang) {
 		var description = self.ticketData().description();
 		// pre-populate the form text fields
 		self.mailForm.to(from);
-		self.mailForm.subject("RE: " + sub + " - " + lang.reply.subject + " - ID: [" + id + "]");
+		self.mailForm.subject("RE: " + sub + " - " + lang.reply.subject + " - ID: <" + id + ">");
 		self.mailForm.html(lang.reply.body + description);
 		// reveal the form
 		self.showMailForm(true);
 		// give focus to textarea editor
 		$("#formtextarea-wysiwyg-iframe").focus(); 
-	}
+	};
+
+	self.sendMailForm = function() {
+		var newvalue = $("#formtextarea").wysiwyg("getContent");
+    self.mailForm.html(newvalue);
+    self.showMailForm(false);
+    self.sendMail();
+	};
 
 	self.sendMail = function() {
-		var newvalue = $(formtextarea).wysiwyg("getContent");
-    self.mailForm.html(newvalue);
 		now.sendMail(ko.toJS(self.mailForm),self.ticketData()._id,function(err){
 			if (err) {
 				alert("Error encountered sending email: " + JSON.stringify(err));
 			} else {
-				self.showMailForm(false);
 				console.log("email sent!");
 			}
 		});
@@ -160,6 +168,7 @@ function ticketViewModel(lang) {
         	console.log(result);
         }
     	});
+
 	};
 	self.deleteData = function(ticketId){
 		$.ajax('/api/tickets/'+ticketId, {
@@ -178,7 +187,7 @@ function ticketViewModel(lang) {
 		var sub = self.ticketData().subject();
 		var description = self.ticketData().description();
 		self.mailForm.to(from);
-		self.mailForm.subject("RE: " + sub + " - " + lang.closeReply.subject + " - ID: [" + id + "]");
+		self.mailForm.subject("RE: " + sub + " - " + lang.closeReply.subject + " - ID: <" + id + ">");
 		self.mailForm.html(lang.closeReply.body + description);
 		self.sendMail();
 	};
@@ -197,7 +206,7 @@ function ticketViewModel(lang) {
 		self.getData(self.ticketData()._id);
 	};
 	self.saveEditChanges = function() {
-		var newvalue = $(descriptiontextarea).wysiwyg("getContent");
+		var newvalue = $("#descriptiontextarea").wysiwyg("getContent");
     self.ticketData().description(newvalue);
     self.editMode(false);
 		self.updateData(self.ticketData()._id);
@@ -221,7 +230,6 @@ function incomingTicket(data) {
 	this.impact = ko.observable(data.impact || "normal");
 	this.cc = data.cc;
 	this.labels = data.labels;
-	this.attachments = ko.observableArray();
 }
 
 function outgoingTicket(data) {

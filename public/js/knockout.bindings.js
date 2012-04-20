@@ -50,6 +50,7 @@ ko.bindingHandlers.wysiwyg = {
         }, options);
 
         $e.wysiwyg(options);
+        var current = $e.wysiwyg('document');
 
         //handle disposal (if KO removes by the template binding)
         ko.utils.domNodeDisposal.addDisposeCallback(element, function() {

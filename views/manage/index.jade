@@ -32,28 +32,28 @@
 			div(data-bind="if: ticketView.showTicket, css: {hide: !ticketView.showTicket}").hide.span10
 				div(data-bind="with:ticketView")					
 					div(data-bind="with: ticketData").span12
-						.btn-toolbar.pull-right(data-bind="ifnot: $parent.editMode")
-							.btn-group
+						span.btn-toolbar.pull-right(data-bind="ifnot: $parent.editMode")
+							span.btn-group
 								button(data-toggle="modal", data-target="#deleteModal").btn.btn-danger <i class="icon-trash icon-white"></i> Delete Ticket
-							.btn-group
-								button(data-toggle="dropdown").btn Impact <span class="caret"></span>
-									ul(data-bind="foreach: $parent.impacts").dropdown-menu
-										li
-											a(data-bind="text: $data, click: $root.ticketView.changeImpact")
-							.btn-group
-								button(data-toggle="dropdown").btn Status <span class="caret"></span>
-									ul(data-bind="foreach: $root.tabsView.tabs").dropdown-menu
-										li
-											a(data-bind="text: $data, click: $root.ticketView.changeStatus")	
-							.btn-group
+							span.dropdown.btn-group(id="impactdropdown")
+								<a class="btn" data-toggle="dropdown" href="#impactdropdown"> Impact <b class="caret"></b></a>
+								ul.dropdown-menu(data-bind="foreach: $parent.impacts")
+									li
+										a(data-bind="text: $data, click: $root.ticketView.changeImpact")
+							span.dropdown.btn-group(id="tabdropdown")
+								<a class="btn" data-toggle="dropdown" href="#tabdropdown"> Tab <b class="caret"></b></a>
+								ul.dropdown-menu(data-bind="foreach: $root.tabsView.tabs")
+									li
+										a(data-bind="text: $data, click: $root.ticketView.changeStatus")
+							span.btn-group
 								button(data-bind="click: $parent.enableEditTicket").btn Edit Ticket
-							.btn-group
+							span.btn-group
 								button(data-bind="click: $parent.closeTicket, disable: $parent.isClosed").btn.btn-success Close Ticket
 
 						.btn-toolbar.pull-right(data-bind="if: $parent.editMode")
-							.btn-group
+							span.btn-group
 								button(data-bind="click: $parent.disableEditTicket").btn Cancel Edit
-							.btn-group
+							span.btn-group
 								button(data-bind="click: $parent.saveEditChanges").btn.btn-success Save Changes
 
 	
@@ -66,11 +66,11 @@
 							li
 								p <span class="label label-info">last modified</span> <span data-bind="text: lastmodified"></span> - <span data-bind="text: friendlylastmodified"></span>
 							li
-								p <span class="label label-info">status</span> <span data-bind="text: status"></span>
+								p <span class="label label-info">tab</span> <span data-bind="text: status"></span>
 							li
 								p <span class="label label-info">impact</span> <span class="badge" data-bind="text: impact"></span>
 							li(data-bind="ifnot: $parent.editMode")
-								p <span class="label label-info">from:</span> <strong data-bind="text: from"></strong>
+								p <span class="label label-info">from</span> <strong data-bind="text: from"></strong>
 						hr
 						div(data-bind="ifnot: $parent.editMode")
 							h1(data-bind="text: subject")
@@ -87,12 +87,17 @@
 						div(data-bind="if: $parent.editMode")
 							label description:
 							textarea(data-bind="wysiwyg: description", id="descriptiontextarea", rows="50", cols="140").span12
+							span.btn-toolbar.pull-right(data-bind="if: $parent.editMode")
+								span.btn-group
+									button(data-bind="click: $parent.disableEditTicket").btn Cancel Edit
+								span.btn-group
+									button(data-bind="click: $parent.saveEditChanges").btn.btn-success Save Changes
 							
 	
 					div(data-bind="ifnot: editMode").span12
 						div(data-bind="ifnot: showMailForm")
-							.btn-toolbar.pull-right
-								.btn-group
+							span.btn-toolbar.pull-right
+								span.btn-group
 									button(data-bind="click: writeMail, disable: isClosed").btn.btn-info <i class="icon-envelope icon-white"></i> Write reply
 	
 						//- sending email form					
@@ -109,11 +114,11 @@
 									label.control-label(for="formtextarea") Message:
 									div.controls
 										textarea(data-bind="wysiwyg: mailForm.html", id="formtextarea", rows="50", cols="140").span12
-								.btn-toolbar.pull-right
-									.btn-group
+								span.btn-toolbar.pull-right
+									span.btn-group
 										button(data-bind="click: function(){showMailForm(false)}").btn Cancel reply
-									.btn-group
-										button(data-bind="click: sendMail, disable: isClosed").btn.btn-success <i class="icon-envelope icon-white"></i> Send email
+									span.btn-group
+										button(data-bind="click: sendMailForm, disable: isClosed").btn.btn-success <i class="icon-envelope icon-white"></i> Send email
 	
 	
 					div(data-bind="with: ticketData").span12
