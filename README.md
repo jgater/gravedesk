@@ -35,6 +35,13 @@ This is a project to scratch my own itch - building a helpdesk ticket system for
 Changelog
 =========
 
+Version 1.2.3
+-------------
+
+* bugfix - better handling of email replies to existing tickets
+* bugfix - fix several display bugs in IE9 (dropdowns, ajax refreshing)
+* change favicon
+
 Version 1.2.2
 -------------
 
