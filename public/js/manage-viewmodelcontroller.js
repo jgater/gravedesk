@@ -10,7 +10,10 @@ function ManageViewModelController(ticketcount,statuslist,lang) {
 		ko.mapping.fromJS(ticketcount,self.tabsView.tabcount);
 		if (self.tableView.showTable()) {self.tableView.getData( self.tabsView.chosenTabId() )}
 		//probably not watching the same ticket that triggered the update, but update everyone's just in case
-		if (self.ticketView.showTicket()) {self.ticketView.getData( self.ticketView.ticketData()._id )}
+		if (self.ticketView.showTicket()) {
+			self.ticketView.getData( self.ticketView.ticketData()._id );
+			self.tabsView.chosenTabId(self.ticketView.ticketData().status());
+		}
 	};
 	//respond to server advising new ticket added to db
 	now.newTicket = function(ticketcount){
@@ -21,7 +24,6 @@ function ManageViewModelController(ticketcount,statuslist,lang) {
 	Sammy(function() {
 		this.get('/manage#/:ticketid', function (){
 			self.ticketView.getData(this.params.ticketid);
-			self.tabsView.chosenTabId(null); //unselect all tabs
 			self.tableView.showTable(false);
 			self.ticketView.showMailForm(false);
 			self.ticketView.showTicket(true);
@@ -153,6 +155,7 @@ function ticketViewModel(lang) {
 		$.getJSON('/api/tickets/'+ticketId, function(data){ //get ticket with _id of ticketId
 				var koTicket = new incomingTicket(data);			 
 				self.ticketData(koTicket);
+
 		});
 	};
 	self.updateData = function(ticketId){
@@ -164,6 +167,7 @@ function ticketViewModel(lang) {
         	console.log(result);
         }
     	});
+
 	};
 	self.deleteData = function(ticketId){
 		$.ajax('/api/tickets/'+ticketId, {

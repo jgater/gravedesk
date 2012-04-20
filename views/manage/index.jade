@@ -41,7 +41,7 @@
 										li
 											a(data-bind="text: $data, click: $root.ticketView.changeImpact")
 							.btn-group
-								button(data-toggle="dropdown").btn Status <span class="caret"></span>
+								button(data-toggle="dropdown").btn Tab <span class="caret"></span>
 									ul(data-bind="foreach: $root.tabsView.tabs").dropdown-menu
 										li
 											a(data-bind="text: $data, click: $root.ticketView.changeStatus")	
@@ -66,7 +66,7 @@
 							li
 								p <span class="label label-info">last modified</span> <span data-bind="text: lastmodified"></span> - <span data-bind="text: friendlylastmodified"></span>
 							li
-								p <span class="label label-info">status</span> <span data-bind="text: status"></span>
+								p <span class="label label-info">tab</span> <span data-bind="text: status"></span>
 							li
 								p <span class="label label-info">impact</span> <span class="badge" data-bind="text: impact"></span>
 							li(data-bind="ifnot: $parent.editMode")
@@ -87,6 +87,11 @@
 						div(data-bind="if: $parent.editMode")
 							label description:
 							textarea(data-bind="wysiwyg: description", id="descriptiontextarea", rows="50", cols="140").span12
+							.btn-toolbar.pull-right(data-bind="if: $parent.editMode")
+								.btn-group
+									button(data-bind="click: $parent.disableEditTicket").btn Cancel Edit
+								.btn-group
+									button(data-bind="click: $parent.saveEditChanges").btn.btn-success Save Changes
 							
 	
 					div(data-bind="ifnot: editMode").span12
