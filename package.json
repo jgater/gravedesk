@@ -14,10 +14,10 @@
     "jade": ">= 0.0.1",
     "now": "0.8.x",
     "moment": "1.4.x",
-    "sanitizer": "0.0.x",
     "passport": "0.1.x",
     "passport-local": "0.1.x",
     "bcrypt": "0.5.x",
-    "nodemailer": "0.3.x"
+    "nodemailer": "0.3.x",
+    "validator": "0.4.x"
   }
 }
