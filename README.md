@@ -35,6 +35,14 @@ This is a project to scratch my own itch - building a helpdesk ticket system for
 Changelog
 =========
 
+Version 1.3.0
+-------------
+
+* change html santizer to a less aggresive one, only now gets rid of XSS attacks
+* add text->html parser for nicer view of plaintext only emails in ticket description
+* requires new `npm install -d` for new modules
+
+
 Version 1.2.3
 -------------
 
@@ -97,6 +105,8 @@ Todo:
 * web-form for submission of tickets outside of email
 * markdown formatted FAQs on site
 * switch to now.js for ticket view/save instead of RESTful API
+* sort options on left toolbar in ticket table view to change sort column
+* tracking history of who's made what changes to what tickets - overall view, plus changelog on individual ticket.
 
 Done:
 
