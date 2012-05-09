@@ -35,6 +35,11 @@ This is a project to scratch my own itch - building a helpdesk ticket system for
 Changelog
 =========
 
+Version 1.3.1
+-------------
+
+* strip custom html from outlook-originated emails
+
 Version 1.3.0
 -------------
 
@@ -93,6 +98,7 @@ Version 1.1.0
 
 
 Todo:
+=====
 
 * write better installation instructions
 * allow use of mongodb on alternative ports/server via settings.js
@@ -109,6 +115,7 @@ Todo:
 * tracking history of who's made what changes to what tickets - overall view, plus changelog on individual ticket.
 
 Done:
+=====
 
 * show email history on individual ticket
 * add ability to send reply and automatic emails via smtp
