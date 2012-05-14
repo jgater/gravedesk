@@ -129,7 +129,13 @@
 							div <span class="accordion-heading" data-bind="click: reverseShow"><i class="icon-resize-full"></i> <a data-bind="text: friendlydate"></a> &bull; <span data-bind="html:from"></span> &bull; <span data-bind="html:subject"></span></span>
 								hr(data-bind="slideVisible: show")
 								blockquote(data-bind="slideVisible: show")
-									span(data-bind="slideVisible: show, html: body")
+									ul.unstyled	
+										li
+											p <span class="label label-info">From:</span> <span data-bind="text: from"></span>
+										li
+											p <span class="label label-info">To:</span> <span data-bind="text: to"></span>
+									hr
+									span(data-bind="html: body")
 								hr(data-bind="slideVisible: show")
 							br
 							
