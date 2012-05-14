@@ -106,10 +106,14 @@
 								div.control-group
 									label.control-label(for="formto") To:
 									div.controls
-										input.span10(id="formsto", data-bind="value: mailForm.to")
+										input.span8(id="formsto", data-bind="value: mailForm.to")
+									label.control-label(for="formcc") CC:
+									div.controls
+										input.span8(id="formcc", data-bind="value: mailForm.cc") 
+										span.help-inline (Separate with commas)
 									label.control-label(for="formsubject") Subject:
 									div.controls
-										input.span10(id="formsubject", data-bind="value: mailForm.subject")
+										input.span12(id="formsubject", data-bind="value: mailForm.subject")
 								div.control-group
 									label.control-label(for="formtextarea") Message:
 									div.controls
@@ -134,6 +138,8 @@
 											p <span class="label label-info">From:</span> <span data-bind="text: from"></span>
 										li
 											p <span class="label label-info">To:</span> <span data-bind="text: to"></span>
+										li(data-bind="if: cc")
+											p <span class="label label-info">CC:</span> <span data-bind="text: cc"></span>
 									hr
 									span(data-bind="html: body")
 								hr(data-bind="slideVisible: show")

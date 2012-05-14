@@ -246,6 +246,7 @@ function incomingEmail(data) {
 	this.from = data.from;
 	this.to = data.to;
 	this.subject = data.subject;
+	this.cc = data.cc;
 	if (data.date) {
 		this.friendlydate = moment(data.date).format('ddd MMM Do YYYY, HH:mm');	
 		this.date = data.date;
