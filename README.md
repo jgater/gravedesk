@@ -38,6 +38,11 @@ Changelog
 Version 1.3.1
 -------------
 
+* added CC support when sending ticket replies, add from and cc fields to email history
+
+Version 1.3.1
+-------------
+
 * strip custom html from outlook-originated emails
 
 Version 1.3.0

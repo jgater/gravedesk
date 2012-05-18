@@ -124,7 +124,7 @@
 									span.btn-group
 										button(data-bind="click: sendMailForm, disable: isClosed").btn.btn-success <i class="icon-envelope icon-white"></i> Send email
 	
-	
+					//- email history
 					div(data-bind="with: ticketData").span12
 						br							
 						strong Email history:
@@ -152,9 +152,9 @@
 <td width=5% data-bind="text: impact"></td>
 <td width=8% data-bind="text: age"></td>
 <td width=10% data-bind="text: lastmodified"></td>
-<td width=50%><a data-bind="text: subject"></a></td>
-<td data-bind="text: from"></td>
-<td data-bind="text: created"></td>
+<td><a data-bind="text: subject"></a></td>
+<td width=17% data-bind="text: from"></td>
+<td width=17% data-bind="text: created"></td>
 
 </script>
 
