@@ -31,7 +31,7 @@
 			//- individual ticket view
 			div(data-bind="if: ticketView.showTicket, css: {hide: !ticketView.showTicket}").hide.span10
 				div(data-bind="with:ticketView")					
-					div(data-bind="with: ticketData").span12
+					div(data-bind="with: ticketData").span11
 						span.btn-toolbar.pull-right(data-bind="ifnot: $parent.editMode")
 							span.btn-group
 								button(data-toggle="modal", data-target="#deleteModal").btn.btn-danger <i class="icon-trash icon-white"></i> Delete Ticket
@@ -46,7 +46,7 @@
 									li
 										a(data-bind="text: $data, click: $root.ticketView.changeStatus")
 							span.btn-group
-								button(data-bind="click: $parent.enableEditTicket").btn Edit Ticket
+								button(data-bind="click: $parent.enableEditTicket").btn.btn-warning Edit Ticket
 							span.btn-group
 								button(data-bind="click: $parent.closeTicket, disable: $parent.isClosed").btn.btn-success Close Ticket
 
@@ -81,9 +81,9 @@
 								input(data-bind="value: subject, valueUpdate: 'afterkeydown'").span12
 						hr
 	
-					div(data-bind="with: ticketData").span12
+					div(data-bind="with: ticketData").span11
 						div(data-bind="ifnot: $parent.editMode")
-							p(data-bind="html: description").well
+							.well(data-bind="html: description")
 						div(data-bind="if: $parent.editMode")
 							label description:
 							textarea(data-bind="wysiwyg: description", id="descriptiontextarea", rows="50", cols="140").span12
@@ -94,11 +94,11 @@
 									button(data-bind="click: $parent.saveEditChanges").btn.btn-success Save Changes
 							
 	
-					div(data-bind="ifnot: editMode").span12
+					div(data-bind="ifnot: editMode").span11
 						div(data-bind="ifnot: showMailForm")
 							span.btn-toolbar.pull-right
 								span.btn-group
-									button(data-bind="click: writeMail, disable: isClosed").btn.btn-info <i class="icon-envelope icon-white"></i> Write reply
+									button(data-bind="click: writeMail, disable: isClosed").btn.btn-primary <i class="icon-envelope icon-white"></i> Write reply
 	
 						//- sending email form					
 						div(data-bind="if: showMailForm")
