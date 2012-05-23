@@ -34,7 +34,7 @@
 					div(data-bind="with: ticketData").span11
 						span.btn-toolbar.pull-right(data-bind="ifnot: $parent.editMode")
 							span.btn-group
-								button(data-toggle="modal", data-target="#deleteModal").btn.btn-danger <i class="icon-trash icon-white"></i> Delete Ticket
+								button(data-toggle="modal", data-target="#deleteModal").btn <i class="icon-trash icon-black"></i> Delete Ticket
 							span.dropdown.btn-group(id="impactdropdown")
 								<a class="btn" data-toggle="dropdown" href="#impactdropdown"> Impact <b class="caret"></b></a>
 								ul.dropdown-menu(data-bind="foreach: $parent.impacts")
@@ -46,17 +46,16 @@
 									li
 										a(data-bind="text: $data, click: $root.ticketView.changeStatus")
 							span.btn-group
-								button(data-bind="click: $parent.enableEditTicket").btn.btn-warning Edit Ticket
+								button(data-bind="click: $parent.enableEditTicket").btn.btn-warning <i class="icon-edit icon-white"></i> Edit Ticket
 							span.btn-group
-								button(data-bind="click: $parent.closeTicket, disable: $parent.isClosed").btn.btn-success Close Ticket
+								button(data-bind="click: $parent.closeTicket, disable: $parent.isClosed").btn.btn-success <i class="icon-check icon-white"></i> Close Ticket
 
 						.btn-toolbar.pull-right(data-bind="if: $parent.editMode")
 							span.btn-group
-								button(data-bind="click: $parent.disableEditTicket").btn Cancel Edit
+								button(data-bind="click: $parent.disableEditTicket").btn <i class="icon-remove-sign icon-black"></i> Cancel Edit
 							span.btn-group
-								button(data-bind="click: $parent.saveEditChanges").btn.btn-success Save Changes
+								button(data-bind="click: $parent.saveEditChanges").btn.btn-success <i class="icon-ok icon-white"></i> Save Changes
 
-	
 						br
 						ul.unstyled	
 							li
@@ -89,9 +88,9 @@
 							textarea(data-bind="wysiwyg: description", id="descriptiontextarea", rows="50", cols="140").span12
 							span.btn-toolbar.pull-right(data-bind="if: $parent.editMode")
 								span.btn-group
-									button(data-bind="click: $parent.disableEditTicket").btn Cancel Edit
+									button(data-bind="click: $parent.disableEditTicket").btn <i class="icon-remove-sign icon-black"></i> Cancel Edit
 								span.btn-group
-									button(data-bind="click: $parent.saveEditChanges").btn.btn-success Save Changes
+									button(data-bind="click: $parent.saveEditChanges").btn.btn-success <i class="icon-ok icon-white"></i> Save Changes
 							
 	
 					div(data-bind="ifnot: editMode").span11
@@ -125,12 +124,12 @@
 										button(data-bind="click: sendMailForm, disable: isClosed").btn.btn-success <i class="icon-envelope icon-white"></i> Send email
 	
 					//- email history
-					div(data-bind="with: ticketData").span12
+					div(data-bind="with: ticketData").span11
 						br							
 						strong Email history:
 						hr
 						div(data-bind="foreach: emails")
-							div <span class="accordion-heading" data-bind="click: reverseShow"><i class="icon-resize-full"></i> <a data-bind="text: friendlydate"></a> &bull; <span data-bind="html:from"></span> &bull; <span data-bind="html:subject"></span></span>
+							div <span class="accordion-heading" data-bind="click: reverseShow"><i class="icon-resize-full"></i> <a data-bind="text: friendlydate, attr: {href: '', title: friendlydate}"></a> &bull; <span data-bind="html:from"></span> &bull; <span data-bind="html:subject"></span></span>
 								hr(data-bind="slideVisible: show")
 								blockquote(data-bind="slideVisible: show")
 									ul.unstyled	
