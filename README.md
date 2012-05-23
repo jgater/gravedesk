@@ -35,10 +35,11 @@ This is a project to scratch my own itch - building a helpdesk ticket system for
 Changelog
 =========
 
-Version 1.3.1
+Version 1.4.0
 -------------
 
 * added CC support when sending ticket replies, add from and cc fields to email history
+* updated to new theme
 
 Version 1.3.1
 -------------
@@ -107,7 +108,6 @@ Todo:
 
 * write better installation instructions
 * allow use of mongodb on alternative ports/server via settings.js
-* change look from bootstrap basic view
 * better alert messages for administration registration & deletion and ticket views
 * better visual indicator for high status tickets, both in list and individual views
 * show attachments and notes on individual ticket view
@@ -122,6 +122,7 @@ Todo:
 Done:
 =====
 
+* change look from bootstrap basic view
 * show email history on individual ticket
 * add ability to send reply and automatic emails via smtp
 * imap handler for importing tickets to db
