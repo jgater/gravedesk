@@ -35,6 +35,12 @@ This is a project to scratch my own itch - building a helpdesk ticket system for
 Changelog
 =========
 
+Version 1.4.1
+-------------
+
+* darkened default theme, tweaked font sizes
+* improved html filtering for emails
+
 Version 1.4.0
 -------------
 
