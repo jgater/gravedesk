@@ -108,6 +108,8 @@ function ticketViewModel(lang) {
 	self.showTicket = ko.observable(false);
 	self.showMailForm = ko.observable(false);
 	self.editMode = ko.observable(false);
+	self.allowMailCancel = ko.observable(true);
+	self.closeWhenDone = false;
 	self.mailForm = {
 		to: ko.observable(),
 		subject: ko.observable(),
@@ -121,6 +123,67 @@ function ticketViewModel(lang) {
 	// Operations
 
 	self.writeMail = function() {
+		self.prepareMailForm("reply",function(err){
+			if (err) {
+				alert(err);
+			} else {
+				self.closeWhenDone = false;
+				// reveal the form
+				self.showMailForm(true);
+				// give focus to textarea editor
+				$("#formtextarea-wysiwyg-iframe").focus();	
+				//scroll to mailform
+				var myoffset = $("#sendmailform").offset().top - 50;
+				window.scrollTo(0,myoffset);
+					
+			}
+		});
+	};
+
+	self.sendMailForm = function() {
+		var newvalue = $("#formtextarea").wysiwyg("getContent");
+    self.mailForm.html(newvalue);
+    self.sendToSMTP();
+	};
+
+	self.cancelMailForm = function() {
+		//hide form
+		self.showMailForm(false);	
+		//scroll to top
+		window.scrollTo(0,0);
+	};
+
+	self.closeTicket = function() {
+		self.prepareMailForm("close", function(err){
+			if (err) {
+				alert(err);
+			} else {
+				self.closeWhenDone = true;
+				self.sendToSMTP();
+			}
+		});
+	};
+
+	self.customCloseTicket = function() {
+		self.prepareMailForm("close", function(err){
+			if (err) {
+				alert(err);
+			} else {
+				self.closeWhenDone = true;
+				self.showMailForm(true);
+				// give focus to textarea editor
+				$("#formtextarea-wysiwyg-iframe").focus();
+				//scroll to mailform
+				var myoffset = $("#sendmailform").offset().top - 50;
+				window.scrollTo(0,myoffset);				
+			}
+		});
+	};
+
+	self.prepareMailForm = function(action, callback) {
+		self.showMailForm(false);
+		$("#sendMailFormButton").button('reset');
+		self.allowMailCancel(true);
 		//pull init data from ticketData
 		var id = self.ticketData()._id;
 		var from = self.ticketData().from();
@@ -128,27 +191,33 @@ function ticketViewModel(lang) {
 		var description = self.ticketData().description();
 		// pre-populate the form text fields
 		self.mailForm.to(from);
-		self.mailForm.subject("RE: " + sub + " - " + lang.reply.subject + " - ID: <" + id + ">");
-		self.mailForm.html(lang.reply.body + description);
-		// reveal the form
-		self.showMailForm(true);
-		// give focus to textarea editor
-		$("#formtextarea-wysiwyg-iframe").focus(); 
+		if (action=="reply") {
+			self.mailForm.subject("RE: " + sub + " - " + lang.reply.subject + " - ID: <" + id + ">");
+			self.mailForm.html(lang.reply.body + description);
+			callback(null);
+		} else if (action=="close") {
+			self.mailForm.subject("RE: " + sub + " - " + lang.closeReply.subject + " - ID: <" + id + ">");
+			self.mailForm.html(lang.closeReply.body + description);
+			callback(null);
+		}
+		else callback("Unexpected type of mail form action!");
 	};
 
-	self.sendMailForm = function() {
-		var newvalue = $("#formtextarea").wysiwyg("getContent");
-    self.mailForm.html(newvalue);
-    self.showMailForm(false);
-    self.sendMail();
-	};
+	self.sendToSMTP = function() {
+		// do sending status on button
+		$("#sendMailFormButton").button('loading');
+		self.allowMailCancel(false);
 
-	self.sendMail = function() {
 		now.sendMail(ko.toJS(self.mailForm),self.ticketData()._id,function(err){
 			if (err) {
 				alert("Error encountered sending email: " + JSON.stringify(err));
 			} else {
-				console.log("email sent!");
+				//hide mail form
+				self.showMailForm(false);
+				//alert("mail sent!")
+				if (self.closeWhenDone) {
+					self.changeStatus("Closed");
+				}
 			}
 		});
 	};
@@ -180,17 +249,7 @@ function ticketViewModel(lang) {
 			self.ticketData().status(data);
 			self.updateData(self.ticketData()._id);
 	};
-	self.closeTicket = function() {
-		self.changeStatus("Closed");
-		var id = self.ticketData()._id;
-		var from = self.ticketData().from();
-		var sub = self.ticketData().subject();
-		var description = self.ticketData().description();
-		self.mailForm.to(from);
-		self.mailForm.subject("RE: " + sub + " - " + lang.closeReply.subject + " - ID: <" + id + ">");
-		self.mailForm.html(lang.closeReply.body + description);
-		self.sendMail();
-	};
+
 	self.deleteTicket = function() {
 		self.deleteData(self.ticketData()._id);
 	};

@@ -48,7 +48,15 @@
 							span.btn-group
 								button(data-bind="click: $parent.enableEditTicket").btn.btn-warning <i class="icon-edit icon-white"></i> Edit Ticket
 							span.btn-group
-								button(data-bind="click: $parent.closeTicket, disable: $parent.isClosed").btn.btn-success <i class="icon-check icon-white"></i> Close Ticket
+								button(data-bind="click: $parent.writeMail, disable: $parent.isClosed").btn.btn-primary <i class="icon-envelope icon-white"></i> Write reply
+							span.dropdown.btn-group(id="closedropdown")
+								<button class="btn btn-success" data-toggle="dropdown" href="#closedropdown" data-bind="disable: $parent.isClosed"> <i class="icon-check icon-white"></i> Close Ticket <b class="caret"></b></button>
+								ul.dropdown-menu
+									li
+										a(data-bind="click: $parent.closeTicket") Quick close
+									li
+										a(data-bind="click: $parent.customCloseTicket") Close with custom message
+								
 
 						.btn-toolbar.pull-right(data-bind="if: $parent.editMode")
 							span.btn-group
@@ -101,7 +109,7 @@
 	
 						//- sending email form					
 						div(data-bind="if: showMailForm")
-							form(data-bind="slideVisible: showMailForm")
+							form(data-bind="slideVisible: showMailForm", id="sendmailform")
 								div.control-group
 									label.control-label(for="formto") To:
 									div.controls
@@ -119,9 +127,9 @@
 										textarea(data-bind="wysiwyg: mailForm.html", id="formtextarea", rows="50", cols="140").span12
 								span.btn-toolbar.pull-right
 									span.btn-group
-										button(data-bind="click: function(){showMailForm(false)}").btn Cancel reply
+										button(data-bind="click: cancelMailForm, enable: allowMailCancel").btn Cancel email
 									span.btn-group
-										button(data-bind="click: sendMailForm, disable: isClosed").btn.btn-success <i class="icon-envelope icon-white"></i> Send email
+										button(id="sendMailFormButton", data-bind="click: sendMailForm", data-loading-text="Sending email...").btn.btn-success <i class="icon-envelope icon-white"></i> Send email
 	
 					//- email history
 					div(data-bind="with: ticketData").span11
