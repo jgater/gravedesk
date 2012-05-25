@@ -30,7 +30,8 @@
 
 			//- individual ticket view
 			div(data-bind="if: ticketView.showTicket, css: {hide: !ticketView.showTicket}").hide.span10
-				div(data-bind="with:ticketView")					
+				div(data-bind="with:ticketView")
+					div.alert(data-bind="visible: alertBox.show, text: alertBox.html")
 					div(data-bind="with: ticketData").span11
 						span.btn-toolbar.pull-right(data-bind="ifnot: $parent.editMode")
 							span.btn-group

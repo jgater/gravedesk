@@ -120,6 +120,15 @@ function ticketViewModel(lang) {
 		else if (self.ticketData().status() == "Closed") {return true;}
 		else {return false;}	
 	});
+	self.alertBox = {
+		show: ko.observable(false),
+		text: ko.observable(),
+		html: ko.computed(function(){
+			return 'x';
+		}, this),
+
+		css: ko.observable()
+	}
 	// Operations
 
 	self.writeMail = function() {
@@ -214,7 +223,8 @@ function ticketViewModel(lang) {
 			} else {
 				//hide mail form
 				self.showMailForm(false);
-				//alert("mail sent!")
+				self.alertBox.text("Email sent successfully to " + self.mailForm.to());
+				self.alertBox.show(true);
 				if (self.closeWhenDone) {
 					self.changeStatus("Closed");
 				}
