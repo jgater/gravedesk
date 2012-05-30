@@ -120,16 +120,39 @@ function ticketViewModel(lang) {
 		else if (self.ticketData().status() == "Closed") {return true;}
 		else {return false;}	
 	});
-	self.alertBox = {
-		show: ko.observable(false),
-		text: ko.observable(),
-		html: ko.computed(function(){
-			return 'x';
-		}, this),
+	self.alertBox = {};
+	self.alertBox.show = ko.observable(false);
+	self.alertBox.text = ko.observable('');
+	self.alertBox.success = ko.observable(false);
+	self.alertBox.error = ko.observable(false);
+	self.alertBox.info = ko.observable(false);
 
-		css: ko.observable()
-	}
 	// Operations
+
+	self.setAlertBox = function(text,type,timeout) {
+		self.alertBox.text(text);
+		self.alertBox.success(false);
+		self.alertBox.error(false);
+		self.alertBox.info(false);
+		if (type) {
+			self.alertBox[type](true);
+		}
+		self.alertBox.show(true);
+		window.scrollTo(0,0);
+		if (timeout) {
+			setTimeout(function(){
+					self.clearAlertBox();
+				}, (timeout*1000) );	
+		}
+	};
+
+	self.clearAlertBox = function() {
+		self.alertBox.text(null);
+		self.alertBox.show(false);
+		self.alertBox.success = ko.observable(false);
+		self.alertBox.error = ko.observable(false);
+		self.alertBox.info = ko.observable(false);
+	};
 
 	self.writeMail = function() {
 		self.prepareMailForm("reply",function(err){
@@ -219,12 +242,12 @@ function ticketViewModel(lang) {
 
 		now.sendMail(ko.toJS(self.mailForm),self.ticketData()._id,function(err){
 			if (err) {
-				alert("Error encountered sending email: " + JSON.stringify(err));
+					self.setAlertBox("Error encountered sending email: " + JSON.stringify(err) , "error", 20 );
 			} else {
 				//hide mail form
 				self.showMailForm(false);
-				self.alertBox.text("Email sent successfully to " + self.mailForm.to());
-				self.alertBox.show(true);
+				// do alert
+				self.setAlertBox("Email sent successfully to " + self.mailForm.to(), "success", 10 );	
 				if (self.closeWhenDone) {
 					self.changeStatus("Closed");
 				}
@@ -244,7 +267,7 @@ function ticketViewModel(lang) {
         data: ko.toJSON(data),
         type: "PUT", contentType: "application/json",
         success: function(result) { 
-        	console.log(result);
+        	self.setAlertBox("Changes saved.", "success", 5 );
         }
     	});
 
@@ -326,7 +349,6 @@ function incomingEmail(data) {
 	this.plaintext = data.plaintext;
 	this.html = data.html;
 	this.show = ko.observable(false);
-	this.attachments = data.attachments;
 	this.reverseShow = function(){this.show( !this.show() )};
 }
 
