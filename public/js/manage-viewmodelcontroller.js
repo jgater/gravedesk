@@ -114,7 +114,14 @@ function ticketViewModel(lang) {
 		to: ko.observable(),
 		subject: ko.observable(),
 		html: ko.observable()
-	}
+	};
+	self.hasAttachments = ko.computed(function(){
+		if ( self.ticketData() ) {
+			return (self.ticketData().attachments.length > 0);
+		} else {
+			return false;
+		}
+	});
 	self.isClosed = ko.computed( function() {
 		if (!self.ticketData()) { return false; } 
 		else if (self.ticketData().status() == "Closed") {return true;}
@@ -322,6 +329,7 @@ function incomingTicket(data) {
 	this.impact = ko.observable(data.impact || "normal");
 	this.cc = data.cc;
 	this.labels = data.labels;
+	this.attachments = data.attachments || [];
 }
 
 function outgoingTicket(data) {
@@ -348,6 +356,7 @@ function incomingEmail(data) {
 	this.body = data.html || data.plaintext;
 	this.plaintext = data.plaintext;
 	this.html = data.html;
+	this.attachments = data.attachments;
 	this.show = ko.observable(false);
 	this.reverseShow = function(){this.show( !this.show() )};
 }

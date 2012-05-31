@@ -134,6 +134,16 @@
 									span.btn-group
 										button(id="sendMailFormButton", data-bind="click: sendMailForm", data-loading-text="Sending email...").btn.btn-success <i class="icon-envelope icon-white"></i> Send email
 	
+					//- attachments
+					div(data-bind="with: ticketData").span11
+						div(data-bind="if: $parent.hasAttachments")
+							br							
+							strong Attachments:
+							hr
+							ul(data-bind="foreach: attachments")
+								li
+									span(data-bind="text: fileName")
+
 					//- email history
 					div(data-bind="with: ticketData").span11
 						br							
@@ -152,6 +162,8 @@
 											p <span class="label label-info">CC:</span> <span data-bind="text: cc"></span>
 									hr
 									span(data-bind="html: body")
+									ul(data-bind="foreach: attachments")
+										li <span data-bind="text: fileName"></span>
 								hr(data-bind="slideVisible: show")
 							br
 							
