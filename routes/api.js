@@ -1,5 +1,9 @@
 var dbhandler = require('../lib/dbhandler');
 var ticketdb = dbhandler.TicketProvider;
+var path = require('path');
+var util = require('util');
+var fs = require('fs');
+var settings = require('../settings');
 
 /*
 api.js routes
@@ -55,6 +59,18 @@ module.exports = {
         res.send();
       }
     });
+  },
+  // get attachment for a ticket
+  //app.get('/api/tickets/:id/:attachment', api.getTicketAttachment);
+  getTicketAttachment: function (req, res) {
+    var filePath = path.join(settings.attachmentDir, req.params.id, req.params.attachment);
+    var stat = fs.statSync(filePath);
+    res.writeHead(200, {
+        'Content-Length': stat.size
+    });
+
+    var readStream = fs.createReadStream(filePath);
+    util.pump(readStream, res);
   },
   //get ticket details by id
   //app.get('/api/tickets/:id', api.getTicketId);

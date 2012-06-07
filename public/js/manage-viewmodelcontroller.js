@@ -117,7 +117,7 @@ function ticketViewModel(lang) {
 	};
 	self.hasAttachments = ko.computed(function(){
 		if ( self.ticketData() ) {
-			return (self.ticketData().attachments.length > 0);
+			return (self.ticketData().attachments().length > 0);
 		} else {
 			return false;
 		}
@@ -329,7 +329,18 @@ function incomingTicket(data) {
 	this.impact = ko.observable(data.impact || "normal");
 	this.cc = data.cc;
 	this.labels = data.labels;
-	this.attachments = data.attachments || [];
+	this.attachments = ko.computed(function(){
+		var mergedArray = [];
+		for (var i in this.emails() ) {
+			for (var j in this.emails()[i].attachments) {
+				var tempdate = this.emails()[i].attachments[j].date;
+				this.emails()[i].attachments[j].date = moment(tempdate).format('ddd MMM Do YYYY, HH:mm');			
+			}
+			mergedArray = mergedArray.concat(this.emails()[i].attachments);
+		}
+
+		return mergedArray;
+	}, this);
 }
 
 function outgoingTicket(data) {

@@ -141,8 +141,7 @@
 							strong Attachments:
 							hr
 							ul(data-bind="foreach: attachments")
-								li
-									span(data-bind="text: fileName")
+								li <a data-bind="attr: {href: 'api/tickets/'+$root.ticketView.ticketData()._id+'/'+fileName}"><span data-bind="text: fileName"></span></a> - <span data-bind="text: date"></span>
 
 					//- email history
 					div(data-bind="with: ticketData").span11
@@ -163,7 +162,7 @@
 									hr
 									span(data-bind="html: body")
 									ul(data-bind="foreach: attachments")
-										li <span data-bind="text: fileName"></span>
+										li <a data-bind="attr: {href: 'api/tickets/'+$root.ticketView.ticketData()._id+'/'+fileName}"><span data-bind="text: fileName"></span></a>
 								hr(data-bind="slideVisible: show")
 							br
 							

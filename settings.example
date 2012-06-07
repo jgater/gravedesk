@@ -71,7 +71,8 @@ var proxy = {
 }
 
 
-
+// directory from root where attachments are stored
+var attachmentDir = "attachments";
 
 
 
@@ -91,6 +92,7 @@ var settingsModel = function () {
 	this.blankticket = blankTicketSettings;
 	this.blankticket.status = statusList[0];
 	this.brand = brand;
+	this.attachmentDir = attachmentDir;
 	this.defaultAdmin = {
 		"username": defaultAdmin.username,
 		"fname": defaultAdmin.firstname,

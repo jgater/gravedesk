@@ -44,6 +44,8 @@ module.exports = function(app) {
   app.get('/api/tickets/count/:status', api.getTicketCount);
   //get ticket summaries by status
   app.get('/api/tickets/status/:status', api.getTicketStatus);
+  // get attachment for a ticket
+  app.get('/api/tickets/:id/:attachment', api.getTicketAttachment);
   //get ticket details by id
   app.get('/api/tickets/:id', api.getTicketId);
   // DELETE to DESTROY
