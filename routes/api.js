@@ -63,7 +63,7 @@ module.exports = {
   // get attachment for a ticket
   //app.get('/api/tickets/:id/:attachment', api.getTicketAttachment);
   getTicketAttachment: function (req, res) {
-    var filePath = path.join(settings.attachmentDir, req.params.id, req.params.attachment);
+    var filePath = path.join(settings.attachmentDir, req.params.id, decodeURIComponent(req.params.attachment));
     var stat = fs.statSync(filePath);
     res.writeHead(200, {
         'Content-Length': stat.size

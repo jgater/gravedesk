@@ -26,38 +26,34 @@ db.connectDB(function(err){
 							var attachments = ticket.emails[j].attachments;
 							if (attachments && attachments.length != 0) {
 								// save attachments to attachment directory
-								ticketdb.saveAttachments(attachments, j, ticket._id);			
-							}
+								
+								ticketdb.saveAttachments(attachments, j, ticket._id);	
+								// replace attachments with stub records
+								var stubs = [];
+								for (var k in attachments) {
+									if (attachments[k].transferEncoding == 'base64') {
+											var stub = {};
+											stub.date = new Date();
+											stub.fileName = encodeURIComponent(j+"_"+attachments[k].fileName);
+											stub.contentType = attachments[k].contentType;
+											stubs.push(stub);		
+									}
+								}
+								if (stubs.length > 0 ) { console.log("Created stub links for ticket "+ticket._id ); console.log(stubs);}
+								ticket.emails[j].attachments = stubs;	
+							}				
 						}
-						callback(null);
-						//var ticketIterator = function(item,cb) {
-						//		ticketdb.attachmentStubs(item.attachments, j, cb);
-						//};
-						//// rewrite email attachments in db to stubs - NEED TO PASS J!!!
-						//async.map(ticket.emails, ticketIterator, function(err){
-						//	if (!err) {
-						//		ticketdb.updateTicketEmailsById(ticket._id,ticket,callback);
-						//	}
-						//});
-						
+						ticketdb.updateTicketEmailsById(ticket._id,ticket,callback); 			
+					} else {
+							callback(err);
 					}					
 				});
 			};
 				
 			async.forEachSeries(ids, idIterator, function(err){
 				if(err){console.error(err);}
-				else {console.log("Completed");}
+				else {console.log("Completed - ctrl-C to end.");}
 			});
 		}
 	});
 });
-
-
-
-//						for (var j in ticket.emails) {
-//								ticketdb.attachmentStubs(attachments, j, function(err, stubs){
-//									ticket.emails[j].attachments = stubs;
-//									ticketdb.updateTicketEmailsById(ticket._id,ticket,callback);
-//								});	
-//							}
-//						}
