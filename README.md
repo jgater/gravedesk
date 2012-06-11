@@ -6,10 +6,12 @@ Helpdesk issue tracker focused on using emails as the primary method of communic
 written in Javascript; using node.js, express/jade, mongoose/mongodb and node-imap.
 Client-side rendering done with twitter-bootstrap, knockout.js and socketio (now.js)
 
+Still in heavy development to meet needs of client site; not recommended for production use.
+
 Installation
 ============
 
-* You'll need to download and install Node.js, obviously. Tested on 0.6.15 from nodejs.org
+* You'll need to download and install Node.js, obviously. Tested on 0.6.18 from nodejs.org
 * A copy of mongodb from mongodb.org running on localhost, default port (27017)
 * git clone this repository to a suitable folder
 	`git clone git@bitbucket.org:jgater/gravedesk.git`
@@ -25,15 +27,16 @@ For 'production use', you'll need to set express into production mode. I also ad
 or forever to keep the server running! You can also use the settings.js to enable SSL support and/or put the node server behind a proxy, such as nginx.
 
 
-
-Author's note
--------------
-
-This is a project to scratch my own itch - building a helpdesk ticket system for my small support team, that uses email for communication with users, and a fast web-interface for management that doesn't suck. It's very much a work in progress. I owe a great deal to all the open-source projects that made it possible to write this; not just all the great projects that do all the heavy lifting, but the other open projects which I've been able to read through for example code to understand how to use a library effectively. I'm sharing my work back, as it's the least I can do in return.
-
-
 Changelog
 =========
+
+Version 1.5.0
+-------------
+
+* added email sending status and notification
+* added email attachment handling
+* run 'node attachmentconverter.js' to upgrade database from 1.4.1 or older to 1.5.0 standards
+* settings.js has additional setting for attachment location
 
 Version 1.4.1
 -------------
@@ -116,18 +119,18 @@ Todo:
 * allow use of mongodb on alternative ports/server via settings.js
 * better alert messages for administration registration & deletion and ticket views
 * better visual indicator for high status tickets, both in list and individual views
-* show attachments and notes on individual ticket view
-* allow private internal notes to be added to individual tickets
+* allow private notes on individual ticket view
 * allow non-admins to view their own tickets and status (Active Directory integration)
 * web-form for submission of tickets outside of email
 * markdown formatted FAQs on site
-* switch to now.js for ticket view/save instead of RESTful API
-* sort options on left toolbar in ticket table view to change sort column
+* add options on left toolbar in ticket table view to change sort column
 * tracking history of who's made what changes to what tickets - overall view, plus changelog on individual ticket.
 
 Done:
 =====
 
+* added email sending success alerts
+* store attachments in filesystem, link in tickets
 * change look from bootstrap basic view
 * show email history on individual ticket
 * add ability to send reply and automatic emails via smtp

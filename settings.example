@@ -71,7 +71,7 @@ var proxy = {
 }
 
 
-// directory from root where attachments are stored
+// directory from location of app.js where attachments are stored
 var attachmentDir = "attachments";
 
 
