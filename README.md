@@ -11,11 +11,13 @@ Still in heavy development to meet needs of client site; not recommended for pro
 Installation
 ============
 
-* You'll need to download and install Node.js, obviously. Tested on 0.6.18 from nodejs.org
-* A copy of mongodb from mongodb.org running on localhost, default port (27017)
+* You'll need to download and install Node.js, obviously. Tested on 0.8.9 from nodejs.org
+* A copy of mnode -vongodb from mongodb.org running on localhost, default port (27017)
 * git clone this repository to a suitable folder
 	`git clone git@bitbucket.org:jgater/gravedesk.git`
-* install the necessary node.js modules via npm in the root of that folder (the one with app.js in)
+* install necessary libraries to compile the npm modules; on ubuntu for example
+	`sudo apt-get install build-essentials`
+* install the necessary node.js modules via npm in the root of the git cloned folder (the one with app.js in)
 	`npm install -d`
 * copy settings.example to settings.js for default settings; edit settings.js as appropriate. You'll need to change the email server and IMAP login at the very least
 * Note, it will read 'unread' emails in the mailbox folder specified, and mark them as read. Don't point at a folder you use for other purposes! Best to point at a dedicated IMAP account, of course.
@@ -26,9 +28,14 @@ Installation
 For 'production use', you'll need to set express into production mode. I also advise running on a proper node.js host or dedicated server (ubuntu, for example), likely with nodemon
 or forever to keep the server running! You can also use the settings.js to enable SSL support and/or put the node server behind a proxy, such as nginx.
 
-
 Changelog
 =========
+
+Version 1.5.1
+-------------
+
+* version bumps for node libraries; works with node.js 0.8.9
+* on existing install, run `npm update`
 
 Version 1.5.0
 -------------
