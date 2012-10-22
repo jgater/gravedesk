@@ -1,5 +1,5 @@
 #
-# * Module dependencies.
+# Module dependencies.
 # 
 express = require("express")
 fs = require("fs")
@@ -30,6 +30,7 @@ if settings.https.enable
   )
 else
   app = module.exports = express.createServer()
+
 app.configure ->
   app.set "views", __dirname + "/views"
   app.set "view engine", "jade"
@@ -57,9 +58,9 @@ app.configure "production", ->
 # Routes
 require("./routes") app
 
-#start services
+# start services
 
-#connect to db
+# connect to db
 async.series [db.connectDB, (callback) ->
   
   # add default website admin user to db 
@@ -73,10 +74,10 @@ async.series [db.connectDB, (callback) ->
     app.listen settings.defaultPort, callback
   console.log "Express server listening on port %d in %s mode", app.address().port, app.settings.env
 
-#start imap
-
-#callback error handler
+# start imap
 , imap.startMonitoring], (err) ->
+
+# callback error handler
   if err
     console.error "Problem with starting background services; " + err
     process.exit err
@@ -133,7 +134,7 @@ everyone.now.sendMail = (mail, id, callback) ->
   sendMail mail, id, callback
 
 
-#when db updates a ticket, trigger this event and tell the client to update tab ticket counts
+# when db updates a ticket, trigger this event and tell the client to update tab ticket counts
 ticketdb.on "ticketUpdated", ->
   ticketdb.countAllByStatus (err, ticketcount) ->
     if err
