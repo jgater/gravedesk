@@ -9,12 +9,10 @@ util = require("util")
 passport = require("passport")
 events = require("events")
 
-# Routes
-require("./routes") app
-
 # gravedesk internal library modules
-ImapHandler = require("./lib/emailhandler").ImapHandler
-sendMail = require("./lib/emailhandler").sendMail
+
+{ImapHandler} = require("./lib/emailhandler")
+{sendMail} = require("./lib/emailhandler")
 db = require("./lib/dbhandler")
 ticketdb = require("./lib/ticketprovider")
 userdb = require("./lib/userprovider")
@@ -54,6 +52,10 @@ app.configure "development", ->
 
 app.configure "production", ->
   app.use express.errorHandler()
+
+
+# Routes
+require("./routes") app
 
 #start services
 
