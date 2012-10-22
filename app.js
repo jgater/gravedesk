@@ -13,8 +13,9 @@ var events = require('events');
 // gravedesk internal library modules
 var ImapHandler = require('./lib/emailhandler').ImapHandler;
 var sendMail = require('./lib/emailhandler').sendMail;
-var dbhandler = require('./lib/dbhandler');
-
+var db = require('./lib/dbhandler');
+var ticketdb = require('./lib/ticketprovider');
+var userdb = require('./lib/userprovider');
 
 // settings files
 var settings = require('./settings');
@@ -22,9 +23,7 @@ var lang = require('./lang/english');
 
 
 var imap = new ImapHandler();
-var db = new dbhandler.DB();
-var ticketdb = dbhandler.TicketProvider;
-var userdb = dbhandler.UserProvider;
+
 
 // Configuration
 

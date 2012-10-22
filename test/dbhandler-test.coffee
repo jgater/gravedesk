@@ -1,8 +1,7 @@
 chai = require 'chai'  
 chai.should()  
 
-dbhandler = require "../lib/dbhandler"
-ticketprovider = dbhandler.TicketProvider
+ticketprovider = "../lib/ticketprovider"
 mongoose = require "mongoose"
 ticketmodel = require "../lib/models/ticket"
 
@@ -19,11 +18,6 @@ describe "TicketProvider", ->
 	describe "findAll", (done) ->
 		it "finds all tickets", ->
 			ticketprovider.findAll
-			done
-
-	describe "findAllIds", (done) ->
-		it "finds all ticket IDs", ->
-			ticketprovider.findAllIds
 			done
 
 	describe "findByStatus", (done) ->
