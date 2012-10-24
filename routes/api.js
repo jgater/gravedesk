@@ -1,5 +1,7 @@
 var dbhandler = require('../lib/dbhandler');
 var ticketdb = require('../lib/ticketprovider');
+var TicketHandler = require('../lib').TicketHandler;
+var tickethandler = new TicketHandler();
 var path = require('path');
 var util = require('util');
 var fs = require('fs');
@@ -39,7 +41,7 @@ module.exports = {
   //get all tickets
   //app.get('/api/tickets', api.getTicketAll);
   getTicketAll: function (req, res) {
-    ticketdb.findAll(function(err,tickets){
+    tickethandler.findAll(function(err,tickets){
       if (tickets) {
         res.send(tickets);
       } else {
