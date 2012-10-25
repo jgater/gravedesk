@@ -1,12 +1,19 @@
+#
+# mocha test framework for lib/tickethandler.coffee
+#
+
+# libraries
 chai = require 'chai' 
 chai.should() 
+mongoose = require "mongoose"
+async = require "async"
 
 {TicketHandler} = require "../lib"
-mongoose = require "mongoose"
 ticketmodel = require "../lib/models/ticket"
+settings = require "../settings"
 
 # ticket generator function
-genticket = (number) ->
+genticket = (number,status) ->
 	i=0
 	while i < number
 		ticket = new ticketmodel(
@@ -14,7 +21,7 @@ genticket = (number) ->
 			from: "test@example.com"
 			subject: "test"
 			description: "test description"  
-			status: "Open"
+			status: status
 			impact: "normal"
 		)
 		ticket.save()
@@ -25,22 +32,55 @@ describe "TicketHandler", ->
 	before (done) ->
 		mongoose.connect 'mongodb://localhost/gravedesk-test', ->
 			ticketmodel.remove done
-	beforeEach (done) ->
-		ticketmodel.remove done
-		genticket(1)
 
 	describe "findAll", ->
+		before ->
+			genticket(2,"Open")
 		it "responds with all ticket records", (done) ->
 			tickethandler.findAll (err, res) ->
 				return done(err)  if err
-				res.should.have.length 1
-				done()	
-		beforeEach ->
-
+				res.should.have.length 2
+				done()
 
 	describe "findByStatus", ->
-		it "responds with all tickets of a certain status", (done) ->
+		before ->
+			genticket(1, "Closed")
+		it "responds with all Open tickets", (done) ->
 			tickethandler.findByStatus "Open", (err, res) ->
 				return done(err)  if err
+				res.should.have.length 2
+				done()			
+		it "responds with all closed tickets", (done) ->
+			tickethandler.findByStatus "Closed", (err, res) ->
+				return done(err)  if err
 				res.should.have.length 1
-				done()				
+				done()	
+
+	describe "countAllByStatus", ->
+		before ->
+			genticket(2,"Closed")
+		it "responds with ticket counts per status", (done) ->
+			tickethandler.countAllByStatus ["Open","Closed"], (err,res) ->
+				return done(err) if err
+				res.Closed.should.equal 3
+				done()
+
+	describe "findById", ->
+		tempTicket = {}
+		it "finds one ticket by unique id", (done) ->
+			async.waterfall [(callback) ->
+				tickethandler.findAll callback 
+			, (all,callback) ->
+				tempTicket = all[0]
+				callback null, tempTicket._id
+			, (id, callback) ->
+				tickethandler.findById id,callback
+			, (ticket,callback) ->
+				ticket._id.should.eql tempTicket._id
+				callback(null)
+			], (err,results) ->
+				return done(err) if err
+				done()
+
+
+

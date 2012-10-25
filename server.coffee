@@ -1,21 +1,23 @@
 #
 # Module dependencies.
-# 
-express = require("express")
-fs = require("fs")
-nowjs = require("now")
-async = require("async")
-util = require("util")
-passport = require("passport")
-events = require("events")
+#
+express = require "express"
+fs = require "fs"
+nowjs = require "now"
+async = require "async"
+util = require "util"
+passport = require "passport"
+events = require "events"
 
 # gravedesk internal library modules
 
-{ImapHandler} = require("./lib/emailhandler")
-{sendMail} = require("./lib/emailhandler")
-db = require("./lib/dbhandler")
-ticketdb = require("./lib/ticketprovider")
-userdb = require("./lib/userprovider")
+{ImapHandler} = require "./lib/emailhandler" 
+{sendMail} = require "./lib/emailhandler"
+db = require "./lib/dbhandler" 
+ticketdb = require "./lib/ticketprovider"
+userdb = require "./lib/userprovider"
+{TicketHandler} = require "./lib"
+tickethandler = new TicketHandler()
 
 # settings files
 settings = require("./settings")
@@ -106,7 +108,7 @@ console.log "now.js added to server app."
 
 # now functions    
 everyone.now.getManageStartupData = (callback) ->
-  ticketdb.countAllByStatus (err, ticketcount) ->
+  tickethandler.countAllByStatus settings.statusList, (err, ticketcount) ->
     if err
       console.error "Could not get ticket counts; "
     else
@@ -136,7 +138,7 @@ everyone.now.sendMail = (mail, id, callback) ->
 
 # when db updates a ticket, trigger this event and tell the client to update tab ticket counts
 ticketdb.on "ticketUpdated", ->
-  ticketdb.countAllByStatus (err, ticketcount) ->
+  tickethandler.countAllByStatus settings.statusList, (err, ticketcount) ->
     if err
       console.error "Could not get ticket counts; "
     else
@@ -146,7 +148,7 @@ ticketdb.on "ticketUpdated", ->
 
 # when db adds a new ticket from email, trigger this event and tell the client to update their table view 
 ticketdb.on "ticketListChange", ->
-  ticketdb.countAllByStatus (err, ticketcount) ->
+  tickethandler.countAllByStatus settings.statusList, (err, ticketcount) ->
     if err
       console.error "Could not get ticket counts; "
     else

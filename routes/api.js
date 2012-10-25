@@ -53,7 +53,7 @@ module.exports = {
   //get ticket summaries by status
   //app.get('/api/tickets/status/:status', api.getTicketStatus);
   getTicketStatus: function (req, res) {
-    ticketdb.findByStatus(req.params.status, function(err,ticket){
+    tickethandler.findByStatus(req.params.status, function(err,ticket){
       if (ticket) {
         res.send(ticket);
       } else {
@@ -77,7 +77,7 @@ module.exports = {
   //get ticket details by id
   //app.get('/api/tickets/:id', api.getTicketId);
   getTicketId: function (req, res) {
-    ticketdb.findById(req.params.id,function(err,ticket){
+    tickethandler.findById(req.params.id,function(err,ticket){
       if (ticket) {
         res.send(ticket); 
       } else {
