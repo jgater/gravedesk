@@ -4,7 +4,7 @@
 
 # libraries
 chai = require 'chai' 
-chai.should() 
+should = chai.should() 
 mongoose = require "mongoose"
 async = require "async"
 
@@ -50,7 +50,7 @@ describe "TicketHandler", ->
 				return done(err)  if err
 				res.should.have.length 2
 				done()			
-		it "responds with all closed tickets", (done) ->
+		it "responds with all Closed tickets", (done) ->
 			tickethandler.findByStatus "Closed", (err, res) ->
 				return done(err)  if err
 				res.should.have.length 1
@@ -62,6 +62,7 @@ describe "TicketHandler", ->
 		it "responds with ticket counts per status", (done) ->
 			tickethandler.countAllByStatus ["Open","Closed"], (err,res) ->
 				return done(err) if err
+				res.Open.should.equal 2
 				res.Closed.should.equal 3
 				done()
 
@@ -72,15 +73,34 @@ describe "TicketHandler", ->
 				tickethandler.findAll callback 
 			, (all,callback) ->
 				tempTicket = all[0]
-				callback null, tempTicket._id
-			, (id, callback) ->
-				tickethandler.findById id,callback
-			, (ticket,callback) ->
+				tickethandler.findById tempTicket._id,callback
+			, (ticket, callback) ->
 				ticket._id.should.eql tempTicket._id
 				callback(null)
-			], (err,results) ->
+			], done
+
+	describe "deleteById", ->
+		tempTicket = {}
+		it "deletes one ticket by unique id", (done) ->
+			async.waterfall [(callback) ->
+				tickethandler.findAll callback
+			,	(all, callback) ->
+				tempTicket = all[0]
+				tickethandler.deleteById tempTicket._id, callback
+			, (result, callback) ->
+				tickethandler.findById tempTicket._id, callback
+			], (err, result) ->
+				should.not.exist(result)
 				return done(err) if err
 				done()
+
+
+
+
+
+
+
+
 
 
 

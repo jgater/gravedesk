@@ -137,7 +137,7 @@ everyone.now.sendMail = (mail, id, callback) ->
 
 
 # when db updates a ticket, trigger this event and tell the client to update tab ticket counts
-ticketdb.on "ticketUpdated", ->
+tickethandler.on "ticketUpdated", ->
   tickethandler.countAllByStatus settings.statusList, (err, ticketcount) ->
     if err
       console.error "Could not get ticket counts; "
@@ -147,7 +147,7 @@ ticketdb.on "ticketUpdated", ->
 
 
 # when db adds a new ticket from email, trigger this event and tell the client to update their table view 
-ticketdb.on "ticketListChange", ->
+tickethandler.on "ticketListChange", ->
   tickethandler.countAllByStatus settings.statusList, (err, ticketcount) ->
     if err
       console.error "Could not get ticket counts; "

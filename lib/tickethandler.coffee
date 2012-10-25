@@ -1,12 +1,16 @@
 # required modules
-events = require "events" 
+{EventEmitter} = require "events" 
 async = require "async"
 
 # model dependency
-ticketmodel = require("./models/ticket")
+ticketmodel = require "./models/ticket"
 #settings = require "../settings" 
 
-class TicketHandler
+class TicketHandler extends EventEmitter
+
+	constructor: ->
+		#@on 'wake', -> console.log 'COCKADOODLEDOO!'
+
 	#find all tickets
 	findAll: (callback) -> ticketmodel.find {}, callback
 
@@ -33,12 +37,18 @@ class TicketHandler
 
 	#Find ticket by ID
 	findById: (id, callback) ->
-  ticketmodel.findById id, (err, ticket) ->
-    if err or ticket is null
-      callback err
-    else
-      callback null, ticket
+		ticketmodel.findById id, (err,result) ->
+			callback(err,result)
 
+
+	#Delete ticket by ID
+	deleteById: (id, callback) ->
+		self = this
+		ticketmodel.findById id, (err, ticket) ->
+			ticket.remove (err, result) ->
+				#self.emit 'ticketListChange'
+				#self.deleteAttachments(id,callback);
+				callback(err,result)
 
 
 
