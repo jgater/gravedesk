@@ -16,8 +16,7 @@ events = require "events"
 db = require "./lib/dbhandler" 
 ticketdb = require "./lib/ticketprovider"
 userdb = require "./lib/userprovider"
-{TicketHandler} = require "./lib"
-tickethandler = new TicketHandler()
+{tickethandler} = require "./lib"
 
 # settings files
 settings = require("./settings")
@@ -147,7 +146,7 @@ tickethandler.on "ticketUpdated", ->
 
 
 # when db adds a new ticket from email, trigger this event and tell the client to update their table view 
-tickethandler.on "ticketListChange", ->
+tickethandler.on "ticketListUpdated", ->
   tickethandler.countAllByStatus settings.statusList, (err, ticketcount) ->
     if err
       console.error "Could not get ticket counts; "

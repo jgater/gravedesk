@@ -56,6 +56,7 @@ class TicketHandler extends EventEmitter
 		ticketmodel.findById id, (err, ticket) ->
 			ticket.remove (err) ->
 				self.emit 'ticketDeleted', ticket._id
+				self.emit 'ticketListUpdated'
 				callback(err)
 
 

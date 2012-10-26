@@ -1,7 +1,6 @@
 var dbhandler = require('../lib/dbhandler');
 var ticketdb = require('../lib/ticketprovider');
-var TicketHandler = require('../lib').TicketHandler;
-var tickethandler = new TicketHandler();
+var tickethandler = require('../lib').tickethandler;
 var path = require('path');
 var util = require('util');
 var fs = require('fs');

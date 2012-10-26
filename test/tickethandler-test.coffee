@@ -8,7 +8,7 @@ should = chai.should()
 mongoose = require "mongoose"
 async = require "async"
 
-{TicketHandler} = require "../lib"
+{tickethandler} = require "../lib"
 ticketmodel = require "../lib/models/ticket"
 settings = require "../settings"
 
@@ -28,7 +28,6 @@ genticket = (number,status) ->
 		i++
 
 describe "TicketHandler", ->
-	tickethandler = new TicketHandler
 	before (done) ->
 		mongoose.connect 'mongodb://localhost/gravedesk-test', ->
 			ticketmodel.remove done

@@ -1,1 +1,2 @@
-exports.TicketHandler = require "./tickethandler"
+TicketHandler = require "./tickethandler"
+exports.tickethandler = new TicketHandler
