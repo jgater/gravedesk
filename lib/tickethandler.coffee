@@ -1,15 +1,24 @@
 # required modules
 {EventEmitter} = require "events" 
 async = require "async"
+path = require "path"
+rimraf = require "rimraf"
 
 # model dependency
 ticketmodel = require "./models/ticket"
-#settings = require "../settings" 
+settings = require "../settings" 
 
 class TicketHandler extends EventEmitter
 
 	constructor: ->
-		#@on 'wake', -> console.log 'COCKADOODLEDOO!'
+		@on 'ticketDeleted', (id) -> _deleteAttachments id
+
+	# delete attachments associated with a ticket
+	_deleteAttachments = (id) ->
+		filePath = path.join settings.attachmentDir, id
+		rimraf filePath, (err) -> 
+			console.log err if err
+
 
 	#find all tickets
 	findAll: (callback) -> ticketmodel.find {}, callback
@@ -45,10 +54,9 @@ class TicketHandler extends EventEmitter
 	deleteById: (id, callback) ->
 		self = this
 		ticketmodel.findById id, (err, ticket) ->
-			ticket.remove (err, result) ->
-				#self.emit 'ticketListChange'
-				#self.deleteAttachments(id,callback);
-				callback(err,result)
+			ticket.remove (err) ->
+				self.emit 'ticketDeleted', ticket._id
+				callback(err)
 
 
 

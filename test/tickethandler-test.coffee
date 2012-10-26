@@ -87,7 +87,7 @@ describe "TicketHandler", ->
 			,	(all, callback) ->
 				tempTicket = all[0]
 				tickethandler.deleteById tempTicket._id, callback
-			, (result, callback) ->
+			, (callback) ->
 				tickethandler.findById tempTicket._id, callback
 			], (err, result) ->
 				should.not.exist(result)

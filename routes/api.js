@@ -90,7 +90,7 @@ module.exports = {
   // DELETE to DESTROY
   //app.delete('/api/tickets/:id', api.delTicketId);
   delTicketId: function (req, res) {
-    tickethandler.deleteById(req.params.id, function(err,result){
+    tickethandler.deleteById(req.params.id, function(err){
       if (err) {
         console.error("unable to delete ticket "+req.params.id+err);
       } else {
