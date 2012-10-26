@@ -7,6 +7,7 @@ chai = require 'chai'
 should = chai.should() 
 mongoose = require "mongoose"
 async = require "async"
+events = require "events"
 
 {tickethandler} = require "../lib"
 ticketmodel = require "../lib/models/ticket"
@@ -81,6 +82,10 @@ describe "TicketHandler", ->
 	describe "deleteById", ->
 		tempTicket = {}
 		it "deletes one ticket by unique id", (done) ->
+			# waits for ticketListUpdated event to complete
+			tickethandler.on "ticketListUpdated", ->
+				done()
+			# finds the first ticket, deletes it, checks it no longer exists
 			async.waterfall [(callback) ->
 				tickethandler.findAll callback
 			,	(all, callback) ->
@@ -89,9 +94,10 @@ describe "TicketHandler", ->
 			, (callback) ->
 				tickethandler.findById tempTicket._id, callback
 			], (err, result) ->
-				should.not.exist(result)
+				should.not.exist result
 				return done(err) if err
-				done()
+				
+
 
 
 

@@ -11,14 +11,7 @@ settings = require "../settings"
 class TicketHandler extends EventEmitter
 
 	constructor: ->
-		@on 'ticketDeleted', (id) -> _deleteAttachments id
-
-	# delete attachments associated with a ticket
-	_deleteAttachments = (id) ->
-		filePath = path.join settings.attachmentDir, id
-		rimraf filePath, (err) -> 
-			console.log err if err
-
+		@on 'ticketDeleted', (id) -> @_deleteAttachments id
 
 	#find all tickets
 	findAll: (callback) -> ticketmodel.find {}, callback
@@ -52,12 +45,19 @@ class TicketHandler extends EventEmitter
 
 	#Delete ticket by ID
 	deleteById: (id, callback) ->
-		self = this
-		ticketmodel.findById id, (err, ticket) ->
-			ticket.remove (err) ->
-				self.emit 'ticketDeleted', ticket._id
-				self.emit 'ticketListUpdated'
+		ticketmodel.findById id, (err, ticket) =>
+			ticket.remove (err) =>
+				@emit 'ticketDeleted', ticket._id unless err
 				callback(err)
+
+
+
+	# delete attachments associated with a ticket
+	_deleteAttachments : (id) ->
+		filePath = path.join settings.attachmentDir, id
+		rimraf filePath, (err) => 
+			@emit 'ticketListUpdated' unless err
+			console.log err if err
 
 
 
