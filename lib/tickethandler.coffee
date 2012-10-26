@@ -50,6 +50,23 @@ class TicketHandler extends EventEmitter
 				@emit 'ticketDeleted', ticket._id unless err
 				callback(err)
 
+	updateById: (id, ticket, callback) ->
+			conditions = _id: id
+			update = 
+				status: ticket.status
+				impact: ticket.impact
+				lastmodified: new Date()
+				from: ticket.from
+				subject: ticket.subject
+				description: ticket.description
+
+			ticketmodel.update conditions, update, {}, (err, numAffected) =>
+				@emit 'ticketUpdated'
+				callback err, numAffected
+
+
+
+
 
 
 	# delete attachments associated with a ticket

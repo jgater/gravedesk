@@ -94,9 +94,29 @@ describe "TicketHandler", ->
 			, (callback) ->
 				tickethandler.findById tempTicket._id, callback
 			], (err, result) ->
-				should.not.exist result
 				return done(err) if err
+				should.not.exist result
+
 				
+	describe "updateById", ->
+		tempTicket = {}
+		it "updates one ticket by unique id", (done) ->
+			# waits for ticketUpdated event to complete
+			tickethandler.on "ticketUpdated", ->
+				done()
+			# finds the first ticket, updates it, checks it's been updated
+			async.waterfall [(callback) ->
+				tickethandler.findAll callback
+			, (all, callback) ->
+				tempTicket = all[0]
+				tempTicket.subject = "new subject"
+				tickethandler.updateById tempTicket._id, tempTicket, callback
+			, (numberChanged,callback) ->
+				tickethandler.findById tempTicket._id, callback
+			], (err, result) ->
+				return done(err) if err
+				result.subject.should.equal "new subject"
+
 
 
 

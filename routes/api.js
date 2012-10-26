@@ -29,7 +29,7 @@ module.exports = {
   // PUT to UPDATE
   //app.put('/api/tickets/:id', api.putTicket);
   putTicket: function (req, res) {
-    ticketdb.updateTicketById(req.params.id, req.body, function (err, num) {
+    tickethandler.updateById(req.params.id, req.body, function (err, num) {
       if (!err) {
         res.send("Changes to ticket " + req.params.id+" saved to database.");
       } 
