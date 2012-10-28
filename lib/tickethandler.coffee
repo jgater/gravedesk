@@ -11,7 +11,7 @@ settings = require "../settings"
 class TicketHandler extends EventEmitter
 
 	constructor: ->
-		@on 'ticketDeleted', (id) -> @_deleteAttachments id
+		@on "ticketDeleted", (id) -> @_deleteAttachments id
 
 	#find all tickets
 	findAll: (callback) -> ticketmodel.find {}, callback
@@ -47,24 +47,33 @@ class TicketHandler extends EventEmitter
 	deleteById: (id, callback) ->
 		ticketmodel.findById id, (err, ticket) =>
 			ticket.remove (err) =>
-				@emit 'ticketDeleted', ticket._id unless err
+				@emit "ticketDeleted", ticket._id unless err
 				callback(err)
 
 	updateById: (id, ticket, callback) ->
-			conditions = _id: id
-			update = 
-				status: ticket.status
-				impact: ticket.impact
-				lastmodified: new Date()
-				from: ticket.from
-				subject: ticket.subject
-				description: ticket.description
+		conditions = _id: id
+		update = 
+			status: ticket.status
+			impact: ticket.impact
+			lastmodified: new Date()
+			from: ticket.from
+			subject: ticket.subject
+			description: ticket.description
 
-			ticketmodel.update conditions, update, {}, (err, numAffected) =>
-				@emit 'ticketUpdated'
-				callback err, numAffected
+		ticketmodel.update conditions, update, {}, (err, numAffected) =>
+			@emit "ticketUpdated"
+			callback err, numAffected
 
 
+	updateEmailsById: (id, ticket, callback) ->
+		conditions = _id: id
+		update =
+			emails: ticket.emails
+			lastmodified: new Date()
+	
+		ticketmodel.update conditions, update, {}, (err, numAffected) =>
+			@emit "ticketUpdated"
+			callback err, numAffected
 
 
 
@@ -73,7 +82,7 @@ class TicketHandler extends EventEmitter
 	_deleteAttachments : (id) ->
 		filePath = path.join settings.attachmentDir, id
 		rimraf filePath, (err) => 
-			@emit 'ticketListUpdated' unless err
+			@emit "ticketListUpdated" unless err
 			console.log err if err
 
 

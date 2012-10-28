@@ -82,9 +82,6 @@ describe "TicketHandler", ->
 	describe "deleteById", ->
 		tempTicket = {}
 		it "deletes one ticket by unique id", (done) ->
-			# waits for ticketListUpdated event to complete
-			tickethandler.on "ticketListUpdated", ->
-				done()
 			# finds the first ticket, deletes it, checks it no longer exists
 			async.waterfall [(callback) ->
 				tickethandler.findAll callback
@@ -96,14 +93,12 @@ describe "TicketHandler", ->
 			], (err, result) ->
 				return done(err) if err
 				should.not.exist result
+				done()
 
 				
 	describe "updateById", ->
 		tempTicket = {}
 		it "updates one ticket by unique id", (done) ->
-			# waits for ticketUpdated event to complete
-			tickethandler.on "ticketUpdated", ->
-				done()
 			# finds the first ticket, updates it, checks it's been updated
 			async.waterfall [(callback) ->
 				tickethandler.findAll callback
@@ -114,9 +109,36 @@ describe "TicketHandler", ->
 			, (numberChanged,callback) ->
 				tickethandler.findById tempTicket._id, callback
 			], (err, result) ->
-				return done(err) if err
+				done(err) if err
 				result.subject.should.equal "new subject"
+				done()
 
+	describe "updateEmailsById", ->
+		tempTicket = {}
+		it "updates one tickets email array by unique id", (done) ->
+			# finds the first ticket, updates it, checks it's been updated
+			async.waterfall [(callback) ->
+				tickethandler.findAll callback
+			, (all, callback) ->
+				tempTicket = all[0]
+				testEmail = 
+					to: "test@example.com"
+					cc: ""
+					subject: "Test email"
+					date: new Date()
+					plaintext: "This is a test email"
+					html: ""
+					attachments : []
+				tempTicket.emails.push testEmail
+
+				tickethandler.updateEmailsById tempTicket._id, tempTicket, callback
+			, (numberChanged,callback) ->
+				tickethandler.findById tempTicket._id, callback
+			], (err, result) ->
+				done(err) if err
+				result.emails[0].subject.should.equal "Test email"
+				result.emails[0].to.should.equal "test@example.com"
+				done()
 
 
 
