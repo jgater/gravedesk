@@ -90,9 +90,9 @@ describe "TicketHandler", ->
 				tickethandler.deleteById tempTicket._id, callback
 			, (callback) ->
 				tickethandler.findById tempTicket._id, callback
-			], (err, result) ->
+			], (err, res) ->
 				return done(err) if err
-				should.not.exist result
+				should.not.exist res
 				done()
 
 				
@@ -108,9 +108,9 @@ describe "TicketHandler", ->
 				tickethandler.updateById tempTicket._id, tempTicket, callback
 			, (numberChanged,callback) ->
 				tickethandler.findById tempTicket._id, callback
-			], (err, result) ->
-				done(err) if err
-				result.subject.should.equal "new subject"
+			], (err, res) ->
+				return done(err) if err
+				res.subject.should.equal "new subject"
 				done()
 
 	describe "updateEmailsById", ->
@@ -134,10 +134,10 @@ describe "TicketHandler", ->
 				tickethandler.updateEmailsById tempTicket._id, tempTicket, callback
 			, (numberChanged,callback) ->
 				tickethandler.findById tempTicket._id, callback
-			], (err, result) ->
-				done(err) if err
-				result.emails[0].subject.should.equal "Test email"
-				result.emails[0].to.should.equal "test@example.com"
+			], (err, res) ->
+				return done(err) if err
+				res.emails[0].subject.should.equal "Test email"
+				res.emails[0].to.should.equal "test@example.com"
 				done()
 
 
