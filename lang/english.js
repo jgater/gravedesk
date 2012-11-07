@@ -21,15 +21,14 @@ var closeReply = {
 };
 
 
+// incoming emails that are missing fields, or that cannot be properly parsed will be replaced by entries from this as needed.
 
-
-
-
-
-
-
-
-
+var blankTicketSettings = {
+	"from": "unknown@example.com",
+	"subject": "No subject given.",
+	"description": "No description given.",
+	"impact": "normal"
+};
 
 
 
@@ -42,6 +41,8 @@ var langModel = function () {
 	this.existingAutoReply = existingAutoReply;
 	this.reply = reply;
 	this.closeReply = closeReply;
+	this.blankticket = blankTicketSettings;
+	this.blankticket.status = settings.statusList[0];
 };
     
 module.exports = new langModel();

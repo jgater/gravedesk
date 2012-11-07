@@ -3,15 +3,25 @@
 async = require "async"
 path = require "path"
 rimraf = require "rimraf"
+{Markdown} = require "node-markdown"
 
 # model dependency
 ticketmodel = require "./models/ticket"
 settings = require "../settings" 
+lang = require "../lang/english"
+
 
 class TicketHandler extends EventEmitter
 
 	constructor: ->
 		@on "ticketDeleted", (id) -> @_deleteAttachments id
+
+		# newticket workflow
+		@on "addTicketError", (err) -> console.log "Error adding ticket: " + err
+		@on "createNewTicket", (params) -> @_createNewTicket params
+		@on "modifyCurrentTicket", (params, search) -> @_modifyCurrentTicket params, search
+		#@on "doTicketAttachments", (params, id, isnew) -> @_doTicketAttachments params, id, isnew
+
 
 	# find all tickets
 	findAll: (callback) -> ticketmodel.find {}, callback
@@ -76,13 +86,19 @@ class TicketHandler extends EventEmitter
 			@emit "ticketUpdated" unless err
 			callback err, numAffected
 
-	# create a new ticket in db
-	newTicket : (mail) ->
-		ticket = new ticketmodel()
-		# generate blank db entry with id
-		ticket.save (err) => 
-			@emit "newTicketBlankSuccess", ticket._id, mail unless err
-			@emit "newTicketError", err if err
+	# create/modify ticket in db
+	addTicket : (params) ->
+		# check if ticket already has an ID-like string in subject
+		searchstring = null
+		searchstring = params.subject.match(/\<[a-z|A-Z|0-9]*\>/g) if params.subject
+
+		if searchstring
+			# ID-like string found, try and modify an existing ticket
+			@emit "modifyCurrentTicket", params, searchstring
+		else
+			# ticket id format not found in subject, create a new ticket.
+			@emit "createNewTicket", params
+
 
 
 	# INTERNAL FUNCTIONS
@@ -93,6 +109,59 @@ class TicketHandler extends EventEmitter
 		rimraf filePath, (err) => 
 			@emit "ticketListUpdated" unless err
 			console.log err if err
+
+	_cleanHTML : (html) ->
+		cleanhtml = html or ""
+		cleanhtml = cleanhtml.replace(/<html([^>]*)>/i, "")
+		cleanhtml = cleanhtml.replace(/<head>.*<\/head>/g, "")
+		cleanhtml = cleanhtml.replace(/<body([^>]*)>/i, "")
+		cleanhtml = cleanhtml.replace(/<meta([^>]*)>/g, "")
+		cleanhtml = cleanhtml.replace(/<xml>.*<\/xml>/g, "")
+		cleanhtml = cleanhtml.replace(/<\/html>/i, "")
+		cleanhtml = cleanhtml.replace(/<\/body>/i, "")	
+		# strip leftover comments
+		cleanhtml = cleanhtml.replace(/<!--[\s\S]*?-->/g, "")
+		return cleanhtml
+
+	# create new blank ticket
+	_createNewTicket : (params) ->
+		# search and remove strings of pattern "- text - ID: <text>", i.e. previous autoreplies
+		cleansubject = params.subject.replace(/\- [a-z|A-Z]* \- ID: \<[a-z|A-Z|0-9]*\>/g, "") if params.subject
+		cleanhtml = @_cleanHTML params.html if params.html
+		cleanplaintext = Markdown params.plaintext, true if params.plaintext
+
+		ticket = new ticketmodel(
+			date: params.date
+			lastmodified: params.date
+			from: params.from or lang.blankticket.from
+			description: cleanhtml or cleanplaintext or lang.blankticket.description
+			subject: cleansubject or lang.blankticket.subject
+			status: params.status or lang.blankticket.status
+			impact: lang.blankticket.impact
+			attachments : []
+		)
+
+		ticket.save (err) => 
+			@emit "doTicketAttachments", params, ticket._id, true unless err
+			@emit "addTicketError", err if err
+
+	# modify possible existing ticket
+	_modifyCurrentTicket : (params, searchstring) ->
+		# strip first and last character
+		substring = searchstring.pop().slice(1,-1)
+
+		ticketmodel.findById substring, (err, result) =>	
+
+			if result and result.status isnt "Closed"
+				# found a ticket matching the subject ID that isn't closed
+				# replace new subject with existing ticket subject
+				params.subject = "RE: " + result.subject
+				@emit "doTicketAttachments", params, result._id, false
+
+			else 
+				# no open ticket by that ID found - could be < > false positive (mailing lists etc) - create new ticket after all
+				@emit "createNewTicket", params
+
 
 
 

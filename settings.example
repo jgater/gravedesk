@@ -39,14 +39,6 @@ var defaultAdmin = {
 	email: "admin@example.com"
 }
 
-// incoming emails that are missing fields, or that cannot be properly parsed will be replaced by entries from this as needed.
-
-var blankTicketSettings = {
-	"from": "unknown@example.com",
-	"subject": "No subject given.",
-	"description": "No description given."
-};
-
 // this will be the default port for node to listen on
 var defaultPort = 3000;
 

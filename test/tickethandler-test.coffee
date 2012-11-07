@@ -12,6 +12,7 @@ events = require "events"
 {tickethandler} = require "../lib"
 ticketmodel = require "../lib/models/ticket"
 settings = require "../settings"
+lang = require "../lang/english"
 
 # ticket generator function
 genticket = (number,status) ->
@@ -140,20 +141,35 @@ describe "TicketHandler", ->
 				res.emails[0].to.should.equal "test@example.com"
 				done()
 
-	describe "newTicket", ->
+	describe "addTicket", ->
 		it "creates a new blank ticket", (done) ->
 			tempTicket = 
+				date: new Date()
+				from: "addticket@example.com"
 				to: "test@example.com"
-				from: "sender@example.com"
 				subject: "test ticket"
 				attachments: []
+				plaintext: "Hello world"
 
-			tickethandler.on "newTicketBlankSuccess", (id,mail) ->
+			tickethandler.on "doTicketAttachments", (mail, id, isnew) ->
+				mail.from.should.equal "addticket@example.com"
+				mail.to.should.equal "test@example.com"
 				mail.subject.should.equal "test ticket"
+				mail.plaintext.should.equal "Hello world"
+				should.exist mail.date
 				should.exist id
-				done() 
+				isnew.should.equal true
+				tickethandler.findById id, (err,result) ->
+					result.from.should.equal "addticket@example.com"
+					result.subject.should.equal "test ticket"
+					result.description.should.equal "<p>Hello world</p>"
+					should.exist result.date
+					should.exist result.lastmodified
+					result.status.should.equal lang.blankticket.status
+					result.impact.should.equal lang.blankticket.impact
+					done(err) 
 
-			tickethandler.newTicket(tempTicket)
+			tickethandler.addTicket(tempTicket)
 
 
 
