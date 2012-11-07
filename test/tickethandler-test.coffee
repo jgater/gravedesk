@@ -159,14 +159,14 @@ describe "TicketHandler", ->
 				should.exist mail.date
 				should.exist id
 				isnew.should.equal true
-				tickethandler.findById id, (err,result) ->
-					result.from.should.equal "addticket@example.com"
-					result.subject.should.equal "test ticket"
-					result.description.should.equal "<p>Hello world</p>"
-					should.exist result.date
-					should.exist result.lastmodified
-					result.status.should.equal lang.blankticket.status
-					result.impact.should.equal lang.blankticket.impact
+				tickethandler.findById id, (err,res) ->
+					res.from.should.equal "addticket@example.com"
+					res.subject.should.equal "test ticket"
+					res.description.should.equal "<p>Hello world</p>"
+					should.exist res.date
+					should.exist res.lastmodified
+					res.status.should.equal lang.blankticket.status
+					res.impact.should.equal lang.blankticket.impact
 					done(err) 
 
 			tickethandler.addTicket(tempTicket)
