@@ -13,10 +13,10 @@ class TicketHandler extends EventEmitter
 	constructor: ->
 		@on "ticketDeleted", (id) -> @_deleteAttachments id
 
-	#find all tickets
+	# find all tickets
 	findAll: (callback) -> ticketmodel.find {}, callback
 
-	#find limited fields by status
+	# find limited fields by status
 	findByStatus: (status, callback) -> 
 		status = status: status
 		fields = "_id from subject date impact lastmodified"
@@ -37,19 +37,20 @@ class TicketHandler extends EventEmitter
 			else
 				callback err
 
-	#Find ticket by ID
+	# find ticket by ID
 	findById: (id, callback) ->
 		ticketmodel.findById id, (err,result) ->
 			callback(err,result)
 
 
-	#Delete ticket by ID
+	# delete ticket by ID
 	deleteById: (id, callback) ->
 		ticketmodel.findById id, (err, ticket) =>
 			ticket.remove (err) =>
 				@emit "ticketDeleted", ticket._id unless err
 				callback(err)
 
+	# update ticket by ID	
 	updateById: (id, ticket, callback) ->
 		conditions = _id: id
 		update = 
@@ -61,10 +62,10 @@ class TicketHandler extends EventEmitter
 			description: ticket.description
 
 		ticketmodel.update conditions, update, {}, (err, numAffected) =>
-			@emit "ticketUpdated"
+			@emit "ticketUpdated" unless err
 			callback err, numAffected
 
-
+	# update ticket email array by ID
 	updateEmailsById: (id, ticket, callback) ->
 		conditions = _id: id
 		update =
@@ -72,11 +73,19 @@ class TicketHandler extends EventEmitter
 			lastmodified: new Date()
 	
 		ticketmodel.update conditions, update, {}, (err, numAffected) =>
-			@emit "ticketUpdated"
+			@emit "ticketUpdated" unless err
 			callback err, numAffected
 
+	# create a new ticket in db
+	newTicket : (mail) ->
+		ticket = new ticketmodel()
+		# generate blank db entry with id
+		ticket.save (err) => 
+			@emit "newTicketBlankSuccess", ticket._id, mail unless err
+			@emit "newTicketError", err if err
 
 
+	# INTERNAL FUNCTIONS
 
 	# delete attachments associated with a ticket
 	_deleteAttachments : (id) ->

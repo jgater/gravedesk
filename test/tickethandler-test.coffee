@@ -140,6 +140,22 @@ describe "TicketHandler", ->
 				res.emails[0].to.should.equal "test@example.com"
 				done()
 
+	describe "newTicket", ->
+		it "creates a new blank ticket", (done) ->
+			tempTicket = 
+				to: "test@example.com"
+				from: "sender@example.com"
+				subject: "test ticket"
+				attachments: []
+
+			tickethandler.on "newTicketBlankSuccess", (id,mail) ->
+				mail.subject.should.equal "test ticket"
+				should.exist id
+				done() 
+
+			tickethandler.newTicket(tempTicket)
+
+
 
 
 
