@@ -29,7 +29,7 @@ genticket = (number,status) ->
 		ticket.save()
 		i++
 
-describe "TicketHandler", ->
+describe "TicketHandler:", ->
 	before (done) ->
 		mongoose.connect 'mongodb://localhost/gravedesk-test', ->
 			ticketmodel.remove done
@@ -148,17 +148,11 @@ describe "TicketHandler", ->
 				from: "addticket@example.com"
 				to: "test@example.com"
 				subject: "test ticket"
-				attachments: []
 				plaintext: "Hello world"
 
-			tickethandler.once "doTicketAttachments", (mail, id, isnew) ->
-				mail.from.should.equal "addticket@example.com"
-				mail.to.should.equal "test@example.com"
-				mail.subject.should.equal "test ticket"
-				mail.plaintext.should.equal "Hello world"
-				should.exist mail.date
+			tickethandler.once "addTicketSuccess", (id, isNew) ->
 				should.exist id
-				isnew.should.equal true
+				isNew.should.equal true
 				tickethandler.findById id, (err,res) ->
 					res.from.should.equal "addticket@example.com"
 					res.subject.should.equal "test ticket"
@@ -167,6 +161,7 @@ describe "TicketHandler", ->
 					should.exist res.lastmodified
 					res.status.should.equal lang.blankticket.status
 					res.impact.should.equal lang.blankticket.impact
+					res.emails.length.should.equal 1
 					done(err) 
 
 			tickethandler.addTicket tempTicket
@@ -177,17 +172,11 @@ describe "TicketHandler", ->
 				from: "addticket@example.com"
 				to: "test@example.com"
 				subject: "test ticket 2"
-				attachments: []
 				plaintext: "Hello world 2"
 
-			tickethandler.once "doTicketAttachments", (mail, id, isnew) ->
-				mail.from.should.equal "addticket@example.com"
-				mail.to.should.equal "test@example.com"
-				mail.plaintext.should.equal "Hello world 2"
-				mail.subject.should.equal "RE: test ticket"
-				should.exist mail.date
+			tickethandler.once "addTicketSuccess", (id, isNew) ->
 				should.exist id
-				isnew.should.equal false
+				isNew.should.equal false
 				tickethandler.findById id, (err,res) ->
 					res.from.should.equal "addticket@example.com"
 					res.description.should.equal "<p>Hello world</p>"
@@ -195,12 +184,15 @@ describe "TicketHandler", ->
 					should.exist res.lastmodified
 					res.status.should.equal lang.blankticket.status
 					res.impact.should.equal lang.blankticket.impact
+					res.emails.length.should.equal 2
 					done(err) 
 
 			ticketmodel.findOne
 				"from": "addticket@example.com"
 				, (err,result) =>			
 					tickethandler.addTicket tempTicket, result._id
+
+
 
 
 

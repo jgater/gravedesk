@@ -2,6 +2,7 @@
 {EventEmitter} = require "events" 
 async = require "async"
 path = require "path"
+fs = require "fs"
 rimraf = require "rimraf"
 {Markdown} = require "node-markdown"
 
@@ -20,7 +21,8 @@ class TicketHandler extends EventEmitter
 		@on "addTicketError", (err) -> console.log "Error adding ticket: " + err
 		@on "createNewTicket", (params) -> @_createNewTicket params
 		@on "modifyCurrentTicket", (params, id) -> @_modifyCurrentTicket params, id
-		#@on "doTicketAttachments", (params, id, isnew) -> @_doTicketAttachments params, id, isnew
+		@on "doTicketAttachments", (params, id, isnew) -> @_doTicketAttachments params, id, isnew
+		@on "saveAttachments", (attachments, index, id, isNew) -> @_saveAttachments attachments, index, id, isNew 
 
 
 	# find all tickets
@@ -166,6 +168,84 @@ class TicketHandler extends EventEmitter
 				@emit "createNewTicket", params
 
 
+	# process new mail attachments
+	_doTicketAttachments : (params, id, isNew) ->
+		self = this
+		# find existing ticket
+		ticketmodel.findById id, (err, ticket) ->	
+			if params.attachments
+				# remove attachments from new email
+				attachments = params.attachments.splice 0, params.attachments.length
+			else
+				attachments = []
+			# check how many emails have already been attached
+			index = ticket.emails.length or 0
+			date = new Date()
+
+			# function to generate attachment 'stub' names
+			iterator = (item, cb) ->
+				if item.transferEncoding is "base64"
+					stub = {}
+					stub.date = date
+					stub.fileName = encodeURIComponent(index + "_" + item.fileName)
+					stub.contentType = item.contentType
+					cb null, stub
+				else
+					cb null, null
+
+			# go through attachment list, generate stubs
+			async.map attachments, iterator, (err, results) ->
+				if err 
+					@emit "addTicketError", err
+				else
+					# need to clean non file stubs nulls from results
+					iterator = (item, cb) ->
+						if item
+							cb true
+						else
+							cb false
+		
+					async.filter results, iterator, (results) ->
+						# add stub attachments to original new email
+						params.attachments = results
+						# add now modified email to ticket
+						ticket.emails.push params
+						ticket.save (err) ->
+							if err 
+								self.emit "addTicketError", err
+							else
+								self.emit "saveAttachments", attachments, index, id, isNew
+
+
+	_saveAttachments : (attachments, index, id, isNew) ->
+		# force id and index to string
+		id = id + ""
+		index = index + ""
+		if attachments
+			# create directory for attachments unless it already exists
+			fs.mkdirSync settings.attachmentDir unless fs.existsSync settings.attachmentDir
+			# create directory for ticket id unless it already exists
+			ticketPath = path.join settings.attachmentDir, id
+			fs.mkdirSync path.join ticketPath unless fs.existsSync ticketPath
+
+		iterator = (item, callback) ->
+			if item.transferEncoding is "base64"
+				base64Data = item.content
+				dataBuffer = new Buffer(base64Data, "base64")
+				filePath = path.join(ticketPath, index + "_" + item.fileName)
+				fs.writeFileSync filePath, dataBuffer, callback
+			else
+				callback null
+
+		# write out each individual attachment to disk
+		async.forEachSeries attachments, iterator, (err) =>
+			if err
+				@emit "addTicketError", err
+			else 
+				# modified new email saved to ticket, attachments saved to disk. Declare victory
+				@emit "addTicketSuccess", id, isNew
+
+ 
 
 
 module.exports = TicketHandler
