@@ -151,7 +151,7 @@ describe "TicketHandler", ->
 				attachments: []
 				plaintext: "Hello world"
 
-			tickethandler.on "doTicketAttachments", (mail, id, isnew) ->
+			tickethandler.once "doTicketAttachments", (mail, id, isnew) ->
 				mail.from.should.equal "addticket@example.com"
 				mail.to.should.equal "test@example.com"
 				mail.subject.should.equal "test ticket"
@@ -169,7 +169,43 @@ describe "TicketHandler", ->
 					res.impact.should.equal lang.blankticket.impact
 					done(err) 
 
-			tickethandler.addTicket(tempTicket)
+			tickethandler.addTicket tempTicket
+
+		it "modifies an existing ticket", (done) ->
+			tempTicket = 
+				date: new Date()
+				from: "addticket@example.com"
+				to: "test@example.com"
+				subject: "test ticket 2"
+				attachments: []
+				plaintext: "Hello world 2"
+
+			tickethandler.once "doTicketAttachments", (mail, id, isnew) ->
+				mail.from.should.equal "addticket@example.com"
+				mail.to.should.equal "test@example.com"
+				mail.plaintext.should.equal "Hello world 2"
+				mail.subject.should.equal "RE: test ticket"
+				should.exist mail.date
+				should.exist id
+				isnew.should.equal false
+				tickethandler.findById id, (err,res) ->
+					res.from.should.equal "addticket@example.com"
+					res.description.should.equal "<p>Hello world</p>"
+					should.exist res.date
+					should.exist res.lastmodified
+					res.status.should.equal lang.blankticket.status
+					res.impact.should.equal lang.blankticket.impact
+					done(err) 
+
+			ticketmodel.findOne
+				"from": "addticket@example.com"
+				, (err,result) =>			
+					tickethandler.addTicket tempTicket, result._id
+
+
+
+
+			
 
 
 

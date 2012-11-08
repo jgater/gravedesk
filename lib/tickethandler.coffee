@@ -19,7 +19,7 @@ class TicketHandler extends EventEmitter
 		# newticket workflow
 		@on "addTicketError", (err) -> console.log "Error adding ticket: " + err
 		@on "createNewTicket", (params) -> @_createNewTicket params
-		@on "modifyCurrentTicket", (params, search) -> @_modifyCurrentTicket params, search
+		@on "modifyCurrentTicket", (params, id) -> @_modifyCurrentTicket params, id
 		#@on "doTicketAttachments", (params, id, isnew) -> @_doTicketAttachments params, id, isnew
 
 
@@ -87,17 +87,24 @@ class TicketHandler extends EventEmitter
 			callback err, numAffected
 
 	# create/modify ticket in db
-	addTicket : (params) ->
-		# check if ticket already has an ID-like string in subject
-		searchstring = null
-		searchstring = params.subject.match(/\<[a-z|A-Z|0-9]*\>/g) if params.subject
+	addTicket : (params, id) ->
 
+		# if id truthy, assume is the id of the ticket to modify 
+		return @emit "modifyCurrentTicket", params, id if id
+
+		# else check if ticket already has an ID-like string in subject
+		searchstring = null
+		if params.subject
+			searchstring = params.subject.match(/\<[a-z|A-Z|0-9]*\>/g) 
+	
 		if searchstring
 			# ID-like string found, try and modify an existing ticket
-			@emit "modifyCurrentTicket", params, searchstring
+			# strip first and last character
+			substring = searchstring.pop().slice(1,-1)
+			return @emit "modifyCurrentTicket", params, substring
 		else
 			# ticket id format not found in subject, create a new ticket.
-			@emit "createNewTicket", params
+			return @emit "createNewTicket", params
 
 
 
@@ -146,15 +153,11 @@ class TicketHandler extends EventEmitter
 			@emit "addTicketError", err if err
 
 	# modify possible existing ticket
-	_modifyCurrentTicket : (params, searchstring) ->
-		# strip first and last character
-		substring = searchstring.pop().slice(1,-1)
-
-		ticketmodel.findById substring, (err, result) =>	
-
+	_modifyCurrentTicket : (params, id) ->
+		ticketmodel.findById id, (err, result) =>	
 			if result and result.status isnt "Closed"
-				# found a ticket matching the subject ID that isn't closed
-				# replace new subject with existing ticket subject
+				# found a ticket matching the ID that isn't closed
+				# replace new ticket subject with existing ticket subject
 				params.subject = "RE: " + result.subject
 				@emit "doTicketAttachments", params, result._id, false
 
