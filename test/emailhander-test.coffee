@@ -6,10 +6,23 @@
 chai = require 'chai' 
 should = chai.should() 
 async = require "async"
+imap = require "imap"
 
-{emailhandler} = require "../lib"
+EmailHandler = require "../lib/emailhandler"
 settings = require "../settings"
 lang = require "../lang/english"
+
+
+# setup imap handler
+imapServer = new imap.ImapConnection(
+  username: settings.imap.username
+  password: settings.imap.password
+  host: settings.imap.host
+  port: settings.imap.port
+  secure: settings.imap.secure
+)
+
+emailhandler = new EmailHandler imapServer 
 
 
 describe "EmailHandler:", ->

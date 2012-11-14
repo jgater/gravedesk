@@ -8,21 +8,31 @@ async = require "async"
 util = require "util"
 passport = require "passport"
 events = require "events"
+imap = require "imap" 
 
 # gravedesk internal library modules
 
-{emailhandler} = require "./lib/" 
+EmailHandler = require "./lib/emailhandler"
 {db} = require "./lib/" 
-{sendMail} = require "./lib/emailhandler"
 {tickethandler} = require "./lib"
 userdb = require "./lib/userprovider"
-
 
 # settings files
 settings = require("./settings")
 lang = require("./lang/english")
 
 # Configuration
+
+imapServer = new imap.ImapConnection(
+  username: settings.imap.username
+  password: settings.imap.password
+  host: settings.imap.host
+  port: settings.imap.port
+  secure: settings.imap.secure
+)
+
+emailhandler = new EmailHandler imapServer 
+
 if settings.https.enable
   app = module.exports = express.createServer(
     key: fs.readFileSync(settings.https.key)
