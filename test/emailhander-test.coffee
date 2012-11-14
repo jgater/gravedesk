@@ -6,14 +6,14 @@
 chai = require 'chai' 
 should = chai.should() 
 async = require "async"
-imap = require "imap"
+
+{EventEmitter} = require "events" 
 
 EmailHandler = require "../lib/emailhandler"
 settings = require "../settings"
-lang = require "../lang/english"
-
 
 # setup imap handler
+imap = require "imap"
 imapServer = new imap.ImapConnection(
   username: settings.imap.username
   password: settings.imap.password
@@ -22,14 +22,21 @@ imapServer = new imap.ImapConnection(
   secure: settings.imap.secure
 )
 
-emailhandler = new EmailHandler imapServer 
+class FakeImapServer extends EventEmitter
+	constructor: ->
 
+	connect: (callback) ->
+		callback null
+
+fake = new FakeImapServer
+#emailhandler = new EmailHandler imapServer 
+emailhandler = new EmailHandler fake
 
 describe "EmailHandler:", ->
 
 	describe "connectImap", ->
 			it "connects to imap server", (done) ->
-				emailhandler.once "fetching", ->
+				emailhandler.once "imapConnectionSuccess", ->
 					done()
 
 				emailhandler.connectImap()
