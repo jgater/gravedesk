@@ -11,17 +11,16 @@ events = require "events"
 
 # gravedesk internal library modules
 
-{ImapHandler} = require "./lib/emailhandler" 
+{emailhandler} = require "./lib/" 
+{db} = require "./lib/" 
 {sendMail} = require "./lib/emailhandler"
-db = require "./lib/dbhandler" 
-ticketdb = require "./lib/ticketprovider"
-userdb = require "./lib/userprovider"
 {tickethandler} = require "./lib"
+userdb = require "./lib/userprovider"
+
 
 # settings files
 settings = require("./settings")
 lang = require("./lang/english")
-imap = new ImapHandler()
 
 # Configuration
 if settings.https.enable
@@ -74,14 +73,14 @@ async.series [db.connectDB, (callback) ->
   else
     app.listen settings.defaultPort, callback
   console.log "Express server listening on port %d in %s mode", app.address().port, app.settings.env
-
-# start imap
-, imap.startMonitoring], (err) ->
-
+], (err) ->
 # callback error handler
   if err
     console.error "Problem with starting background services; " + err
     process.exit err
+
+# start imap
+emailhandler.connectImap()
 
 
 # initialize now.js

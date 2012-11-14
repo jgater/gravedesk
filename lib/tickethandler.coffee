@@ -167,7 +167,6 @@ class TicketHandler extends EventEmitter
 				# no open ticket by that ID found - could be < > false positive (mailing lists etc) - create new ticket after all
 				@emit "createNewTicket", params
 
-
 	# process new mail attachments
 	_doTicketAttachments : (params, id, isNew) ->
 		self = this
@@ -244,8 +243,5 @@ class TicketHandler extends EventEmitter
 			else 
 				# modified new email saved to ticket, attachments saved to disk. Declare victory
 				@emit "addTicketSuccess", id, isNew
-
- 
-
 
 module.exports = TicketHandler

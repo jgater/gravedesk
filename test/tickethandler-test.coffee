@@ -7,7 +7,6 @@ chai = require 'chai'
 should = chai.should() 
 mongoose = require "mongoose"
 async = require "async"
-events = require "events"
 
 {tickethandler} = require "../lib"
 ticketmodel = require "../lib/models/ticket"
