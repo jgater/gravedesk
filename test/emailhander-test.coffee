@@ -12,34 +12,28 @@ async = require "async"
 EmailHandler = require "../lib/emailhandler"
 settings = require "../settings"
 
-# setup imap handler
-imap = require "imap"
-imapServer = new imap.ImapConnection(
-  username: settings.imap.username
-  password: settings.imap.password
-  host: settings.imap.host
-  port: settings.imap.port
-  secure: settings.imap.secure
-)
-
 class FakeImapServer extends EventEmitter
-	constructor: ->
 
 	connect: (callback) ->
 		callback null
 
-fake = new FakeImapServer
-#emailhandler = new EmailHandler imapServer 
-emailhandler = new EmailHandler fake
+	openBox: (box, callback) ->
+		callback "Unable to connect to mailbox"
+
 
 describe "EmailHandler:", ->
 
 	describe "connectImap", ->
-			it "connects to imap server", (done) ->
-				emailhandler.once "imapConnectionSuccess", ->
-					done()
+		before (done) ->
+			fake = new FakeImapServer
+			@emailhandler = new EmailHandler fake
+			done()
 
-				emailhandler.connectImap()
+		it "connects to imap server", (done) ->
+			@emailhandler.once "imapConnectionSuccess", ->
+				done()
+
+			@emailhandler.connectImap()
 
 
 	

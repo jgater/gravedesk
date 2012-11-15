@@ -15,14 +15,13 @@ lang = require "../lang/english"
 class TicketHandler extends EventEmitter
 
 	constructor: ->
-		@on "ticketDeleted", (id) -> @_deleteAttachments id
+		@on "ticketDeleted", @_deleteAttachments
 
 		# newticket workflow
-		@on "addTicketError", (err) -> console.log "Error adding ticket: " + err
-		@on "createNewTicket", (params) -> @_createNewTicket params
-		@on "modifyCurrentTicket", (params, id) -> @_modifyCurrentTicket params, id
-		@on "doTicketAttachments", (params, id, isnew) -> @_doTicketAttachments params, id, isnew
-		@on "saveAttachments", (attachments, index, id, isNew) -> @_saveAttachments attachments, index, id, isNew 
+		@on "createNewTicket", @_createNewTicket
+		@on "modifyCurrentTicket", @_modifyCurrentTicket
+		@on "doTicketAttachments", @_doTicketAttachments
+		@on "saveAttachments", @_saveAttachments 
 
 
 	# find all tickets
@@ -117,7 +116,7 @@ class TicketHandler extends EventEmitter
 		filePath = path.join settings.attachmentDir, id
 		rimraf filePath, (err) => 
 			@emit "ticketListUpdated" unless err
-			console.log err if err
+			@emit "addTicketError", err if err
 
 	_cleanHTML : (html) ->
 		cleanhtml = html or ""
@@ -151,8 +150,9 @@ class TicketHandler extends EventEmitter
 		)
 
 		ticket.save (err) => 
-			@emit "doTicketAttachments", params, ticket._id, true unless err
 			@emit "addTicketError", err if err
+			@emit "doTicketAttachments", params, ticket._id, true unless err
+
 
 	# modify possible existing ticket
 	_modifyCurrentTicket : (params, id) ->
@@ -210,10 +210,8 @@ class TicketHandler extends EventEmitter
 						# add now modified email to ticket
 						ticket.emails.push params
 						ticket.save (err) ->
-							if err 
-								self.emit "addTicketError", err
-							else
-								self.emit "saveAttachments", attachments, index, id, isNew
+							self.emit "addTicketError", err if err
+							self.emit "saveAttachments", attachments, index, id, isNew unless err
 
 
 	_saveAttachments : (attachments, index, id, isNew) ->

@@ -68,6 +68,17 @@ app.configure "production", ->
 # Routes
 require("./routes") app
 
+
+# logging
+
+tickethandler.on "addTicketError", (err) -> console.error "Error adding ticket: " + err
+
+emailhandler.on "imapConnectionFailure", (err) -> console.error "Error connecting to IMAP server: " + err
+emailhandler.on "imapConnectionSuccess", -> console.log "Connected to IMAP."
+emailhandler.on "fetchSuccess", -> console.log "All emails fetched."
+emailhandler.on "fetchMessagesAmount", (quantity) -> console.log "There are " + quantity + " emails to be fetched."
+emailhandler.on "fetchMessagesFailure", (err) -> console.error "Error fetching emails: " + err
+
 # start services
 
 # connect to db
@@ -152,8 +163,6 @@ tickethandler.on "ticketUpdated", ->
     else
       everyone.now.ticketUpdate ticketcount  if everyone.now.ticketUpdate
 
-
-
 # when db adds a new ticket from email, trigger this event and tell the client to update their table view 
 tickethandler.on "ticketListUpdated", ->
   tickethandler.countAllByStatus settings.statusList, (err, ticketcount) ->
@@ -161,5 +170,7 @@ tickethandler.on "ticketListUpdated", ->
       console.error "Could not get ticket counts; "
     else
       everyone.now.newTicket ticketcount  if everyone.now.newTicket
+
+
 
 

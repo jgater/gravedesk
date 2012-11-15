@@ -13,16 +13,14 @@ class EmailHandler extends EventEmitter
 		@alreadyFetching = false
 		@alreadyConnected = false
 		# on new or updated mail event, fetch it
-		@imapServer.on "mail", => @_justFetch()
-		@imapServer.on "msgupdate", => @_justFetch()
+		@imapServer.on "mail", @_justFetch
+		@imapServer.on "msgupdate", @_justFetch
 		# on imap server close, re-connect
-		@on "imapConnectionClosed", -> @connectImap()
+		@on "imapConnectionClosed", @connectImap
 		# on imap connection, fetch mail
-		@on "imapConnectionSuccess", -> @_justFetch()
+		@on "imapConnectionSuccess", @_justFetch
 		# on fetch completion
-		@on "fetchSuccess", -> 
-			@alreadyFetching = false
-			console.log "All emails fetched"
+		@on "fetchSuccess", -> @alreadyFetching = false
 
 		# every 25 minutes, close imap server connection to keep things tidy
 		setTimeout (->
@@ -36,17 +34,14 @@ class EmailHandler extends EventEmitter
 	connectImap: ->
 		# check for existing connection
 		if @alreadyConnected
-			console.log "IMAP connection already open; moving on."
+			# IMAP connection already open; moving on
 			@emit "imapConnectionSuccess"
 		else
 			# mail server not connected; start a fresh connection.
-			console.log "Connnecting to IMAP server;"
 			@imapServer.connect (err) =>
 				if err
-					console.error "Failure to connect to IMAP server; " + err
-					@emit "imapConnectionFailure"
+					@emit "imapConnectionFailure", err
 				else
-					console.log "IMAP server connected OK."
 					@alreadyConnected = true
 					@emit "imapConnectionSuccess"
 
@@ -74,7 +69,7 @@ class EmailHandler extends EventEmitter
 				@imapServer.search [ 'UNSEEN' ], callback
 
 			, (messages, callback) =>
-				console.log "There are " + messages.length + " new emails."
+				@emit "fetchMessagesAmount", messages.length
 				if messages.length
 					fetch = @imapServer.fetch(messages,
 						request:
@@ -89,8 +84,8 @@ class EmailHandler extends EventEmitter
 
 				callback null
 
-			], (err, result) ->
-				console.log "Listing new emails error; "+ err if err
+			], (err, result) =>
+				@emit "fetchMessagesFailure", err if err
 
 
 	_fetchEachMail: (msg) ->
