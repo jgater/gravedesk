@@ -15,7 +15,12 @@ class EmailHandler extends EventEmitter
 		# on new or updated mail event, fetch it
 		@imapServer.on "mail", @_justFetch
 		@imapServer.on "msgupdate", @_justFetch
-		# on imap server close, re-connect
+		# on unexpected close, wait 10 seconds, try and reconnect
+		@imapServer.on "close", setTimeout (=> 
+				@connectImap()
+				@alreadyConnected = false
+			), (10*1000)
+		# on intentional imap server close, re-connect
 		@on "imapConnectionClosed", @connectImap
 		# on imap connection, fetch mail
 		@on "imapConnectionSuccess", @_justFetch
