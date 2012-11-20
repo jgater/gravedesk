@@ -1,7 +1,7 @@
 # required modules
 {EventEmitter} = require "events" 
 async = require "async"
-# {MailParser} = require "mailparser"
+{MailParser} = require "mailparser"
 # nodemailer = require "nodemailer"
 
 settings = require "../settings"
@@ -16,7 +16,8 @@ class EmailHandler extends EventEmitter
 		@imapServer.on "mail", @_justFetch
 		@imapServer.on "msgupdate", @_justFetch
 		# on unexpected close, wait 10 seconds, try and reconnect
-		@imapServer.on "close", setTimeout (=> 
+		@imapServer.on "close", -> 
+			setTimeout (=> 
 				@connectImap()
 				@alreadyConnected = false
 			), (10*1000)
@@ -81,7 +82,7 @@ class EmailHandler extends EventEmitter
 							body: "full"
 							headers: false 
 					)
-					fetch.on "message", @_fetchEachMail
+					fetch.on "message", @_parseEachMail
 					fetch.on "end", => 
 						@emit "fetchSuccess"
 				else
@@ -93,8 +94,21 @@ class EmailHandler extends EventEmitter
 				@emit "fetchMessagesFailure", err if err
 
 
-	_fetchEachMail: (msg) ->
-		console.log "Starting fetching message seq no: " + msg.seqno
+	_parseEachMail: (msg) ->
+		mailparser = new MailParser()
+
+		msg.on "data", (data) ->
+			mailparser.write data.toString()
+
+		msg.on "end", ->
+			mailparser.end()
+
+		# when mailparser finished parsing a mail, send it off for processing
+		mailparser.on "end", (mail) =>
+			@emit "mailParseSuccess", msg.uid, mail
+
+	
+
 
 
 
