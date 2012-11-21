@@ -13,8 +13,8 @@ class EmailHandler extends EventEmitter
 		@alreadyFetching = false
 		@alreadyConnected = false
 		# on new or updated mail event, fetch it
-		@imapServer.on "mail", @_justFetch
-		@imapServer.on "msgupdate", @_justFetch
+		@imapServer.on "mail", -> @_justFetch()
+		@imapServer.on "msgupdate", -> @_justFetch()
 		# on unexpected close, wait 10 seconds, try and reconnect
 		@imapServer.on "close", -> 
 			setTimeout (=> 
@@ -22,11 +22,13 @@ class EmailHandler extends EventEmitter
 				@alreadyConnected = false
 			), (10*1000)
 		# on intentional imap server close, re-connect
-		@on "imapConnectionClosed", @connectImap
+		@on "imapConnectionClosed", -> @connectImap()
 		# on imap connection, fetch mail
-		@on "imapConnectionSuccess", @_justFetch
+		@on "imapConnectionSuccess", -> @_justFetch()
 		# on fetch completion
 		@on "fetchSuccess", -> @alreadyFetching = false
+		# after mail parsed, save to database
+		@on "parseSuccess", (mail, uid) -> @_saveMail mail, uid
 
 		# every 25 minutes, close imap server connection to keep things tidy
 		setTimeout (->
@@ -36,6 +38,8 @@ class EmailHandler extends EventEmitter
 				@emit "imapConnectionClosed"
 			)
 		), (25 * 60 * 1000)
+
+	# PUBLIC FUNCTIONS
 
 	connectImap: ->
 		# check for existing connection
@@ -54,14 +58,12 @@ class EmailHandler extends EventEmitter
 	# INTERNAL FUNCTIONS
 
 	_justFetch: ->
-		self = this
 		unless @alreadyFetching
 			@_startFetching()
 		else
-			console.log "Already fetching mail"
-			setTimeout (->
+			setTimeout (=>
 				# wait 5 seconds, try again
-				self.emit "imapConnectionSuccess"
+				@emit "imapConnectionSuccess"
 			), (5 * 1000)
 
 
@@ -82,7 +84,9 @@ class EmailHandler extends EventEmitter
 							body: "full"
 							headers: false 
 					)
-					fetch.on "message", @_parseEachMail
+					fetch.on "message", (msg) =>
+						@_fetchEachMail msg
+
 					fetch.on "end", => 
 						@emit "fetchSuccess"
 				else
@@ -94,18 +98,20 @@ class EmailHandler extends EventEmitter
 				@emit "fetchMessagesFailure", err if err
 
 
-	_parseEachMail: (msg) ->
-		mailparser = new MailParser()
+	_fetchEachMail: (msg) ->
+	  mailparser = new MailParser() 
+	  # when mailparser finished parsing a mail, send it off for database writing
+	  mailparser.on "end", (mail) =>
+	  	@emit "parseSuccess", mail, msg.uid
 
-		msg.on "data", (data) ->
-			mailparser.write data.toString()
+	  msg.on "data", (data) ->
+  	  mailparser.write data.toString()
 
-		msg.on "end", ->
-			mailparser.end()
+	  msg.on "end", ->
+	    mailparser.end()
 
-		# when mailparser finished parsing a mail, send it off for processing
-		mailparser.on "end", (mail) =>
-			@emit "mailParseSuccess", msg.uid, mail
+	_saveMail: (mail, uid) ->
+		console.log "saving uid " + uid
 
 	
 
