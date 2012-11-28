@@ -13,9 +13,18 @@ EmailHandler = require "../lib/emailhandler"
 settings = require "../settings"
 
 class FakeImapServer extends EventEmitter
-
 	connect: (callback) ->
 		callback null
+	search: (tag, callback) ->
+		callback null, []
+	status: (box, callback) ->
+		callback null, []
+	addFlags: (id, flags, callback) ->
+		callback null
+	move:	(id, mailbox, callback) ->
+		callback null
+
+
 
 describe "EmailHandler:", ->
 
@@ -23,8 +32,8 @@ describe "EmailHandler:", ->
 		before (done) ->
 			# create stub imap server
 			class connectFake extends FakeImapServer
-					openBox: (box, callback) ->
-						callback "Unable to connect to mailbox"
+				openBox: (box, callback) ->
+					callback "Unable to connect to mailbox"
 
 			fake = new connectFake
 			@emailhandler = new EmailHandler fake
@@ -40,12 +49,9 @@ describe "EmailHandler:", ->
 		before (done) ->
 			# create stub imap server
 			class fetchFake extends FakeImapServer
-					openBox: (box, callback) ->
-						callback null, 
-						name: "Inbox"
-
-					search: (tag, callback) ->
-						callback null, []
+				openBox: (box, callback) ->
+					callback null, 
+					name: "Inbox"
 
 			fake = new fetchFake
 			@emailhandler = new EmailHandler fake
@@ -60,4 +66,3 @@ describe "EmailHandler:", ->
 
 
 
-	

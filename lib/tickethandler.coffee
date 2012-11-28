@@ -88,10 +88,10 @@ class TicketHandler extends EventEmitter
 			callback err, numAffected
 
 	# create/modify ticket in db
-	addTicket : (params, id) ->
+	addTicket : (params, id, uid) ->
 
 		# if id truthy, assume is the id of the ticket to modify 
-		return @emit "modifyCurrentTicket", params, id if id
+		return @emit "modifyCurrentTicket", params, id, uid if id
 
 		# else check if ticket already has an ID-like string in subject
 		searchstring = null
@@ -102,10 +102,10 @@ class TicketHandler extends EventEmitter
 			# ID-like string found, try and modify an existing ticket
 			# strip first and last character
 			substring = searchstring.pop().slice(1,-1)
-			return @emit "modifyCurrentTicket", params, substring
+			return @emit "modifyCurrentTicket", params, substring, uid
 		else
 			# ticket id format not found in subject, create a new ticket.
-			return @emit "createNewTicket", params
+			return @emit "createNewTicket", params, uid
 
 
 
@@ -132,7 +132,7 @@ class TicketHandler extends EventEmitter
 		return cleanhtml
 
 	# create new blank ticket
-	_createNewTicket : (params) ->
+	_createNewTicket : (params, uid) ->
 		# search and remove strings of pattern "- text - ID: <text>", i.e. previous autoreplies
 		cleansubject = params.subject.replace(/\- [a-z|A-Z]* \- ID: \<[a-z|A-Z|0-9]*\>/g, "") if params.subject
 		cleanhtml = @_cleanHTML params.html if params.html
@@ -151,24 +151,24 @@ class TicketHandler extends EventEmitter
 
 		ticket.save (err) => 
 			@emit "addTicketError", err if err
-			@emit "doTicketAttachments", params, ticket._id, true unless err
+			@emit "doTicketAttachments", params, ticket._id, true, uid unless err
 
 
 	# modify possible existing ticket
-	_modifyCurrentTicket : (params, id) ->
+	_modifyCurrentTicket : (params, id, uid) ->
 		ticketmodel.findById id, (err, result) =>	
 			if result and result.status isnt "Closed"
 				# found a ticket matching the ID that isn't closed
 				# replace new ticket subject with existing ticket subject
 				params.subject = "RE: " + result.subject
-				@emit "doTicketAttachments", params, result._id, false
+				@emit "doTicketAttachments", params, result._id, false, uid
 
 			else 
 				# no open ticket by that ID found - could be < > false positive (mailing lists etc) - create new ticket after all
-				@emit "createNewTicket", params
+				@emit "createNewTicket", params, uid
 
 	# process new mail attachments
-	_doTicketAttachments : (params, id, isNew) ->
+	_doTicketAttachments : (params, id, isNew, uid) ->
 		self = this
 		# find existing ticket
 		ticketmodel.findById id, (err, ticket) ->	
@@ -211,10 +211,10 @@ class TicketHandler extends EventEmitter
 						ticket.emails.push params
 						ticket.save (err) ->
 							self.emit "addTicketError", err if err
-							self.emit "saveAttachments", attachments, index, id, isNew unless err
+							self.emit "saveAttachments", attachments, index, id, isNew , uid unless err
 
 
-	_saveAttachments : (attachments, index, id, isNew) ->
+	_saveAttachments : (attachments, index, id, isNew, uid) ->
 		# force id and index to string
 		id = id + ""
 		index = index + ""
@@ -240,6 +240,6 @@ class TicketHandler extends EventEmitter
 				@emit "addTicketError", err
 			else 
 				# modified new email saved to ticket, attachments saved to disk. Declare victory
-				@emit "addTicketSuccess", id, isNew
+				@emit "addTicketSuccess", id, isNew, uid
 
 module.exports = TicketHandler
