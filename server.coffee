@@ -77,9 +77,11 @@ tickethandler.on "addTicketError", (err) -> console.error "Error adding ticket: 
 emailhandler.on "imapConnectionSuccess", -> console.log "Connected to IMAP."
 emailhandler.on "fetchSuccess", -> console.log "All emails fetched."
 emailhandler.on "fetchMessagesAmount", (quantity) -> console.log "There are " + quantity + " emails to be fetched."
+emailhandler.on "imapFlagSuccess", (id, isNew, uid) -> console.log "Email " + uid + " successfully fetched and marked as read."
 
 emailhandler.on "imapConnectionFailure", (err) -> console.error "Error connecting to IMAP server: " + err
 emailhandler.on "fetchMessagesFailure", (err) -> console.error "Error fetching emails: " + err
+emailhandler.on "imapFlagFailure", (err, uid) -> console.err "Error marking mail " + uid + " as read: " + err 
 
 # start services
 

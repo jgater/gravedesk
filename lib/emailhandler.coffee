@@ -5,7 +5,7 @@ async = require "async"
 {tickethandler} = require "../lib"
 
 # nodemailer = require "nodemailer"
-# lang = require "../lang/english"
+lang = require "../lang/english"
 settings = require "../settings"
 
 
@@ -29,6 +29,8 @@ class EmailHandler extends EventEmitter
 		@on "processSuccess", (mail, uid) -> @_saveMail mail, uid
 		# on db ticket write success, mark mail as read
 		tickethandler.on "addTicketSuccess", (id, isNew, uid) => @_imapFlags id, isNew, uid
+		# on flag success, send autoreply
+		@on "imapFlagSuccess", (id, isNew, uid) => @_autoReply id, isNew
 
 
 	# PUBLIC FUNCTIONS
@@ -54,7 +56,9 @@ class EmailHandler extends EventEmitter
 						@_connectImapRetry()		
 						@emit "imapConnectionSuccess"		
 
-					
+	sendMail: (mail, id) ->
+		console.log "Sending email to " + mail.to
+
 
 	# INTERNAL FUNCTIONS
 
@@ -161,11 +165,22 @@ class EmailHandler extends EventEmitter
 				@imapServer.move uid, settings.imap.endbox, callback
 
 		], (err, res) =>	
-				# now mail has been marked as read on imap, we can now mail the sender safely with our autoresponse
-				#if wasNew
-				#  newAutoRespond ticket
-				#else
-				#  existingAutoRespond ticket, mail
+			@emit "imapFlagFailure", err, uid if err
+			@emit "imapFlagSuccess", id, isNew, uid unless err
+
+	_autoReply: (id, isNew) ->
+		outmail = {}
+		tickethandler.findById id, (err, ticket) =>		
+			outmail.to = ticket.from
+			if isNew
+				outmail.subject = "RE: " + ticket.subject + " - " + lang.newAutoReply.subject + " - ID: <" + id + ">"
+				outmail.html = "<html><header></header><body>"+lang.newAutoReply.body + ticket.description + "</body></html>"
+			else
+				outmail.subject = "RE: " + ticket.subject + " - " + lang.existingAutoReply.subject + " - ID: <" + id + ">"	
+				outmail.html = "<html><header></header><body>" + lang.existingAutoReply.body + ticket.description + "</body></html>"
+
+			@sendMail outmail, id
+
 
 	
 
