@@ -50,8 +50,7 @@ class TicketHandler extends EventEmitter
 
 	# find ticket by ID
 	findById: (id, callback) ->
-		ticketmodel.findById id, (err,result) ->
-			callback(err,result)
+		ticketmodel.findById id, callback
 
 
 	# delete ticket by ID
@@ -77,15 +76,17 @@ class TicketHandler extends EventEmitter
 			callback err, numAffected
 
 	# update ticket email array by ID
-	updateEmailsById: (id, ticket, callback) ->
-		conditions = _id: id
-		update =
-			emails: ticket.emails
-			lastmodified: new Date()
+	updateEmailsById: (id, mail, callback) ->
+		ticketmodel.findById id, (err, ticket) ->
+			ticket.emails.push(mail)
+			conditions = _id: id	
+			update =
+				emails: ticket.emails
+				lastmodified: new Date()
 	
-		ticketmodel.update conditions, update, {}, (err, numAffected) =>
-			@emit "ticketUpdated" unless err
-			callback err, numAffected
+			ticketmodel.update conditions, update, {}, (err, numAffected) =>
+				@emit "ticketUpdated" unless err
+				callback err, numAffected
 
 	# create/modify ticket in db
 	addTicket : (params, id, uid) ->

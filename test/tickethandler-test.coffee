@@ -129,9 +129,9 @@ describe "TicketHandler:", ->
 					plaintext: "This is a test email"
 					html: ""
 					attachments : []
-				tempTicket.emails.push testEmail
+				
 
-				tickethandler.updateEmailsById tempTicket._id, tempTicket, callback
+				tickethandler.updateEmailsById tempTicket._id, testEmail, callback
 			, (numberChanged,callback) ->
 				tickethandler.findById tempTicket._id, callback
 			], (err, res) ->

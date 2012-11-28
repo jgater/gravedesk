@@ -2,9 +2,9 @@
 {EventEmitter} = require "events" 
 async = require "async"
 {MailParser} = require "mailparser"
-{tickethandler} = require "../lib"
+nodemailer = require "nodemailer"
 
-# nodemailer = require "nodemailer"
+{tickethandler} = require "../lib"
 lang = require "../lang/english"
 settings = require "../settings"
 
@@ -31,6 +31,13 @@ class EmailHandler extends EventEmitter
 		tickethandler.on "addTicketSuccess", (id, isNew, uid) => @_imapFlags id, isNew, uid
 		# on flag success, send autoreply
 		@on "imapFlagSuccess", (id, isNew, uid) => @_autoReply id, isNew
+		# on mail sending error
+		@on "smtpSendError", (err, mail, id) =>
+			# wait 5 minutes, try again
+			setTimeout (=>
+			@sendMail mail, id
+			), (5 * 60 * 1000)	
+
 
 
 	# PUBLIC FUNCTIONS
@@ -57,17 +64,28 @@ class EmailHandler extends EventEmitter
 						@emit "imapConnectionSuccess"		
 
 	sendMail: (mail, id) ->
-		console.log "Sending email to " + mail.to
+		# define smtp server transport
+		smtpTransport = nodemailer.createTransport("SMTP", settings.smtp)
 
+		# add settings 'from' address, send mail
+		mail.from = settings.smtpFrom
+
+		smtpTransport.sendMail mail, (err, res) =>
+		  smtpTransport.close() # shut down the connection pool, no more messages
+		  if err
+		  	@emit "smtpSendError", err, mail.to, id
+		  else
+    		@emit "smtpSendSuccess", mail.to
+    		# add email to ticket
+    		tickethandler.updateEmailsById id, mail, (err) ->
+    			console.log err
 
 	# INTERNAL FUNCTIONS
 
 	_connectImapCleanup: ->
 		# If think already connected, logout
-		console.log "alreadyConnected? " + @alreadyConnected
 		if @alreadyConnected
 			@imapServer.logout (err) =>
-				console.log "IMAP logged out"
 				@emit "imapLogoutFailure", err
 
 		# cleanup internal state
@@ -82,7 +100,6 @@ class EmailHandler extends EventEmitter
 	_connectImapRetry: ->
 		# after 25 minutes, close imap server connection to keep things tidy
 		setTimeout (=>
-			console.log "Logging out"
 			@emit "imapConnectionClose"
 
 		), (25 * 60 * 1000)	
