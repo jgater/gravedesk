@@ -158,7 +158,7 @@ everyone.now.deleteAdminUser = (user, callback) ->
 	userdb.deleteUser user, callback
 
 everyone.now.sendMail = (mail, id, callback) ->
-	sendMail mail, id
+	emailhandler.sendMail mail, id
 	callback null
 
 # when db updates a ticket, trigger this event and tell the client to update tab ticket counts
