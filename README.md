@@ -12,7 +12,7 @@ Installation
 ============
 
 * You'll need to download and install Node.js, obviously. Tested on 0.8.9 from nodejs.org
-* A copy of mnode -vongodb from mongodb.org running on localhost, default port (27017)
+* A copy of mongodb from mongodb.org running on localhost, default port (27017)
 * git clone this repository to a suitable folder
 	`git clone git@bitbucket.org:jgater/gravedesk.git`
 * install necessary libraries to compile the npm modules; on ubuntu for example
@@ -36,6 +36,8 @@ Version 1.5.1
 
 * version bumps for node libraries; works with node.js 0.8.9
 * on existing install, run `npm update`
+* re-write of db and imap library to coffeescript
+* update db and imap handling for new versions of libraries
 
 Version 1.5.0
 -------------
