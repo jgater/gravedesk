@@ -46,7 +46,7 @@ class EmailHandler extends EventEmitter
 					@emit "imapConnectionFailure", err
 				else
 					@alreadyConnected = true
-					@imapServer.status "processed", (err) =>
+					@imapServer.status settings.imap.endbox, (err) =>
 						# if final destination folder for processed mails does not exist, create it
 						if err 
 							@imapServer.addBox settings.imap.endbox, (err) =>
@@ -64,6 +64,7 @@ class EmailHandler extends EventEmitter
 
 		smtpTransport.sendMail mail, (err, res) =>
 			if err
+				smtpTransport.close() # shut down the connection pool, no more messages
 				@emit "smtpSendFailure", err, mail.to
 			else
 				smtpTransport.close() # shut down the connection pool, no more messages
