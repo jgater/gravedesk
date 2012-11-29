@@ -6,7 +6,10 @@ var imapServerSettings = {
 	"host": "imap.example.com",
 	"port": 993,
 	"secure": true,
-	"box": "Inbox"
+	// mailbox that incoming mails will be read from
+	"box": "Inbox",
+	// mailbox that processed mails will be moved to
+	"endbox": "processed"
 	};
 
 var smtpServerSettings = {	
@@ -81,8 +84,6 @@ var settingsModel = function () {
 	this.smtp = smtpServerSettings;
 	this.smtpFrom = smtpFrom;
 	this.statusList = statusList;
-	this.blankticket = blankTicketSettings;
-	this.blankticket.status = statusList[0];
 	this.brand = brand;
 	this.attachmentDir = attachmentDir;
 	this.defaultAdmin = {
