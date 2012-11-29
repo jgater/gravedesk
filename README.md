@@ -14,7 +14,7 @@ Installation
 * You'll need to download and install Node.js, obviously. Tested on 0.8.9 from nodejs.org
 * A copy of mongodb from mongodb.org running on localhost, default port (27017)
 * git clone this repository to a suitable folder
-	`git clone git@bitbucket.org:jgater/gravedesk.git`
+	`git clone git@github.com:jgater/gravedesk.git`
 * install necessary libraries to compile the npm modules; on ubuntu for example
 	`sudo apt-get install build-essentials`
 * install the necessary node.js modules via npm in the root of the git cloned folder (the one with app.js in)
