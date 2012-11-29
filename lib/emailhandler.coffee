@@ -9,7 +9,6 @@ lang = require "../lang/english"
 settings = require "../settings"
 
 
-
 class EmailHandler extends EventEmitter
 	constructor: (@imapServer) ->
 		@alreadyFetching = false
@@ -31,13 +30,6 @@ class EmailHandler extends EventEmitter
 		tickethandler.on "addTicketSuccess", (id, isNew, uid) => @_imapFlags id, isNew, uid
 		# on flag success, send autoreply
 		@on "imapFlagSuccess", (id, isNew, uid) => @_autoReply id, isNew
-		# on mail sending error
-		@on "smtpSendError", (err, mail, id) =>
-			# wait 5 minutes, try again
-			setTimeout (=>
-			@sendMail mail, id
-			), (5 * 60 * 1000)	
-
 
 
 	# PUBLIC FUNCTIONS
@@ -71,14 +63,14 @@ class EmailHandler extends EventEmitter
 		mail.from = settings.smtpFrom
 
 		smtpTransport.sendMail mail, (err, res) =>
-		  smtpTransport.close() # shut down the connection pool, no more messages
-		  if err
-		  	@emit "smtpSendError", err, mail.to, id
-		  else
-    		@emit "smtpSendSuccess", mail.to
-    		# add email to ticket
-    		tickethandler.updateEmailsById id, mail, (err) ->
-    			console.log err
+			if err
+				@emit "smtpSendFailure", err, mail.to
+			else
+				smtpTransport.close() # shut down the connection pool, no more messages
+				@emit "smtpSendSuccess", mail.to
+				# add email to ticket
+				tickethandler.updateEmailsById id, mail, (err) ->
+					@emit "smtpTicketUpdateFailure", err, mail.to if err
 
 	# INTERNAL FUNCTIONS
 

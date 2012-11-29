@@ -11,6 +11,8 @@ ticketmodel = require "./models/ticket"
 settings = require "../settings" 
 lang = require "../lang/english"
 
+util = require "util"
+
 
 class TicketHandler extends EventEmitter
 
@@ -77,8 +79,20 @@ class TicketHandler extends EventEmitter
 
 	# update ticket email array by ID
 	updateEmailsById: (id, mail, callback) ->
-		ticketmodel.findById id, (err, ticket) ->
-			ticket.emails.push(mail)
+		ticketmodel.findById id, (err, ticket) =>
+			cleanhtml = @_cleanHTML mail.html if mail.html
+			cleanplaintext = Markdown mail.text, true if mail.text
+			procmail = {}
+			procmail.from = mail.from
+			procmail.to = mail.to
+			procmail.cc = mail.cc
+			procmail.date = new Date()
+			procmail.html = cleanhtml if mail.html
+			procmail.plaintext = cleanplaintext if mail.text
+			procmail.subject = mail.subject
+
+			ticket.emails.push procmail
+
 			conditions = _id: id	
 			update =
 				emails: ticket.emails
@@ -114,10 +128,15 @@ class TicketHandler extends EventEmitter
 
 	# delete attachments associated with a ticket
 	_deleteAttachments : (id) ->
-		filePath = path.join settings.attachmentDir, id
-		rimraf filePath, (err) => 
-			@emit "ticketListUpdated" unless err
-			@emit "addTicketError", err if err
+		if id
+			# force id to string!
+			id = id + ""
+			filePath = path.join settings.attachmentDir, id
+			rimraf filePath, (err) => 
+				@emit "ticketListUpdated" unless err
+				@emit "addTicketError", err if err
+		else
+			@emit "addTicketError", "Unable to find attachments to delete for id " + id
 
 	_cleanHTML : (html) ->
 		cleanhtml = html or ""
@@ -163,7 +182,6 @@ class TicketHandler extends EventEmitter
 				# replace new ticket subject with existing ticket subject
 				params.subject = "RE: " + result.subject
 				@emit "doTicketAttachments", params, result._id, false, uid
-
 			else 
 				# no open ticket by that ID found - could be < > false positive (mailing lists etc) - create new ticket after all
 				@emit "createNewTicket", params, uid
@@ -205,12 +223,16 @@ class TicketHandler extends EventEmitter
 						else
 							cb false
 		
-					async.filter results, iterator, (results) ->
+					async.filter results, iterator, (res) ->
 						# add stub attachments to original new email
-						params.attachments = results
+						params.attachments = res
 						# add now modified email to ticket
 						ticket.emails.push params
-						ticket.save (err) ->
+						conditions = _id: id
+						update = 
+							emails: ticket.emails
+
+						ticketmodel.update conditions, update, {}, (err, numAffected) =>
 							self.emit "addTicketError", err if err
 							self.emit "saveAttachments", attachments, index, id, isNew , uid unless err
 
@@ -219,28 +241,34 @@ class TicketHandler extends EventEmitter
 		# force id and index to string
 		id = id + ""
 		index = index + ""
-		if attachments
+		if attachments.length
 			# create directory for attachments unless it already exists
 			fs.mkdirSync settings.attachmentDir unless fs.existsSync settings.attachmentDir
 			# create directory for ticket id unless it already exists
 			ticketPath = path.join settings.attachmentDir, id
 			fs.mkdirSync path.join ticketPath unless fs.existsSync ticketPath
 
-		iterator = (item, callback) ->
-			if item.transferEncoding is "base64"
-				base64Data = item.content
-				dataBuffer = new Buffer(base64Data, "base64")
-				filePath = path.join(ticketPath, index + "_" + item.fileName)
-				fs.writeFileSync filePath, dataBuffer, callback
-			else
-				callback null
+			iterator = (item, callback) ->
+				if item.transferEncoding is "base64"
+					filePath = path.join(ticketPath, index + "_" + item.fileName)
+					stream = fs.createWriteStream filePath
+					stream.on "close", ->
+						callback null
+					# write base64 buffer to disk	
+					stream.end item.content
+				else	
+					callback null
 
-		# write out each individual attachment to disk
-		async.forEachSeries attachments, iterator, (err) =>
-			if err
-				@emit "addTicketError", err
-			else 
-				# modified new email saved to ticket, attachments saved to disk. Declare victory
-				@emit "addTicketSuccess", id, isNew, uid
+			# write out each individual attachment to disk
+			async.forEachSeries attachments, iterator, (err) =>
+				if err
+					@emit "addTicketError", err
+				else 
+					# modified new email saved to ticket, attachments saved to disk. Declare victory
+					@emit "addTicketSuccess", id, isNew, uid
+		else
+			# no attachments to write, complete
+			@emit "addTicketSuccess", id, isNew, uid
 
+	
 module.exports = TicketHandler

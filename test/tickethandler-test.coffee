@@ -117,23 +117,22 @@ describe "TicketHandler:", ->
 		tempTicket = {}
 		it "updates one tickets email array by unique id", (done) ->
 			# finds the first ticket, updates it, checks it's been updated
-			async.waterfall [(callback) ->
-				tickethandler.findAll callback
-			, (all, callback) ->
-				tempTicket = all[0]
-				testEmail = 
-					to: "test@example.com"
-					cc: ""
-					subject: "Test email"
-					date: new Date()
-					plaintext: "This is a test email"
-					html: ""
-					attachments : []
-				
-
-				tickethandler.updateEmailsById tempTicket._id, testEmail, callback
-			, (numberChanged,callback) ->
-				tickethandler.findById tempTicket._id, callback
+			async.waterfall [
+				(callback) ->
+					tickethandler.findAll callback
+				, (all, callback) ->
+					tempTicket = all[0]
+					testEmail = 
+						to: "test@example.com"
+						cc: ""
+						subject: "Test email"
+						date: new Date()
+						text: "This is a test email"
+						html: ""
+						attachments : []
+					tickethandler.updateEmailsById tempTicket._id, testEmail, callback
+				, (numberChanged,callback) ->
+					tickethandler.findById tempTicket._id, callback
 			], (err, res) ->
 				return done(err) if err
 				res.emails[0].subject.should.equal "Test email"
