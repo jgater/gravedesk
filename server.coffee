@@ -9,6 +9,7 @@ util = require "util"
 passport = require "passport"
 events = require "events"
 imap = require "imap" 
+nodemailer = require "nodemailer"
 
 # gravedesk internal library modules
 
@@ -22,7 +23,6 @@ settings = require("./settings")
 lang = require("./lang/english")
 
 # Configuration
-
 imapServer = new imap.ImapConnection(
 	username: settings.imap.username
 	password: settings.imap.password
@@ -31,7 +31,10 @@ imapServer = new imap.ImapConnection(
 	secure: settings.imap.secure
 )
 
-emailhandler = new EmailHandler imapServer 
+# define smtp server transport
+smtpServer = nodemailer.createTransport("SMTP", settings.smtp)
+
+emailhandler = new EmailHandler imapServer, smtpServer
 
 if settings.https.enable
 	app = module.exports = express.createServer(
@@ -84,6 +87,7 @@ emailhandler.on "smtpSendSuccess", (to) -> console.log "Mail sent to " + to
 emailhandler.on "imapConnectionFailure", (err) -> console.error "Error connecting to IMAP server: " + err
 emailhandler.on "fetchMessagesFailure", (err) -> console.error "Error fetching emails: " + err
 emailhandler.on "imapFlagFailure", (err, uid) -> console.err "Error marking mail " + uid + " as read: " + err 
+emailhandler.on "autoReplyFailure", (err, id) -> console.err "Replying to ticket " + id + " failed: " + err
 emailhandler.on "smtpSendError", (err, to) -> console.err "Error sending mail to " + to + " : " + err
 
 # start services

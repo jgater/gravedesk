@@ -2,20 +2,19 @@
 {EventEmitter} = require "events" 
 async = require "async"
 {MailParser} = require "mailparser"
-nodemailer = require "nodemailer"
-
 {tickethandler} = require "../lib"
 lang = require "../lang/english"
 settings = require "../settings"
 
 
 class EmailHandler extends EventEmitter
-	constructor: (@imapServer) ->
+	constructor: (@imapServer, @smtpServer) ->
 		@alreadyFetching = false
 		@alreadyConnected = false
 		# on new or updated mail event, fetch it
 		@imapServer.on "mail", => @_justFetch()
 		@imapServer.on "msgupdate", => @_justFetch()	
+		@imapServer.on "error", => @_connectImapCleanup()
 		# on close notice, clean up existing connection
 		@on "imapConnectionClose", => @_connectImapCleanup()
 		# on imap connection, fetch mail
@@ -24,8 +23,6 @@ class EmailHandler extends EventEmitter
 		@on "fetchSuccess", -> @alreadyFetching = false
 		# after mail parsed, process
 		@on "parseSuccess", (mail, uid) -> @_processMail mail, uid
-		# after mail processed, save to database
-		@on "processSuccess", (mail, uid) -> @_saveMail mail, uid
 		# on db ticket write success, mark mail as read
 		tickethandler.on "addTicketSuccess", (id, isNew, uid) => @_imapFlags id, isNew, uid
 		# on flag success, send autoreply
@@ -56,18 +53,12 @@ class EmailHandler extends EventEmitter
 						@emit "imapConnectionSuccess"		
 
 	sendMail: (mail, id) ->
-		# define smtp server transport
-		smtpTransport = nodemailer.createTransport("SMTP", settings.smtp)
-
 		# add settings 'from' address, send mail
 		mail.from = settings.smtpFrom
-
-		smtpTransport.sendMail mail, (err, res) =>
+		@smtpServer.sendMail mail, (err, res) =>
 			if err
-				smtpTransport.close() # shut down the connection pool, no more messages
 				@emit "smtpSendFailure", err, mail.to
 			else
-				smtpTransport.close() # shut down the connection pool, no more messages
 				@emit "smtpSendSuccess", mail.to
 				# add email to ticket
 				tickethandler.updateEmailsById id, mail, (err) ->
@@ -76,26 +67,25 @@ class EmailHandler extends EventEmitter
 	# INTERNAL FUNCTIONS
 
 	_connectImapCleanup: ->
-		# If think already connected, logout
-		if @alreadyConnected
-			@imapServer.logout (err) =>
-				@emit "imapLogoutFailure", err
-
 		# cleanup internal state
 		@alreadyFetching = false
 		@alreadyConnected = false
+
 		setTimeout (=> 
 			# wait 10 seconds for safety then connect
 			@connectImap()
 		), (10*1000)
 
+		# make sure we're disconnected
+		@imapServer.logout (err) =>
+			@emit "imapLogoutFailure", err
+
 
 	_connectImapRetry: ->
-		# after 25 minutes, close imap server connection to keep things tidy
+		# after 20 minutes, close imap server connection to keep things tidy
 		setTimeout (=>
 			@emit "imapConnectionClose"
-
-		), (25 * 60 * 1000)	
+		), (20 * 60 * 1000)	
 
 	_justFetch: ->
 		unless @alreadyFetching
@@ -129,6 +119,7 @@ class EmailHandler extends EventEmitter
 
 					fetch.on "end", => 
 						@emit "fetchSuccess"
+						@alreadyFetching = false
 				else
 					@alreadyFetching = false
 
@@ -159,11 +150,8 @@ class EmailHandler extends EventEmitter
 		procmail.plaintext = mail.text or null
 		procmail.html = mail.html or null
 		procmail.attachments = mail.attachments or []
-		@emit "processSuccess", procmail, uid
-
-	_saveMail: (mail, uid) ->
 		#handoff mail to db for writing
-		tickethandler.addTicket mail, null, uid
+		tickethandler.addTicket procmail, null, uid
 
 	_imapFlags: (id, isNew, uid) ->
 		# mark as seen, move to final destination mailbox
@@ -180,17 +168,21 @@ class EmailHandler extends EventEmitter
 
 	_autoReply: (id, isNew) ->
 		outmail = {}
-		tickethandler.findById id, (err, ticket) =>		
-			outmail.to = ticket.from
-			if isNew
-				outmail.subject = "RE: " + ticket.subject + " - " + lang.newAutoReply.subject + " - ID: <" + id + ">"
-				outmail.html = "<html><header></header><body>"+lang.newAutoReply.body + ticket.description + "</body></html>"
-			else
-				outmail.subject = "RE: " + ticket.subject + " - " + lang.existingAutoReply.subject + " - ID: <" + id + ">"	
-				outmail.html = "<html><header></header><body>" + lang.existingAutoReply.body + ticket.description + "</body></html>"
+		tickethandler.findById id, (err, ticket) =>
+			if err
+				@emit "autoReplyFailure", err, id
+			else		
+				outmail.to = ticket.from
 
-			@sendMail outmail, id
-
+				if isNew
+					outmail.subject = "RE: " + ticket.subject + " - " + lang.newAutoReply.subject + " - ID: <" + id + ">"
+					outmail.html = "<html><header></header><body>"+lang.newAutoReply.body + ticket.description + "</body></html>"
+				else
+					outmail.subject = "RE: " + ticket.subject + " - " + lang.existingAutoReply.subject + " - ID: <" + id + ">"	
+					outmail.html = "<html><header></header><body>" + lang.existingAutoReply.body + ticket.description + "</body></html>"
+	
+				@sendMail outmail, id
+	
 
 	
 
