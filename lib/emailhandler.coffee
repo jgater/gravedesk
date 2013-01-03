@@ -10,17 +10,17 @@ settings = require "../settings"
 class EmailHandler extends EventEmitter
 	constructor: (@imapServer, @smtpServer) ->
 		@alreadyFetching = false
-		@alreadyConnected = false
 		# on new or updated mail event, fetch it
 		@imapServer.on "mail", => @_justFetch()
-		@imapServer.on "msgupdate", => @_justFetch()	
-		@imapServer.on "error", => @_connectImapCleanup()
-		# on close notice, clean up existing connection
-		@on "imapConnectionClose", => @_connectImapCleanup()
+		@imapServer.on "msgupdate", => @_justFetch()
+		# on close notice, reconnect
+		@imapServer.on "close", => @connectImap()
+		# if test fetch fails, reconnecting
+		@on "fetchMessagesFailure", => @connectImap()
 		# on imap connection, fetch mail
 		@on "imapConnectionSuccess", -> @_justFetch()
-		# on fetch completion
-		@on "fetchSuccess", -> @alreadyFetching = false
+		# do a fetch when asked
+		@on "justFetch", -> @_justFetch()
 		# after mail parsed, process
 		@on "parseSuccess", (mail, uid) -> @_processMail mail, uid
 		# on db ticket write success, mark mail as read
@@ -32,25 +32,18 @@ class EmailHandler extends EventEmitter
 	# PUBLIC FUNCTIONS
 
 	connectImap: ->
-		# check for existing connection
-		if @alreadyConnected
-			# IMAP connection already open; moving on
-			@emit "imapConnectionSuccess"
-		else
-			# mail server not connected; start a fresh connection.
-			@imapServer.connect (err) =>
-				if err
-					@emit "imapConnectionFailure", err
-				else
-					@alreadyConnected = true
-					@imapServer.status settings.imap.endbox, (err) =>
-						# if final destination folder for processed mails does not exist, create it
-						if err 
-							@imapServer.addBox settings.imap.endbox, (err) =>
-								@emit "imapConnectionFailure", err
-						# setup next retry
-						@_connectImapRetry()		
-						@emit "imapConnectionSuccess"		
+		@alreadyFetching = false
+		# mail server not connected; start a fresh connection.
+		@imapServer.connect (err) =>
+			if err
+				@emit "imapConnectionFailure", err
+			else
+				@imapServer.status settings.imap.endbox, (err) =>
+					# if final destination folder for processed mails does not exist, create it
+					if err 
+						@imapServer.addBox settings.imap.endbox, (err) =>
+							@emit "imapConnectionFailure", err		
+					@emit "imapConnectionSuccess"		
 
 	sendMail: (mail, id) ->
 		# add settings 'from' address, send mail
@@ -66,26 +59,12 @@ class EmailHandler extends EventEmitter
 
 	# INTERNAL FUNCTIONS
 
-	_connectImapCleanup: ->
-		# cleanup internal state
-		@alreadyFetching = false
-		@alreadyConnected = false
 
-		setTimeout (=> 
-			# wait 10 seconds for safety then connect
-			@connectImap()
-		), (10*1000)
-
-		# make sure we're disconnected
-		@imapServer.logout (err) =>
-			@emit "imapLogoutFailure", err
-
-
-	_connectImapRetry: ->
-		# after 20 minutes, close imap server connection to keep things tidy
+	_testImap: ->
+		# after 5 minutes do a manual fetch
 		setTimeout (=>
-			@emit "imapConnectionClose"
-		), (20 * 60 * 1000)	
+			@emit "justFetch"
+		), (5 * 60 * 1000)	
 
 	_justFetch: ->
 		unless @alreadyFetching
@@ -93,11 +72,14 @@ class EmailHandler extends EventEmitter
 		else
 			setTimeout (=>
 				# wait 5 seconds, try again
-				@emit "imapConnectionSuccess"
+				@emit "justFetch"
 			), (5 * 1000)
 
 
 	_startFetching: ->
+		# schedule an imap fetch test
+		@_testImap()
+		
 		@alreadyFetching = true
 		async.waterfall [
 			(callback) =>

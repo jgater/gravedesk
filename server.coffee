@@ -76,7 +76,6 @@ require("./routes") app
 
 tickethandler.on "addTicketError", (err) -> console.error "Error adding ticket: " + err
 
-
 emailhandler.on "imapConnectionSuccess", -> console.log "Connected to IMAP."
 emailhandler.on "fetchSuccess", -> console.log "All emails retrieved from server."
 emailhandler.on "fetchMessagesAmount", (quantity) -> console.log "There are " + quantity + " emails to be fetched."
