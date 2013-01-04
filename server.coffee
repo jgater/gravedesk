@@ -77,14 +77,13 @@ require("./routes") app
 tickethandler.on "addTicketError", (err) -> console.error "Error adding ticket: " + err
 
 emailhandler.on "imapConnectionSuccess", -> console.log "Connected to IMAP."
-emailhandler.on "fetchSuccess", -> console.log "All emails retrieved from server."
+emailhandler.on "fetchSuccess", -> console.log "All emails read from server."
 emailhandler.on "fetchMessagesAmount", (quantity) -> console.log "There are " + quantity + " emails to be fetched."
 emailhandler.on "imapFlagSuccess", (id, isNew, uid) -> console.log "Email " + uid + " successfully processed and marked as read."
-emailhandler.on "imapConnectionClose", -> console.log "Closing IMAP connection."
 emailhandler.on "smtpSendSuccess", (to) -> console.log "Mail sent to " + to
 
-emailhandler.on "imapConnectionFailure", (err) -> console.error "Error connecting to IMAP server: " + err
-emailhandler.on "fetchMessagesFailure", (err) -> console.error "Error fetching emails: " + err
+emailhandler.on "imapConnectionFailure", (err) -> console.err "Error connecting to IMAP server: " + err
+emailhandler.on "fetchMessagesFailure", (err) -> console.err "Error fetching emails: " + err
 emailhandler.on "imapFlagFailure", (err, uid) -> console.err "Error marking mail " + uid + " as read: " + err 
 emailhandler.on "autoReplyFailure", (err, id) -> console.err "Replying to ticket " + id + " failed: " + err
 emailhandler.on "smtpSendError", (err, to) -> console.err "Error sending mail to " + to + " : " + err

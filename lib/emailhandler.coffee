@@ -9,18 +9,25 @@ settings = require "../settings"
 
 class EmailHandler extends EventEmitter
 	constructor: (@imapServer, @smtpServer) ->
-		@alreadyFetching = false
 		# on new or updated mail event, fetch it
 		@imapServer.on "mail", => @_justFetch()
 		@imapServer.on "msgupdate", => @_justFetch()
-		# on close notice, reconnect
+		# on connection close, reconnect
 		@imapServer.on "close", => @connectImap()
-		# if test fetch fails, reconnecting
-		@on "fetchMessagesFailure", => @connectImap()
+
+		@on "imapConnectionFailure", => 
+			# on connection failure, wait 10 seconds, try again
+			setTimeout (=>
+				@connectIamp()
+			), (5 * 1000)	
 		# on imap connection, fetch mail
 		@on "imapConnectionSuccess", -> @_justFetch()
+
+		# if test fetch fails, reconnect
+		@on "fetchMessagesFailure", => @connectImap()
 		# do a fetch when asked
 		@on "justFetch", -> @_justFetch()
+
 		# after mail parsed, process
 		@on "parseSuccess", (mail, uid) -> @_processMail mail, uid
 		# on db ticket write success, mark mail as read
@@ -32,7 +39,6 @@ class EmailHandler extends EventEmitter
 	# PUBLIC FUNCTIONS
 
 	connectImap: ->
-		@alreadyFetching = false
 		# mail server not connected; start a fresh connection.
 		@imapServer.connect (err) =>
 			if err
@@ -42,8 +48,10 @@ class EmailHandler extends EventEmitter
 					# if final destination folder for processed mails does not exist, create it
 					if err 
 						@imapServer.addBox settings.imap.endbox, (err) =>
-							@emit "imapConnectionFailure", err		
-					@emit "imapConnectionSuccess"		
+							@emit "imapConnectionFailure", err if err
+							@emit "imapConnectionSuccess" unless err
+					else				
+						@emit "imapConnectionSuccess"		
 
 	sendMail: (mail, id) ->
 		# add settings 'from' address, send mail
@@ -61,26 +69,15 @@ class EmailHandler extends EventEmitter
 
 
 	_testImap: ->
-		# after 5 minutes do a manual fetch
+		# after 20 minutes do a manual fetch
 		setTimeout (=>
 			@emit "justFetch"
-		), (5 * 60 * 1000)	
+		), (20 * 60 * 1000)	
 
 	_justFetch: ->
-		unless @alreadyFetching
-			@_startFetching()
-		else
-			setTimeout (=>
-				# wait 5 seconds, try again
-				@emit "justFetch"
-			), (5 * 1000)
-
-
-	_startFetching: ->
-		# schedule an imap fetch test
+		# schedule the next imap fetch
 		@_testImap()
-		
-		@alreadyFetching = true
+
 		async.waterfall [
 			(callback) =>
 				@imapServer.openBox settings.imap.box, callback
@@ -101,13 +98,10 @@ class EmailHandler extends EventEmitter
 
 					fetch.on "end", => 
 						@emit "fetchSuccess"
-						@alreadyFetching = false
-				else
-					@alreadyFetching = false
 
 				callback null
 
-			], (err, result) =>
+			], (err) =>
 				@emit "fetchMessagesFailure", err if err
 
 
