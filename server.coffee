@@ -82,11 +82,11 @@ emailhandler.on "fetchMessagesAmount", (quantity) -> console.log "There are " + 
 emailhandler.on "imapFlagSuccess", (id, isNew, uid) -> console.log "Email " + uid + " successfully processed and marked as read."
 emailhandler.on "smtpSendSuccess", (to) -> console.log "Mail sent to " + to
 
-emailhandler.on "imapConnectionFailure", (err) -> console.err "Error connecting to IMAP server: " + err
-emailhandler.on "fetchMessagesFailure", (err) -> console.err "Error fetching emails: " + err
-emailhandler.on "imapFlagFailure", (err, uid) -> console.err "Error marking mail " + uid + " as read: " + err 
-emailhandler.on "autoReplyFailure", (err, id) -> console.err "Replying to ticket " + id + " failed: " + err
-emailhandler.on "smtpSendError", (err, to) -> console.err "Error sending mail to " + to + " : " + err
+emailhandler.on "imapConnectionFailure", (err) -> console.log "Error connecting to IMAP server: " + err
+emailhandler.on "fetchMessagesFailure", (err) -> console.log "Error fetching emails: " + err
+emailhandler.on "imapFlagFailure", (err, uid) -> console.log "Error marking mail " + uid + " as read: " + err 
+emailhandler.on "autoReplyFailure", (err, id) -> console.log "Replying to ticket " + id + " failed: " + err
+emailhandler.on "smtpSendError", (err, to) -> console.log "Error sending mail to " + to + " : " + err
 
 # start services
 
