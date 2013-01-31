@@ -18,7 +18,7 @@ class EmailHandler extends EventEmitter
 		@on "imapConnectionFailure", => 
 			# on connection failure, wait 10 seconds, try again
 			setTimeout (=>
-				@connectIamp()
+				@connectImap()
 			), (5 * 1000)	
 		# on imap connection, fetch mail
 		@on "imapConnectionSuccess", -> @_justFetch()
