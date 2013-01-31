@@ -10,24 +10,23 @@ settings = require "../settings"
 class EmailHandler extends EventEmitter
 	constructor: (@imapServer, @smtpServer) ->
 		# on new or updated mail event, fetch it
-		@imapServer.on "mail", => @_justFetch()
-		@imapServer.on "msgupdate", => @_justFetch()
+		@imapServer.on "mail", -> @_justFetch()
+		@imapServer.on "msgupdate", -> @_justFetch()
 		# on connection close, reconnect
-		@imapServer.on "close", => @connectImap()
-
+		@imapServer.on "close", -> @connectImap()
+		# on error, close imap connection
+		@imapServer.on "error", -> @imapServer.logout()
+		# on connection failure, wait 5 seconds, try again
 		@on "imapConnectionFailure", => 
-			# on connection failure, wait 10 seconds, try again
 			setTimeout (=>
 				@connectImap()
 			), (5 * 1000)	
 		# on imap connection, fetch mail
 		@on "imapConnectionSuccess", -> @_justFetch()
-
-		# if test fetch fails, reconnect
-		@on "fetchMessagesFailure", => @connectImap()
+		# if test fetch fails, logout
+		@on "fetchMessagesFailure", -> @imapServer.logout()
 		# do a fetch when asked
 		@on "justFetch", -> @_justFetch()
-
 		# after mail parsed, process
 		@on "parseSuccess", (mail, uid) -> @_processMail mail, uid
 		# on db ticket write success, mark mail as read
@@ -86,20 +85,23 @@ class EmailHandler extends EventEmitter
 				@imapServer.search [ 'UNSEEN' ], callback
 
 			, (messages, callback) =>
-				@emit "fetchMessagesAmount", messages.length
-				if messages.length
-					fetch = @imapServer.fetch(messages,
-						request:
-							body: "full"
-							headers: false 
-					)
-					fetch.on "message", (msg) =>
-						@_fetchEachMail msg
-
-					fetch.on "end", => 
-						@emit "fetchSuccess"
-
-				callback null
+				if messages?.length is undefined
+					callback "problem reading messages in "+settings.imap.box
+				else 
+					@emit "fetchMessagesAmount", messages.length
+					if messages.length 	
+						fetch = @imapServer.fetch(messages,
+							request:
+								body: "full"
+								headers: false 
+						)
+						fetch.on "message", (msg) =>
+							@_fetchEachMail msg
+	
+						fetch.on "end", => 
+							@emit "fetchSuccess"
+	
+					callback null
 
 			], (err) =>
 				@emit "fetchMessagesFailure", err if err
