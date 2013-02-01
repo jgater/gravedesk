@@ -31,6 +31,11 @@ or forever to keep the server running! You can also use the settings.js to enabl
 Changelog
 =========
 
+Version 1.5.3
+-------------
+
+* version bump for imap library, solve timeout issues
+
 Version 1.5.2
 -------------
 
