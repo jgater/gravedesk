@@ -77,12 +77,14 @@ require("./routes") app
 tickethandler.on "addTicketError", (err) -> console.error "Error adding ticket: " + err
 
 emailhandler.on "imapConnectionSuccess", -> console.log "Connected to IMAP."
-emailhandler.on "fetchSuccess", -> console.log "All emails read from server."
+emailhandler.on "imapDisconnectionSuccess", -> console.log "Disconnected from IMAP."
+emailhandler.on "fetchMessagesSuccess", -> console.log "All emails read from server."
 emailhandler.on "fetchMessagesAmount", (quantity) -> console.log "There are " + quantity + " emails to be fetched."
-emailhandler.on "imapFlagSuccess", (id, isNew, uid) -> console.log "Email " + uid + " successfully processed and marked as read."
+emailhandler.on "imapFlagSuccess", (id, isNew, uid) -> console.log "Email " + uid + " successfully processed and moved."
 emailhandler.on "smtpSendSuccess", (to) -> console.log "Mail sent to " + to
 
 emailhandler.on "imapConnectionFailure", (err) -> console.log "Error connecting to IMAP server: " + err
+emailhandler.on "imapDisconnectionFailure", (err) -> console.log "Error disconnecting from IMAP: " + err
 emailhandler.on "fetchMessagesFailure", (err) -> console.log "Error fetching emails: " + err
 emailhandler.on "imapFlagFailure", (err, uid) -> console.log "Error marking mail " + uid + " as read: " + err 
 emailhandler.on "autoReplyFailure", (err, id) -> console.log "Replying to ticket " + id + " failed: " + err

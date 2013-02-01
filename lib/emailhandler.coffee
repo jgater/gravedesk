@@ -10,12 +10,12 @@ settings = require "../settings"
 class EmailHandler extends EventEmitter
 	constructor: (@imapServer, @smtpServer) ->
 		# on new or updated mail event, fetch it
-		@imapServer.on "mail", -> @_justFetch()
-		@imapServer.on "msgupdate", -> @_justFetch()
+		@imapServer.on "mail", => @_justFetch()
+		@imapServer.on "msgupdate", => @_justFetch()
 		# on connection close, reconnect
-		@imapServer.on "close", -> @connectImap()
+		@imapServer.on "close", => @connectImap()
 		# on error, close imap connection
-		@imapServer.on "error", -> @imapServer.logout()
+		@imapServer.on "error", => @_imapDisconnect()
 		# on connection failure, wait 5 seconds, try again
 		@on "imapConnectionFailure", => 
 			setTimeout (=>
@@ -24,7 +24,7 @@ class EmailHandler extends EventEmitter
 		# on imap connection, fetch mail
 		@on "imapConnectionSuccess", -> @_justFetch()
 		# if test fetch fails, logout
-		@on "fetchMessagesFailure", -> @imapServer.logout()
+		@on "fetchMessagesFailure", -> @_imapDisconnect()
 		# do a fetch when asked
 		@on "justFetch", -> @_justFetch()
 		# after mail parsed, process
@@ -50,7 +50,7 @@ class EmailHandler extends EventEmitter
 							@emit "imapConnectionFailure", err if err
 							@emit "imapConnectionSuccess" unless err
 					else				
-						@emit "imapConnectionSuccess"		
+						@emit "imapConnectionSuccess"	
 
 	sendMail: (mail, id) ->
 		# add settings 'from' address, send mail
@@ -66,6 +66,10 @@ class EmailHandler extends EventEmitter
 
 	# INTERNAL FUNCTIONS
 
+	_imapDisconnect: ->
+		@imapServer.logout (err) =>
+			@emit "imapDisconnectionFailure", err if err			
+			@emit "imapDisconnectionSuccess" unless err
 
 	_testImap: ->
 		# after 20 minutes do a manual fetch
@@ -86,26 +90,24 @@ class EmailHandler extends EventEmitter
 
 			, (messages, callback) =>
 				if messages?.length is undefined
-					callback "problem reading messages in "+settings.imap.box
+					callback "problem reading messages in "+setting.imap.box
 				else 
-					@emit "fetchMessagesAmount", messages.length
-					if messages.length 	
-						fetch = @imapServer.fetch(messages,
-							request:
-								body: "full"
-								headers: false 
-						)
-						fetch.on "message", (msg) =>
-							@_fetchEachMail msg
-	
-						fetch.on "end", => 
-							@emit "fetchSuccess"
-	
-					callback null
+					if messages.length > 0
+						@emit "fetchMessagesAmount", messages.length
+						@imapServer.fetch messages,
+							markSeen: true
+						,
+							headers:
+								parse: false
+
+							body: true
+							cb: (fetch) =>
+								fetch.on "message", (msg) => @_fetchEachMail(msg)					
+						, callback
 
 			], (err) =>
 				@emit "fetchMessagesFailure", err if err
-
+				@emit "fetchMessagesSuccess" unless err
 
 	_fetchEachMail: (msg) ->
 		mailparser = new MailParser() 
@@ -132,15 +134,8 @@ class EmailHandler extends EventEmitter
 		tickethandler.addTicket procmail, null, uid
 
 	_imapFlags: (id, isNew, uid) ->
-		# mark as seen, move to final destination mailbox
-		async.series [
-			(callback) =>
-				@imapServer.addFlags uid, "Seen", callback
-
-			, (callback) =>
-				@imapServer.move uid, settings.imap.endbox, callback
-
-		], (err, res) =>	
+		# move to final destination mailbox
+		@imapServer.move uid, settings.imap.endbox, (err, res) =>	
 			@emit "imapFlagFailure", err, uid if err
 			@emit "imapFlagSuccess", id, isNew, uid unless err
 
