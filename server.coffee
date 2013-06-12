@@ -9,32 +9,18 @@ util = require "util"
 passport = require "passport"
 events = require "events"
 imap = require "imap" 
-nodemailer = require "nodemailer"
 
 # gravedesk internal library modules
 
-EmailHandler = require "./lib/emailhandler"
+{emailhandler} = require "./lib/"
 {db} = require "./lib/" 
-{tickethandler} = require "./lib"
+{tickethandler} = require "./lib/"
 userdb = require "./lib/userprovider"
 
 # settings files
 settings = require("./settings")
 lang = require("./lang/english")
 
-# Configuration
-imapServer = new imap.ImapConnection(
-	username: settings.imap.username
-	password: settings.imap.password
-	host: settings.imap.host
-	port: settings.imap.port
-	secure: settings.imap.secure
-)
-
-# define smtp server transport
-smtpServer = nodemailer.createTransport("SMTP", settings.smtp)
-
-emailhandler = new EmailHandler imapServer, smtpServer
 
 if settings.https.enable
 	app = module.exports = express.createServer(
@@ -74,20 +60,12 @@ require("./routes") app
 
 # logging
 
-tickethandler.on "addTicketError", (err) -> console.error "Error adding ticket: " + err
-
-emailhandler.on "imapConnectionSuccess", -> console.log "Connected to IMAP."
-emailhandler.on "imapDisconnectionSuccess", -> console.log "Disconnected from IMAP."
-emailhandler.on "fetchMessagesSuccess", -> console.log "All emails read from server."
-emailhandler.on "fetchMessagesAmount", (quantity) -> console.log "There are " + quantity + " emails to be fetched."
-emailhandler.on "imapFlagSuccess", (id, isNew, uid) -> console.log "Email " + uid + " successfully processed and moved."
 emailhandler.on "smtpSendSuccess", (to) -> console.log "Mail sent to " + to
+emailhandler.on "SyncSuccess", -> console.log "ContextIO sync triggered."
 
-emailhandler.on "imapConnectionFailure", (err) -> console.log "Error connecting to IMAP server: " + err
-emailhandler.on "imapDisconnectionFailure", (err) -> console.log "Error disconnecting from IMAP: " + err
-emailhandler.on "fetchMessagesFailure", (err) -> console.log "Error fetching emails: " + err
-emailhandler.on "imapFlagFailure", (err, uid) -> console.log "Error marking mail " + uid + " as read: " + err 
-emailhandler.on "autoReplyFailure", (err, id) -> console.log "Replying to ticket " + id + " failed: " + err
+tickethandler.on "addTicketError", (err) -> console.log err
+emailhandler.on "SyncError", (err) -> console.log err
+emailhandler.on "autoReplyError", (err, id) -> console.log "Replying to ticket " + id + " failed: " + err
 emailhandler.on "smtpSendError", (err, to) -> console.log "Error sending mail to " + to + " : " + err
 
 # start services
@@ -105,15 +83,23 @@ async.series [db.connectDB, (callback) ->
 	else
 		app.listen settings.defaultPort, callback
 	console.log "Express server listening on port %d in %s mode", app.address().port, app.settings.env
+
+# set ID for context IO
+, (callback) ->
+	emailhandler.setID (err, status) ->
+		callback err if err
+		console.log status
+		callback null
+
+# intial contextio sync to check for new mail
+, (callback) ->
+	emailhandler.sync callback
+
 ], (err) ->
 # callback error handler
 	if err
 		console.error "Problem with starting background services; " + err
 		process.exit err
-
-# start imap
-emailhandler.connectImap()
-
 
 # initialize now.js
 if settings.proxy.enable
