@@ -25,9 +25,9 @@ class EmailHandler extends EventEmitter
 		tickethandler.on "addTicketSuccess", (id, isNew, uid) => @_autoReply id, isNew
 
 	# PUBLIC FUNCTIONS
-	setID: (callback) ->
+	getID: (emailaddr,callback) ->
 		ctxioClient.accounts().get
-  		email: settings.contextio.email
+  		email: emailaddr
   		status_ok: 1
 		, (err, response) =>
 			if err 
@@ -35,7 +35,8 @@ class EmailHandler extends EventEmitter
 			else 
 				if response.body?.length > 0
 					@ctxioID = response.body[0].id 
-					callback null, "ContextIO ID for " + settings.contextio.email + " successfully set to " + @ctxioID
+					@emit "getIDSuccess", @ctxioID
+					callback null
 				else
 					callback "Working ContextIO ID for " + settings.contextio.email + " could not be found."
 

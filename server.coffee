@@ -60,6 +60,7 @@ require("./routes") app
 
 # logging
 
+emailhandler.on "getIDSuccess", (id) -> console.log "ContextIO ID for " + settings.contextio.email + " read as " + id
 emailhandler.on "smtpSendSuccess", (to) -> console.log "Mail sent to " + to
 emailhandler.on "SyncSuccess", -> console.log "ContextIO sync triggered."
 
@@ -67,6 +68,7 @@ tickethandler.on "addTicketError", (err) -> console.log err
 emailhandler.on "SyncError", (err) -> console.log err
 emailhandler.on "autoReplyError", (err, id) -> console.log "Replying to ticket " + id + " failed: " + err
 emailhandler.on "smtpSendError", (err, to) -> console.log "Error sending mail to " + to + " : " + err
+
 
 # start services
 
@@ -84,12 +86,9 @@ async.series [db.connectDB, (callback) ->
 		app.listen settings.defaultPort, callback
 	console.log "Express server listening on port %d in %s mode", app.address().port, app.settings.env
 
-# set ID for context IO
+# get ID from context IO
 , (callback) ->
-	emailhandler.setID (err, status) ->
-		callback err if err
-		console.log status
-		callback null
+	emailhandler.getID settings.contextio.email, callback
 
 # intial contextio sync to check for new mail
 , (callback) ->
@@ -105,20 +104,14 @@ async.series [db.connectDB, (callback) ->
 if settings.proxy.enable
 	everyone = nowjs.initialize(app,
 		port: settings.proxy.proxyPort
-		socketio:
-			transports: ["xhr-polling", "jsonp-polling"]
 	)
 else if settings.https.enable
 	everyone = nowjs.initialize(app,
 		port: settings.https.port
-		socketio:
-			transports: ["websocket", "xhr-polling", "jsonp-polling"]
 	)
 else
 	everyone = nowjs.initialize(app,
 		port: settings.defaultPort
-		socketio:
-			transports: ["websocket", "xhr-polling", "jsonp-polling"]
 	)
 console.log "now.js added to server app."
 
@@ -166,7 +159,3 @@ tickethandler.on "ticketListUpdated", ->
 			console.error "Could not get ticket counts; "
 		else
 			everyone.now.newTicket ticketcount  if everyone.now.newTicket
-
-
-
-
