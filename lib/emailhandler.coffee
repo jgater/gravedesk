@@ -27,8 +27,8 @@ class EmailHandler extends EventEmitter
 	# PUBLIC FUNCTIONS
 	getID: (emailaddr,callback) ->
 		ctxioClient.accounts().get
-  		email: emailaddr
-  		status_ok: 1
+			email: emailaddr
+			status_ok: 1
 		, (err, response) =>
 			if err 
 				callback err
@@ -67,6 +67,16 @@ class EmailHandler extends EventEmitter
 				tickethandler.updateEmailsById id, mail, (err) ->
 					@emit "smtpTicketUpdateFailure", err, mail.to if err
 
+	getMessage: (msgid) ->
+		# retrieve email from contextio
+		console.log msgid
+		ctxioClient.accounts(@ctxioID).messages(msgid).get
+			include_body: 1
+		, (err, response) =>
+			console.log response.body
+
+
+
 	# INTERNAL FUNCTIONS
 
 	_processMail: (mail, uid) ->
@@ -96,6 +106,6 @@ class EmailHandler extends EventEmitter
 					outmail.subject = "RE: " + ticket.subject + " - " + lang.existingAutoReply.subject + " - ID: <" + id + ">"	
 					outmail.html = "<html><header></header><body>" + lang.existingAutoReply.body + ticket.description + "</body></html>"
 	
-				@sendMail outmail, id
+				#@sendMail outmail, id
 
 module.exports = EmailHandler
