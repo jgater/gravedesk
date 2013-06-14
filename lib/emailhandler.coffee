@@ -21,6 +21,7 @@ class EmailHandler extends EventEmitter
 		@ctxioID = ""
 		# call sync method
 		@on "DoSync", -> @sync (err) => @emit "SyncError", err if err
+		#@on "getIDSuccess", -> @_findNewMessages()
 		# marked as read ok, now get message
 		@on "flagMessageSuccess", @_getMessage
 		# message read ok, now get any attachments
@@ -88,8 +89,19 @@ class EmailHandler extends EventEmitter
 			else
 				@emit "flagMessageSuccess", msgid
 
-
+	
 	# INTERNAL FUNCTIONS
+
+	#_findNewMessages: ->
+	#	#GET /2.0/accounts/51b5e4948c157fa904000004/sources/0/folders/INBOX/messages?flag_seen=0
+	#	ctxioClient.accounts(@ctxioID).sources().folders("INBOX").messages().get
+	#		"flag_seen": 0
+	#	, (err, response) =>
+	#		if err
+	#			@emit "findNewMessagesError", "unable to find new messages: " + err
+	#		else
+	#			console.log response
+
 
 	_getMessage: (msgid) ->
 		# retrieve email message context from contextio, with body retrieved on our behalf
