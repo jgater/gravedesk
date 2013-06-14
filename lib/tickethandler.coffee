@@ -156,6 +156,7 @@ class TicketHandler extends EventEmitter
 		# search and remove strings of pattern "- text - ID: <text>", i.e. previous autoreplies
 		cleansubject = params.subject.replace(/\- [a-z|A-Z]* \- ID: \<[a-z|A-Z|0-9]*\>/g, "") if params.subject
 		cleanhtml = @_cleanHTML params.html if params.html
+		# markdownify plaintext
 		cleanplaintext = Markdown params.plaintext, true if params.plaintext
 
 		ticket = new ticketmodel(
@@ -202,11 +203,11 @@ class TicketHandler extends EventEmitter
 
 			# function to generate attachment 'stub' names
 			iterator = (item, cb) ->
-				if item.transferEncoding is "base64"
+				if item?.content
 					stub = {}
 					stub.date = date
-					stub.fileName = encodeURIComponent(index + "_" + item.fileName)
-					stub.contentType = item.contentType
+					stub.fileName = encodeURIComponent(index + "_" + item.name)
+					stub.contentType = item.type
 					cb null, stub
 				else
 					cb null, null
@@ -249,13 +250,13 @@ class TicketHandler extends EventEmitter
 			fs.mkdirSync path.join ticketPath unless fs.existsSync ticketPath
 
 			iterator = (item, callback) ->
-				if item.transferEncoding is "base64"
-					filePath = path.join(ticketPath, index + "_" + item.fileName)
+				if item?.content
+					filePath = path.join(ticketPath, index + "_" + item.name)
 					stream = fs.createWriteStream filePath
 					stream.on "close", ->
 						callback null
-					# write base64 buffer to disk	
-					stream.end item.content
+					# write buffer to disk	
+					stream.end item.content.body
 				else	
 					callback null
 

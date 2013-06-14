@@ -107,7 +107,9 @@ module.exports = {
 		var expected = signer.update(req.body.timestamp + req.body.token).digest('hex');
 		if (expected === req.body.signature) {
 			// valid notice, retrieve message
-			emailhandler.getMessage(req.body.message_data.message_id+"");
+			if (req.body.message_data.message_id) {
+				emailhandler.flagMessage(req.body.message_data.message_id+"");
+			}
 		};
 		res.end();
 	},

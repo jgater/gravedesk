@@ -7,7 +7,7 @@ var newAutoReply = {
 
 var existingAutoReply = {		
 	"subject": "Received",
-	"body": "<p>Thank you for your response. It has been added to the ticket.</p><br><br><br><br><br><hr><small>Original description:</small><br><br>"
+	"body": "<p>Thank you for your response. It has been added to the ticket.</p><br><br>"
 };
 
 var reply = {

@@ -63,8 +63,13 @@ require("./routes") app
 emailhandler.on "getIDSuccess", (id) -> console.log "ContextIO ID for " + settings.contextio.email + " read as " + id
 emailhandler.on "smtpSendSuccess", (to) -> console.log "Mail sent to " + to
 emailhandler.on "SyncSuccess", -> console.log "ContextIO sync triggered."
+emailhandler.on "moveMessageSuccess", (id) -> console.log "Message " +id + " added to tickets and moved to '" + settings.contextio.endbox + "' folder"
 
 tickethandler.on "addTicketError", (err) -> console.log err
+emailhandler.on "moveMessageError", (id) -> console.log "Message " +id + " could not be moved to " + settings.contextio.endbox
+emailhandler.on "flagMessageError", (err, id, res) -> console.log "unable to flag contextio message " + id + "read, error: " + err + ": " + res
+emailhandler.on "getMessageError", (err, id, res) -> console.log "unable to retrieve contextio message " + id + ", error: " + err + ": " + res
+emailhandler.on "getMessageAttachmentsError", (err, id) -> console.log "unable to retrieve contextio attachments for message " + id + ", error: " + err
 emailhandler.on "SyncError", (err) -> console.log err
 emailhandler.on "autoReplyError", (err, id) -> console.log "Replying to ticket " + id + " failed: " + err
 emailhandler.on "smtpSendError", (err, to) -> console.log "Error sending mail to " + to + " : " + err

@@ -6,6 +6,7 @@ settings = require "../settings"
 lang = require "../lang/english"
 nodemailer = require "nodemailer"
 contextio = require "contextio"
+async = require "async"
 
 # define smtp server transport
 smtpServer = nodemailer.createTransport("SMTP", settings.smtp)
@@ -20,9 +21,19 @@ class EmailHandler extends EventEmitter
 		@ctxioID = ""
 		# call sync method
 		@on "DoSync", -> @sync (err) => @emit "SyncError", err if err
-
-		# on db ticket write success, send autoreply
-		tickethandler.on "addTicketSuccess", (id, isNew, uid) => @_autoReply id, isNew
+		# marked as read ok, now get message
+		@on "flagMessageSuccess", @_getMessage
+		# message read ok, now get any attachments
+		@on "getMessageSuccess", @_getMessageAttachments
+		# attachments retrieved, now process
+		@on "getMessageAttachmentsSuccess", @_processMessage 
+		# message pared down to only required info
+		@on "processMessageSuccess", (msgid, message) -> tickethandler.addTicket message, null, msgid
+		# on db ticket write success, move mail and send autoreply
+		tickethandler.on "addTicketSuccess", (id, isNew, msgid) => 
+			@_moveMessage msgid, settings.contextio.endbox
+			@_autoReply id, isNew
+		@on "sendMail", @sendMail
 
 	# PUBLIC FUNCTIONS
 	getID: (emailaddr,callback) ->
@@ -41,10 +52,10 @@ class EmailHandler extends EventEmitter
 					callback "Working ContextIO ID for " + settings.contextio.email + " could not be found."
 
 	sync: (callback) ->
-		# after 30 minutes trigger the next sync
+		# after 20 minutes trigger the next sync
 		setTimeout (=>
 			@emit "DoSync"
-		), (30 * 60 * 1000)	
+		), (20 * 60 * 1000)	
 
 		# tell contextio to sync all mail records for account
 		ctxioClient.accounts(@ctxioID).sync().post (err, response) =>
@@ -58,7 +69,7 @@ class EmailHandler extends EventEmitter
 	sendMail: (mail, id) ->
 		# add settings 'from' address, send mail
 		mail.from = settings.smtpFrom
-		@smtpServer.sendMail mail, (err, res) =>
+		smtpServer.sendMail mail, (err, res) =>
 			if err
 				@emit "smtpSendFailure", err, mail.to
 			else
@@ -67,29 +78,80 @@ class EmailHandler extends EventEmitter
 				tickethandler.updateEmailsById id, mail, (err) ->
 					@emit "smtpTicketUpdateFailure", err, mail.to if err
 
-	getMessage: (msgid) ->
-		# retrieve email from contextio
-		console.log msgid
-		ctxioClient.accounts(@ctxioID).messages(msgid).get
-			include_body: 1
+	flagMessage: (msgid) ->
+		# first, we flag as read to stop duplicate attempts on the same message
+		ctxioClient.accounts(@ctxioID).messages(msgid).flags().post
+			seen: 1
 		, (err, response) =>
-			console.log response.body
-
+			if err or !response.body.success
+				@emit "flagMessageError", err, message, response.body
+			else
+				@emit "flagMessageSuccess", msgid
 
 
 	# INTERNAL FUNCTIONS
 
-	_processMail: (mail, uid) ->
+	_getMessage: (msgid) ->
+		# retrieve email message context from contextio, with body retrieved on our behalf
+		ctxioClient.accounts(@ctxioID).messages(msgid).get
+			include_body: 1
+		, (err, response) =>
+			if err 
+				@emit "getMessageError", err, msgid, response.body
+			else
+				@emit "getMessageSuccess", msgid, response.body
+
+	_getMessageAttachments: (msgid, body) ->
+		retrieveFile = (fileHeader, callback) =>
+			ctxioClient.accounts(@ctxioID).files(fileHeader.file_id).content().get (err, filecontent) ->
+				if err
+					callback err
+				else
+					file = 
+						"file_id" : fileHeader.file_id
+						"message_id" : msgid
+						"type" : fileHeader.type
+						"name" : fileHeader.file_name
+						"content" : filecontent
+					callback null, file
+
+		async.mapSeries body.files, retrieveFile, (err, results) =>
+			if err 
+				@emit "getMessageAttachmentsError", err, msgid
+			else
+				@emit "getMessageAttachmentsSuccess", msgid, body, results
+
+	_processMessage: (msgid, msg, files) ->
+
+		checkbodytype = (obj) ->
+			if obj.type is "text/plain"
+				procmail.plaintext = obj.content
+			else if obj.type is "text/html"
+				procmail.html = obj.content
+			return null
+
 		procmail = {}
 		procmail.date = new Date()
-		procmail.from = mail.from[0].address or null
-		procmail.to = mail.to[0].address or null
-		procmail.subject = mail.subject or null
-		procmail.plaintext = mail.text or null
-		procmail.html = mail.html or null
-		procmail.attachments = mail.attachments or []
+		procmail.from = msg.addresses.from.email or null
+		procmail.to = msg.addresses.to[0].email or null
+		procmail.subject = msg.subject or null
+		procmail.plaintext = null
+		procmail.html = null
+		checkbodytype obj for obj in msg.body
+		procmail.attachments = files or []
 		#handoff mail to db for writing
-		tickethandler.addTicket procmail, null, uid
+		@emit "processMessageSuccess", msgid, procmail
+
+	_moveMessage: (msgid, destination) ->
+		ctxioClient.accounts(@ctxioID).messages(msgid).post
+			dst_folder: destination
+			move: 1
+		, (err, response) =>
+			if err 
+				@emit "moveMessageError", err
+			else
+				@emit "moveMessageSuccess", msgid
+
 
 	_autoReply: (id, isNew) ->
 		outmail = {}
@@ -98,14 +160,12 @@ class EmailHandler extends EventEmitter
 				@emit "autoReplyError", err, id
 			else		
 				outmail.to = ticket.from
-
 				if isNew
 					outmail.subject = "RE: " + ticket.subject + " - " + lang.newAutoReply.subject + " - ID: <" + id + ">"
 					outmail.html = "<html><header></header><body>"+lang.newAutoReply.body + ticket.description + "</body></html>"
 				else
 					outmail.subject = "RE: " + ticket.subject + " - " + lang.existingAutoReply.subject + " - ID: <" + id + ">"	
-					outmail.html = "<html><header></header><body>" + lang.existingAutoReply.body + ticket.description + "</body></html>"
-	
-				#@sendMail outmail, id
+					outmail.html = "<html><header></header><body>" + lang.existingAutoReply.body + "</body></html>"				
+				@emit "sendMail", outmail, id
 
 module.exports = EmailHandler
