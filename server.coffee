@@ -95,10 +95,6 @@ async.series [db.connectDB, (callback) ->
 , (callback) ->
 	emailhandler.getID settings.contextio.email, callback
 
-# intial contextio sync to check for new mail
-, (callback) ->
-	emailhandler.sync callback
-
 ], (err) ->
 # callback error handler
 	if err

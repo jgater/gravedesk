@@ -18,17 +18,32 @@ ctxioClient = new contextio.Client '2.0',
 
 class EmailHandler extends EventEmitter
 	constructor: ->
+		# variable for contextio
 		@ctxioID = ""
-		# call sync method
-		@on "DoSync", -> @sync (err) => @emit "SyncError", err if err
-		#@on "getIDSuccess", -> @_findNewMessages()
+		# starting timestamp
+		@timestamp = 1
+		# control flow
+		# call sync when ID retrieved
+		@on "getIDSuccess", -> 
+			# do initial sync
+			@_sync()
+			# retrieve list of messages
+			@_listMessages()
+		# call sync when prompted by timeout
+		@on "DoSync", @_sync
+		# call list when prompted by timeout
+		@on "DoList", @_listMessages
+		# after messages listed, check to see which are unread
+		@on "listMessagesSuccess", @_filterNewMessages
+		# filtered list of new messages found, ask to be flagged and processed
+		@on "filterNewMessagesSuccess", @_checkNewMessages
 		# marked as read ok, now get message
 		@on "flagMessageSuccess", @_getMessage
 		# message read ok, now get any attachments
 		@on "getMessageSuccess", @_getMessageAttachments
 		# attachments retrieved, now process
 		@on "getMessageAttachmentsSuccess", @_processMessage 
-		# message pared down to only required info
+		# message pared down to only required info, hand off to create ticket
 		@on "processMessageSuccess", (msgid, message) -> tickethandler.addTicket message, null, msgid
 		# on db ticket write success, move mail and send autoreply
 		tickethandler.on "addTicketSuccess", (id, isNew, msgid) => 
@@ -37,7 +52,7 @@ class EmailHandler extends EventEmitter
 		@on "sendMail", @sendMail
 
 	# PUBLIC FUNCTIONS
-	getID: (emailaddr,callback) ->
+	getID: (emailaddr, callback) ->
 		ctxioClient.accounts().get
 			email: emailaddr
 			status_ok: 1
@@ -51,21 +66,6 @@ class EmailHandler extends EventEmitter
 					callback null
 				else
 					callback "Working ContextIO ID for " + settings.contextio.email + " could not be found."
-
-	sync: (callback) ->
-		# after 20 minutes trigger the next sync
-		setTimeout (=>
-			@emit "DoSync"
-		), (20 * 60 * 1000)	
-
-		# tell contextio to sync all mail records for account
-		ctxioClient.accounts(@ctxioID).sync().post (err, response) =>
-			callback err if err
-			if response.body.success 
-				@emit "SyncSuccess"
-				callback null
-			else
-				callback "ContextIO sync request unsuccessful."
 
 	sendMail: (mail, id) ->
 		# add settings 'from' address, send mail
@@ -92,16 +92,53 @@ class EmailHandler extends EventEmitter
 	
 	# INTERNAL FUNCTIONS
 
-	#_findNewMessages: ->
-	#	#GET /2.0/accounts/51b5e4948c157fa904000004/sources/0/folders/INBOX/messages?flag_seen=0
-	#	ctxioClient.accounts(@ctxioID).sources().folders("INBOX").messages().get
-	#		"flag_seen": 0
-	#	, (err, response) =>
-	#		if err
-	#			@emit "findNewMessagesError", "unable to find new messages: " + err
-	#		else
-	#			console.log response
+	_sync: ->
+		# after 5 minutes trigger the next sync
+		setTimeout (=>
+			@emit "DoSync"
+		), (5 * 60 * 1000)	
 
+		# tell contextio to sync all mail records for account
+		ctxioClient.accounts(@ctxioID).sync().post (err, response) =>
+			@emit "SyncFailure", @ctxioID if err
+			@emit "SyncSuccess" unless err
+
+	_listMessages: ->
+		# after 30 minutes trigger the next full list check - this is just belt and braces 
+		# the webhook should notify us of new messages as they occur
+		setTimeout (=>
+			@emit "DoList"
+		), (30 * 60 * 1000)	
+		# get list of recent messages in inbox
+		ctxioClient.accounts(@ctxioID).messages().get
+			"folder": settings.ctxio.inbox
+			"indexed_after": @timestamp
+		, (err, response) =>
+			@emit "listMessagesError", "unable to find new messages: " + err if err
+			@emit "listMessagesSuccess", response.body
+
+	_filterNewMessages: (list) ->
+		testIsUnread = (msg, callback) =>
+			# contextio doesn't save message flags, so each message will be checked against imap
+			ctxioClient.accounts(@ctxioID).messages(msg.message_id).flags().get
+			, (err, response) ->
+				# in the event of an error, best to just ignore the message
+				callback false if err
+				# otherwise send back status of 'seen' flag - if true, we discard
+				callback !response.body.seen unless err
+
+		async.filter list, testIsUnread, (filteredlist) =>
+			# results is now a list of unread message objects
+			@emit "filterNewMessagesSuccess", filteredlist
+
+	_checkNewMessages: (list) ->
+		# for each new message, call to flag as read (and retrieve and process) on each message
+		iterator = (msg, callback) =>
+			@flagMessage msg.message_id
+			callback null
+
+		async.each list, iterator, (err) =>
+			@emit "checkNewMessagesError" if err
 
 	_getMessage: (msgid) ->
 		# retrieve email message context from contextio, with body retrieved on our behalf
@@ -111,9 +148,12 @@ class EmailHandler extends EventEmitter
 			if err 
 				@emit "getMessageError", err, msgid, response.body
 			else
+				# update timestamp to latest message indexed
+				if @timestamp < response.body.date_indexed
+					@timestamp = response.body.date_indexed
 				@emit "getMessageSuccess", msgid, response.body
 
-	_getMessageAttachments: (msgid, body) ->
+	_getMessageAttachments: (msgid, msg) ->
 		retrieveFile = (fileHeader, callback) =>
 			ctxioClient.accounts(@ctxioID).files(fileHeader.file_id).content().get (err, filecontent) ->
 				if err
@@ -127,11 +167,11 @@ class EmailHandler extends EventEmitter
 						"content" : filecontent
 					callback null, file
 
-		async.mapSeries body.files, retrieveFile, (err, results) =>
+		async.mapSeries msg.files, retrieveFile, (err, results) =>
 			if err 
 				@emit "getMessageAttachmentsError", err, msgid
 			else
-				@emit "getMessageAttachmentsSuccess", msgid, body, results
+				@emit "getMessageAttachmentsSuccess", msgid, msg, results
 
 	_processMessage: (msgid, msg, files) ->
 
@@ -151,7 +191,7 @@ class EmailHandler extends EventEmitter
 		procmail.html = null
 		checkbodytype obj for obj in msg.body
 		procmail.attachments = files or []
-		#handoff mail to db for writing
+
 		@emit "processMessageSuccess", msgid, procmail
 
 	_moveMessage: (msgid, destination) ->
@@ -162,6 +202,7 @@ class EmailHandler extends EventEmitter
 			if err 
 				@emit "moveMessageError", err
 			else
+				# TODO - gmail leaves message in inbox, need to force it
 				@emit "moveMessageSuccess", msgid
 
 
