@@ -11,16 +11,19 @@ Still in heavy development to meet needs of client site; not recommended for pro
 Installation
 ============
 
-* You'll need to download and install Node.js, obviously. Tested on 0.8.9 from nodejs.org
+* You'll need to download and install Node.js, obviously. Tested on 0.10.10 from nodejs.org
 * A copy of mongodb from mongodb.org running on localhost, default port (27017)
 * git clone this repository to a suitable folder
 	`git clone git@github.com:jgater/gravedesk.git`
 * install necessary libraries to compile the npm modules; on ubuntu for example
 	`sudo apt-get install build-essentials`
 * install the necessary node.js modules via npm in the root of the git cloned folder (the one with app.js in)
-	`npm install -d`
-* copy settings.example to settings.js for default settings; edit settings.js as appropriate. You'll need to change the email server and IMAP login at the very least
-* Note, it will read 'unread' emails in the mailbox folder specified, and mark them as read. Don't point at a folder you use for other purposes! Best to point at a dedicated IMAP account, of course.
+	`npm install`
+* copy settings.example to settings.js for default settings; edit settings.js as appropriate. You'll need to change the email server and context.io login at the very least
+* Note, it will read 'unread' emails in the mailbox folder specified, and mark them as read. Don't point at a folder you use for other purposes! Best to point at a dedicated email account, of course.
+* Instead of reading directly from an IMAP account, gravedesk now uses [context.io](http://context.io)
+* You'll need, as a minimum, a free API key and the mail account you wish to monitor added as a source - you'll be prompted to add one when you create your free key.
+* For that account, you can also add a webhook that calls http://example.com/api/email/new on your site when you have new mail for faster addition of new tickets.
 * run from the root folder with node:
 	`node app.js`
 * server should now be available on http://localhost:3000 - you can login with the default admin account details in your settings.js
@@ -30,6 +33,11 @@ or forever to keep the server running! You can also use the settings.js to enabl
 
 Changelog
 =========
+
+Version 1.6.0
+-------------
+
+* continuing problems with node imap, switched to context.io for mail retrieval and indexing
 
 Version 1.5.3
 -------------
@@ -149,6 +157,7 @@ Todo:
 Done:
 =====
 
+* switched to context.io for mail handling
 * added email sending success alerts
 * store attachments in filesystem, link in tickets
 * change look from bootstrap basic view
@@ -169,7 +178,7 @@ Done:
 Licence
 =======
 
-Copyright (C) 2012 James Gater
+Copyright (C) 2012-2013 James Gater
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
