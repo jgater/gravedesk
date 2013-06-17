@@ -66,6 +66,7 @@ emailhandler.on "moveMessageSuccess", (id) -> console.log "Message " +id + " add
 # emailhandler.on "SyncSuccess", -> console.log "ContextIO sync triggered."
 
 tickethandler.on "addTicketError", (err) -> console.log err
+emailhandler.on "listMessagesError", (err) -> console.log err
 emailhandler.on "moveMessageError", (id) -> console.log "Message " +id + " could not be moved to " + settings.contextio.endbox
 emailhandler.on "flagMessageError", (err, id, res) -> console.log "unable to flag contextio message " + id + "read, error: " + err + ": " + res
 emailhandler.on "getMessageError", (err, id, res) -> console.log "unable to retrieve contextio message " + id + ", error: " + err + ": " + res

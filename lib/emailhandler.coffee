@@ -114,7 +114,7 @@ class EmailHandler extends EventEmitter
 			"indexed_after": @timestamp
 		, (err, response) =>
 			@emit "listMessagesError", "unable to find new messages: " + err if err
-			@emit "listMessagesSuccess", response.body
+			@emit "listMessagesSuccess", response.body unless err
 
 	_filterNewMessages: (list) ->
 		testIsRead = (msg, callback) =>
