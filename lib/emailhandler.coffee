@@ -121,7 +121,7 @@ class EmailHandler extends EventEmitter
 			# contextio doesn't save message flags, so each message will be checked against imap
 			ctxioClient.accounts(@ctxioID).messages(msg.message_id).flags().get (err, response) ->
 				# in the event of an error, best to just ignore the message
-				callback false if err
+				callback true if err
 				# otherwise send back status of 'seen' flag 
 				callback response.body.seen unless err
 
@@ -163,7 +163,8 @@ class EmailHandler extends EventEmitter
 						"name" : fileHeader.file_name
 						"content" : filecontent
 					callback null, file
-		if msg.files
+
+		if msg?.files
 			async.mapSeries msg.files, retrieveFile, (err, results) =>
 				if err 
 					@emit "getMessageAttachmentsError", err, msgid
