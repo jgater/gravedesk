@@ -163,15 +163,15 @@ class EmailHandler extends EventEmitter
 						"name" : fileHeader.file_name
 						"content" : filecontent
 					callback null, file
-
-		async.mapSeries msg.files, retrieveFile, (err, results) =>
-			if err 
-				@emit "getMessageAttachmentsError", err, msgid
-			else
-				@emit "getMessageAttachmentsSuccess", msgid, msg, results
+		if msg.files
+			async.mapSeries msg.files, retrieveFile, (err, results) =>
+				if err 
+					@emit "getMessageAttachmentsError", err, msgid
+				else
+					@emit "getMessageAttachmentsSuccess", msgid, msg, results
+		else @emit "getMessageAttachmentsSuccess", msgid, msg, []
 
 	_processMessage: (msgid, msg, files) ->
-
 		checkbodytype = (obj) ->
 			if obj.type is "text/plain"
 				procmail.plaintext = obj.content
