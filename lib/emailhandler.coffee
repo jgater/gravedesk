@@ -20,15 +20,13 @@ class EmailHandler extends EventEmitter
 	constructor: ->
 		# variable for contextio
 		@ctxioID = ""
+		@ctxioemail = ""
 		# starting timestamp
 		@timestamp = 1
 		# control flow
-		# call sync when ID retrieved
-		@on "getIDSuccess", -> 
-			# do initial sync
-			@_sync()
-			# retrieve list of messages
-			@_listMessages()
+		# call sync and trigger a full mailbox check when ID retrieved
+		@on "getIDSuccess", @_sync
+		@on "getIDSuccess", @_listMessages
 		# call sync when prompted by timeout
 		@on "DoSync", @_sync
 		# call list when prompted by timeout
@@ -53,6 +51,7 @@ class EmailHandler extends EventEmitter
 
 	# PUBLIC FUNCTIONS
 	getID: (emailaddr, callback) ->
+		@ctxioemail = emailaddr
 		ctxioClient.accounts().get
 			email: emailaddr
 			status_ok: 1
@@ -93,10 +92,10 @@ class EmailHandler extends EventEmitter
 	# INTERNAL FUNCTIONS
 
 	_sync: ->
-		# after 5 minutes trigger the next sync
+		# after 1 minute trigger the next sync
 		setTimeout (=>
 			@emit "DoSync"
-		), (5 * 60 * 1000)	
+		), (60 * 1000)	
 
 		# tell contextio to sync all mail records for account
 		ctxioClient.accounts(@ctxioID).sync().post (err, response) =>
@@ -104,30 +103,29 @@ class EmailHandler extends EventEmitter
 			@emit "SyncSuccess" unless err
 
 	_listMessages: ->
-		# after 30 minutes trigger the next full list check - this is just belt and braces 
+		# after 10 minutes trigger the next full list check - this is just belt and braces 
 		# the webhook should notify us of new messages as they occur
 		setTimeout (=>
 			@emit "DoList"
-		), (30 * 60 * 1000)	
+		), (10 * 60 * 1000)	
 		# get list of recent messages in inbox
 		ctxioClient.accounts(@ctxioID).messages().get
-			"folder": settings.ctxio.inbox
+			"folder": settings.contextio.inbox
 			"indexed_after": @timestamp
 		, (err, response) =>
 			@emit "listMessagesError", "unable to find new messages: " + err if err
 			@emit "listMessagesSuccess", response.body
 
 	_filterNewMessages: (list) ->
-		testIsUnread = (msg, callback) =>
+		testIsRead = (msg, callback) =>
 			# contextio doesn't save message flags, so each message will be checked against imap
-			ctxioClient.accounts(@ctxioID).messages(msg.message_id).flags().get
-			, (err, response) ->
+			ctxioClient.accounts(@ctxioID).messages(msg.message_id).flags().get (err, response) ->
 				# in the event of an error, best to just ignore the message
 				callback false if err
-				# otherwise send back status of 'seen' flag - if true, we discard
-				callback !response.body.seen unless err
+				# otherwise send back status of 'seen' flag 
+				callback response.body.seen unless err
 
-		async.filter list, testIsUnread, (filteredlist) =>
+		async.reject list, testIsRead, (filteredlist) =>
 			# results is now a list of unread message objects
 			@emit "filterNewMessagesSuccess", filteredlist
 
@@ -136,8 +134,7 @@ class EmailHandler extends EventEmitter
 		iterator = (msg, callback) =>
 			@flagMessage msg.message_id
 			callback null
-
-		async.each list, iterator, (err) =>
+		async.forEach list, iterator, (err) =>
 			@emit "checkNewMessagesError" if err
 
 	_getMessage: (msgid) ->
@@ -185,7 +182,7 @@ class EmailHandler extends EventEmitter
 		procmail = {}
 		procmail.date = new Date()
 		procmail.from = msg.addresses.from.email or null
-		procmail.to = msg.addresses.to[0].email or null
+		procmail.to = @ctxioemail or null
 		procmail.subject = msg.subject or null
 		procmail.plaintext = null
 		procmail.html = null

@@ -9,7 +9,7 @@
 		"mailparser" : "0.2.x",
 		"mongoose" : "3.5.x",
 		"mongoose-types": "1.0.x",
-		"async" : "0.1.x",
+		"async" : "0.2.x",
 		"express": "2.5.x",
 		"jade": ">= 0.0.1",
 		"now": "0.8.x",
