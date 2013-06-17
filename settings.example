@@ -1,25 +1,25 @@
-// You'll want to change the imap and smtp settings at least. Any email in the 'box' folder will be marked as read once processed.
-
-var imapServerSettings = {		
-	"username": "user",
-	"password": "password",
-	"host": "imap.example.com",
-	"port": 993,
-	"secure": true,
-	// mailbox that incoming mails will be read from
-	"box": "Inbox",
-	// mailbox that processed mails will be moved to
-	"endbox": "processed"
-	};
+// sending mail server settings
 
 var smtpServerSettings = {	
-  host: "smtp.example.com", 
-  secureConnection: true, 
-  port: 465, 
-  auth: {
-      user: "user",
-      pass: "password"
+  "host": "smtp.example.com", 
+  "secureConnection": true, 
+  "port": 465, 
+  "auth": {
+      "user": "help@example.com",
+      "pass": "password"
   }
+};
+
+// context.io settings for reading mail tickets
+
+var contextIOServerSettings = {
+	"key": "yourkey",
+	"secret": "yoursecret",
+	"email": 	"help@example.com",
+	// mailbox that incoming mails will be read from
+	"inbox": "INBOX",
+	// mailbox that processed mails will be moved to
+	"endbox": "processed"
 };
 
 // default from address that email auto-responses and replies will appear to come from
@@ -80,7 +80,7 @@ var settingsModel = function () {
 	this.https = nodeHTTPS;
 	this.defaultPort = defaultPort;
 	this.proxy = proxy;
-	this.imap = imapServerSettings;
+	this.contextio = contextIOServerSettings;
 	this.smtp = smtpServerSettings;
 	this.smtpFrom = smtpFrom;
 	this.statusList = statusList;
